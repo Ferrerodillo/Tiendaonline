@@ -579,6 +579,7 @@
         // Variables globales
         let productsData = [];
         let categories = [];
+        let filteredProducts = [];
         
         // Elementos del DOM
         const productsGrid = document.getElementById('productsGrid');
@@ -586,6 +587,7 @@
         const categoryFilter = document.getElementById('categoryFilter');
         const sortBy = document.getElementById('sortBy');
         const refreshBtn = document.getElementById('refreshData');
+        const searchInput = document.querySelector('.search-bar input');
         const productModal = document.getElementById('productModal');
         const closeModalBtn = document.querySelector('.close-modal');
         const closeModalBtn2 = document.getElementById('closeModalBtn');
@@ -594,11 +596,15 @@
         refreshBtn.addEventListener('click', loadData);
         categoryFilter.addEventListener('change', filterProducts);
         sortBy.addEventListener('change', filterProducts);
+        searchInput.addEventListener('input', filterProducts);
         closeModalBtn.addEventListener('click', closeModal);
         closeModalBtn2.addEventListener('click', closeModal);
         
         // Cargar datos al iniciar
- async function loadData() {
+        document.addEventListener('DOMContentLoaded', loadData);
+        
+        // Función para cargar y parsear el CSV
+        async function loadData() {
             try {
                 statusElement.textContent = 'Cargando datos...';
                 productsGrid.innerHTML = '';
@@ -621,7 +627,8 @@
                 
                 extractCategories();
                 populateCategoryFilter();
-                renderProducts(productsData);
+                filteredProducts = [...productsData];
+                renderProducts(filteredProducts);
                 
                 statusElement.textContent = `${productsData.length} productos cargados correctamente`;
             } catch (error) {
@@ -629,19 +636,36 @@
                 statusElement.textContent = `Error al cargar los datos: ${error.message}`;
             }
         }
-
+        
         // Función para parsear CSV a array de objetos
         function parseCSV(csv) {
             const lines = csv.split('\n');
             const headers = lines[0].split(',').map(h => h.trim());
             
-            return lines.slice(1).map(line => {
-                const values = line.split(',');
-                const obj = {};
+            return lines.slice(1).filter(line => line.trim() !== '').map(line => {
+                // Manejo especial para campos con comas (como descripciones)
+                const values = [];
+                let current = '';
+                let inQuotes = false;
                 
+                for (let char of line) {
+                    if (char === '"' && !inQuotes) {
+                        inQuotes = true;
+                    } else if (char === '"' && inQuotes) {
+                        inQuotes = false;
+                    } else if (char === ',' && !inQuotes) {
+                        values.push(current.trim());
+                        current = '';
+                    } else {
+                        current += char;
+                    }
+                }
+                values.push(current.trim());
+                
+                const obj = {};
                 headers.forEach((header, i) => {
-                    if (values[i]) {
-                        obj[header] = values[i].trim();
+                    if (values[i] !== undefined) {
+                        obj[header] = values[i].replace(/^"|"$/g, '');
                     } else {
                         obj[header] = '';
                     }
@@ -649,6 +673,46 @@
                 
                 return obj;
             });
+        }
+        
+        // Función para filtrar productos (ahora incluye búsqueda)
+        function filterProducts() {
+            const selectedCategory = categoryFilter.value;
+            const sortField = sortBy.value;
+            const searchTerm = searchInput.value.toLowerCase();
+            
+            filteredProducts = [...productsData];
+            
+            // Filtrar por categoría
+            if (selectedCategory) {
+                filteredProducts = filteredProducts.filter(
+                    product => product.categoria === selectedCategory
+                );
+            }
+            
+            // Filtrar por término de búsqueda
+            if (searchTerm) {
+                filteredProducts = filteredProducts.filter(product => 
+                    product.nombre.toLowerCase().includes(searchTerm) ||
+                    (product.descripcion && product.descripcion.toLowerCase().includes(searchTerm)) ||
+                    (product.codigo_interno && product.codigo_interno.toLowerCase().includes(searchTerm)) ||
+                    (product.sku && product.sku.toLowerCase().includes(searchTerm))
+                );
+            }
+            
+            // Ordenar
+            filteredProducts.sort((a, b) => {
+                if (sortField === 'name') {
+                    return a.nombre.localeCompare(b.nombre);
+                } else if (sortField === 'price') {
+                    return a.precio_venta - b.precio_venta;
+                } else if (sortField === 'stock') {
+                    return b.stock - a.stock;
+                }
+                return 0;
+            });
+            
+            renderProducts(filteredProducts);
         }
         
         // Extraer categorías únicas de los productos
