@@ -1,2 +1,2 @@
-﻿id,nombre,precio,stock,categoria,imagen_url,descripcion,proveedor
+nombre,descripcion,codigo_interno,sku,codigo_barras,precio_compra,precio_venta,stock,categoria,imagen_url
 12,martillo,12,5,ferreteria,http//ejemplo.com,ninguna,truper
