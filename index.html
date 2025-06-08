@@ -3,99 +3,773 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Lector de Datos desde la Nube</title>
+    <title>Ferretería Industrial - Stock Online</title>
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
     <style>
+        :root {
+            --primary: #2c3e50;
+            --secondary: #e74c3c;
+            --light: #ecf0f1;
+            --dark: #34495e;
+            --success: #27ae60;
+            --warning: #f39c12;
+        }
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
         body {
-            font-family: Arial, sans-serif;
-            max-width: 600px;
+            font-family: 'Roboto', sans-serif;
+            background-color: #f5f5f5;
+            color: #333;
+            line-height: 1.6;
+        }
+        
+        header {
+            background-color: var(--primary);
+            color: white;
+            padding: 1rem 2rem;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+        
+        .header-container {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            max-width: 1200px;
             margin: 0 auto;
-            padding: 20px;
         }
-        .datos-container {
-            margin-top: 20px;
-            padding: 15px;
-            border-radius: 5px;
+        
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 10px;
         }
-        .dato-item {
-            margin-bottom: 10px;
-            padding: 8px;
-            border-left: 4px solid #ddd;
+        
+        .logo i {
+            font-size: 2rem;
+            color: var(--secondary);
         }
+        
+        .logo h1 {
+            font-weight: 700;
+            font-size: 1.5rem;
+        }
+        
+        .search-bar {
+            flex-grow: 1;
+            margin: 0 2rem;
+        }
+        
+        .search-bar input {
+            width: 100%;
+            padding: 0.5rem 1rem;
+            border-radius: 20px;
+            border: none;
+            font-size: 1rem;
+        }
+        
+        .user-actions a {
+            color: white;
+            margin-left: 1rem;
+            text-decoration: none;
+            font-size: 1.2rem;
+        }
+        
+        main {
+            max-width: 1200px;
+            margin: 2rem auto;
+            padding: 0 1rem;
+        }
+        
+        .controls {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 2rem;
+            flex-wrap: wrap;
+            gap: 1rem;
+        }
+        
+        .filter-group {
+            display: flex;
+            gap: 1rem;
+            flex-wrap: wrap;
+        }
+        
+        select, button {
+            padding: 0.5rem 1rem;
+            border-radius: 4px;
+            border: 1px solid #ddd;
+            background-color: white;
+            font-size: 0.9rem;
+        }
+        
         button {
-            padding: 10px 15px;
-            background-color: #4CAF50;
+            background-color: var(--primary);
             color: white;
             border: none;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+        
+        button:hover {
+            background-color: var(--dark);
+        }
+        
+        .refresh-btn {
+            background-color: var(--secondary);
+        }
+        
+        .refresh-btn:hover {
+            background-color: #c0392b;
+        }
+        
+        .status {
+            padding: 1rem;
+            background-color: var(--light);
             border-radius: 4px;
+            margin-bottom: 1rem;
+            text-align: center;
+        }
+        
+        .products-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            gap: 1.5rem;
+        }
+        
+        .product-card {
+            background-color: white;
+            border-radius: 8px;
+            overflow: hidden;
+            box-shadow: 0 3px 10px rgba(0, 0, 0, 0.1);
+            transition: transform 0.3s, box-shadow 0.3s;
+        }
+        
+        .product-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+        }
+        
+        .product-image {
+            height: 200px;
+            background-color: #eee;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+        }
+        
+        .product-image img {
+            max-width: 100%;
+            max-height: 100%;
+            object-fit: contain;
+        }
+        
+        .stock-badge {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            background-color: var(--success);
+            color: white;
+            padding: 0.25rem 0.5rem;
+            border-radius: 20px;
+            font-size: 0.8rem;
+        }
+        
+        .low-stock {
+            background-color: var(--warning);
+        }
+        
+        .no-stock {
+            background-color: var(--secondary);
+        }
+        
+        .product-info {
+            padding: 1rem;
+        }
+        
+        .product-code {
+            font-size: 0.8rem;
+            color: #777;
+            margin-bottom: 0.5rem;
+        }
+        
+        .product-title {
+            font-weight: 500;
+            margin-bottom: 0.5rem;
+            min-height: 3rem;
+        }
+        
+        .product-price {
+            font-weight: 700;
+            font-size: 1.2rem;
+            color: var(--secondary);
+            margin: 0.5rem 0;
+        }
+        
+        .product-meta {
+            display: flex;
+            justify-content: space-between;
+            font-size: 0.8rem;
+            color: #777;
+            margin-top: 0.5rem;
+        }
+        
+        .product-actions {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 1rem;
+            border-top: 1px solid #eee;
+            padding-top: 1rem;
+        }
+        
+        .detail-btn {
+            background-color: var(--light);
+            color: var(--dark);
+            padding: 0.5rem;
+            border-radius: 4px;
+            font-size: 0.8rem;
+        }
+        
+        .add-to-cart {
+            background-color: var(--success);
+            color: white;
+            padding: 0.5rem 1rem;
+            border-radius: 4px;
+            font-size: 0.8rem;
+        }
+        
+        footer {
+            background-color: var(--dark);
+            color: white;
+            padding: 2rem;
+            margin-top: 3rem;
+        }
+        
+        .footer-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 2rem;
+        }
+        
+        .footer-section h3 {
+            margin-bottom: 1rem;
+            font-size: 1.1rem;
+        }
+        
+        .footer-section ul {
+            list-style: none;
+        }
+        
+        .footer-section ul li {
+            margin-bottom: 0.5rem;
+        }
+        
+        .footer-section ul li a {
+            color: var(--light);
+            text-decoration: none;
+        }
+        
+        .copyright {
+            text-align: center;
+            margin-top: 2rem;
+            padding-top: 1rem;
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+            font-size: 0.9rem;
+        }
+        
+        @media (max-width: 768px) {
+            .header-container {
+                flex-direction: column;
+                gap: 1rem;
+            }
+            
+            .search-bar {
+                margin: 1rem 0;
+                width: 100%;
+            }
+            
+            .controls {
+                flex-direction: column;
+            }
+        }
+        
+        /* Modal */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.7);
+            z-index: 1000;
+            overflow-y: auto;
+        }
+        
+        .modal-content {
+            background-color: white;
+            margin: 2rem auto;
+            max-width: 800px;
+            border-radius: 8px;
+            overflow: hidden;
+            animation: modalFadeIn 0.3s;
+        }
+        
+        @keyframes modalFadeIn {
+            from { opacity: 0; transform: translateY(-50px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        .modal-header {
+            background-color: var(--primary);
+            color: white;
+            padding: 1rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .close-modal {
+            background: none;
+            border: none;
+            color: white;
+            font-size: 1.5rem;
             cursor: pointer;
         }
-        button:hover {
-            background-color: #45a049;
+        
+        .modal-body {
+            padding: 1.5rem;
+            display: grid;
+            grid-template-columns: 1fr 2fr;
+            gap: 2rem;
         }
-        .cargando {
-            color: #666;
-            font-style: italic;
+        
+        .modal-image {
+            background-color: #f9f9f9;
+            padding: 1rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            height: 300px;
+        }
+        
+        .modal-image img {
+            max-width: 100%;
+            max-height: 100%;
+            object-fit: contain;
+        }
+        
+        .modal-details h2 {
+            margin-bottom: 1rem;
+            color: var(--primary);
+        }
+        
+        .detail-row {
+            margin-bottom: 1rem;
+            padding-bottom: 1rem;
+            border-bottom: 1px solid #eee;
+        }
+        
+        .detail-label {
+            font-weight: 500;
+            color: var(--dark);
+            margin-bottom: 0.25rem;
+        }
+        
+        .price-section {
+            display: flex;
+            gap: 1rem;
+            margin: 1.5rem 0;
+        }
+        
+        .price-section div {
+            flex: 1;
+            padding: 1rem;
+            border-radius: 4px;
+            text-align: center;
+        }
+        
+        .purchase-price {
+            background-color: #f8f9fa;
+            border: 1px solid #ddd;
+        }
+        
+        .sale-price {
+            background-color: var(--light);
+            border: 1px solid var(--success);
+            color: var(--success);
+            font-weight: 500;
+        }
+        
+        .modal-actions {
+            display: flex;
+            justify-content: flex-end;
+            gap: 1rem;
+            margin-top: 1.5rem;
+        }
+        
+        @media (max-width: 768px) {
+            .modal-body {
+                grid-template-columns: 1fr;
+            }
+            
+            .modal-image {
+                height: 200px;
+            }
         }
     </style>
 </head>
 <body>
-    <h1>Lector de Datos desde la Nube</h1>
-    <p>Este ejemplo lee datos desde un archivo JSON alojado en la nube.</p>
-    
-    <button id="cargarDatos">Cargar Datos</button>
-    
-    <div id="estado" class="cargando">Presiona el botón para cargar los datos...</div>
-    
-    <div id="datosContainer" class="datos-container" style="display: none;">
-        <h2>Datos Cargados:</h2>
-        <div id="listaDatos"></div>
-    </div>
-
-    <script>
-        document.getElementById('cargarDatos').addEventListener('click', function() {
-            // URL de ejemplo de un archivo JSON en la nube
-            // Puedes reemplazarla con la URL de tu propio archivo
-            const url = 'https://raw.githubusercontent.com/Ferrerodillo/Tiendaonline/refs/heads/main/datos.json'; // Cambia esta URL
+    <header>
+        <div class="header-container">
+            <div class="logo">
+                <i class="fas fa-tools"></i>
+                <h1>Ferretería Industrial</h1>
+            </div>
             
-            document.getElementById('estado').textContent = 'Cargando datos...';
+            <div class="search-bar">
+                <input type="text" placeholder="Buscar productos...">
+            </div>
             
-            fetch(url)
-                .then(response => {
-                    if (!response.ok) {
-                        throw new Error('Error al cargar los datos');
-                    }
-                    return response.json();
-                })
-                .then(data => {
-                    mostrarDatos(data);
-                    document.getElementById('estado').textContent = 'Datos cargados correctamente!';
-                    document.getElementById('datosContainer').style.display = 'block';
-                })
-                .catch(error => {
-                    document.getElementById('estado').textContent = 'Error: ' + error.message;
-                    console.error('Error:', error);
-                });
-        });
+            <div class="user-actions">
+                <a href="#"><i class="fas fa-user"></i></a>
+                <a href="#"><i class="fas fa-shopping-cart"></i></a>
+            </div>
+        </div>
+    </header>
+    
+    <main>
+        <div class="controls">
+            <div class="filter-group">
+                <select id="categoryFilter">
+                    <option value="">Todas las categorías</option>
+                    <!-- Las opciones se llenarán dinámicamente -->
+                </select>
+                
+                <select id="sortBy">
+                    <option value="name">Ordenar por nombre</option>
+                    <option value="price">Ordenar por precio</option>
+                    <option value="stock">Ordenar por stock</option>
+                </select>
+            </div>
+            
+            <button id="refreshData" class="refresh-btn">
+                <i class="fas fa-sync-alt"></i> Actualizar datos
+            </button>
+        </div>
         
-        function mostrarDatos(datos) {
-            const contenedor = document.getElementById('listaDatos');
-            contenedor.innerHTML = '';
+        <div id="status" class="status">
+            Presiona "Actualizar datos" para cargar el inventario
+        </div>
+        
+        <div id="productsGrid" class="products-grid">
+            <!-- Los productos se cargarán aquí dinámicamente -->
+        </div>
+    </main>
+    
+    <footer>
+        <div class="footer-container">
+            <div class="footer-section">
+                <h3>Contacto</h3>
+                <ul>
+                    <li><i class="fas fa-map-marker-alt"></i> Av. Principal 1234</li>
+                    <li><i class="fas fa-phone"></i> +56 2 1234 5678</li>
+                    <li><i class="fas fa-envelope"></i> contacto@ferreteria.cl</li>
+                </ul>
+            </div>
             
-            // Suponemos que los datos son un array de objetos
-            datos.forEach(item => {
-                const div = document.createElement('div');
-                div.className = 'dato-item';
-                div.style.borderLeftColor = item.color || '#ddd';
+            <div class="footer-section">
+                <h3>Horario</h3>
+                <ul>
+                    <li>Lunes a Viernes: 9:00 - 19:00</li>
+                    <li>Sábado: 9:00 - 14:00</li>
+                    <li>Domingo: Cerrado</li>
+                </ul>
+            </div>
+            
+            <div class="footer-section">
+                <h3>Enlaces rápidos</h3>
+                <ul>
+                    <li><a href="#">Inicio</a></li>
+                    <li><a href="#">Productos</a></li>
+                    <li><a href="#">Contacto</a></li>
+                    <li><a href="#">Sobre nosotros</a></li>
+                </ul>
+            </div>
+        </div>
+        
+        <div class="copyright">
+            &copy; 2023 Ferretería Industrial. Todos los derechos reservados.
+        </div>
+    </footer>
+    
+    <!-- Modal para detalles del producto -->
+    <div id="productModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>Detalles del producto</h3>
+                <button class="close-modal">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div class="modal-image">
+                    <img id="modalImage" src="" alt="Producto">
+                </div>
+                <div class="modal-details">
+                    <h2 id="modalTitle"></h2>
+                    
+                    <div class="detail-row">
+                        <div class="detail-label">Descripción</div>
+                        <div id="modalDescription"></div>
+                    </div>
+                    
+                    <div class="detail-row">
+                        <div class="detail-label">Códigos</div>
+                        <div>
+                            <p>SKU: <span id="modalSKU"></span></p>
+                            <p>Código interno: <span id="modalInternalCode"></span></p>
+                            <p>Código de barras: <span id="modalBarcode"></span></p>
+                        </div>
+                    </div>
+                    
+                    <div class="price-section">
+                        <div class="purchase-price">
+                            <div class="detail-label">Precio compra</div>
+                            <div id="modalPurchasePrice"></div>
+                        </div>
+                        <div class="sale-price">
+                            <div class="detail-label">Precio venta</div>
+                            <div id="modalSalePrice"></div>
+                        </div>
+                    </div>
+                    
+                    <div class="detail-row">
+                        <div class="detail-label">Stock disponible</div>
+                        <div id="modalStock"></div>
+                    </div>
+                    
+                    <div class="detail-row">
+                        <div class="detail-label">Categoría</div>
+                        <div id="modalCategory"></div>
+                    </div>
+                    
+                    <div class="modal-actions">
+                        <button class="detail-btn" id="closeModalBtn">Cerrar</button>
+                        <button class="add-to-cart">Añadir al carrito</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <script>
+        // URL del archivo JSON en la nube (debes reemplazarla con tu URL real)
+        const DATA_URL = 'https://ejemplo.com/ferreteria-data.json';
+        
+        // Variables globales
+        let productsData = [];
+        let categories = [];
+        
+        // Elementos del DOM
+        const productsGrid = document.getElementById('productsGrid');
+        const statusElement = document.getElementById('status');
+        const categoryFilter = document.getElementById('categoryFilter');
+        const sortBy = document.getElementById('sortBy');
+        const refreshBtn = document.getElementById('refreshData');
+        const productModal = document.getElementById('productModal');
+        const closeModalBtn = document.querySelector('.close-modal');
+        const closeModalBtn2 = document.getElementById('closeModalBtn');
+        
+        // Event listeners
+        refreshBtn.addEventListener('click', loadData);
+        categoryFilter.addEventListener('change', filterProducts);
+        sortBy.addEventListener('change', filterProducts);
+        closeModalBtn.addEventListener('click', closeModal);
+        closeModalBtn2.addEventListener('click', closeModal);
+        
+        // Cargar datos al iniciar
+        document.addEventListener('DOMContentLoaded', loadData);
+        
+        // Función para cargar datos desde la nube
+        async function loadData() {
+            try {
+                statusElement.textContent = 'Cargando datos...';
+                productsGrid.innerHTML = '';
                 
-                div.innerHTML = `
-                    <strong>Nombre:</strong> ${item.nombre || 'N/A'}<br>
-                    <strong>Tamaño:</strong> ${item.tamaño || 'N/A'}<br>
-                    <strong>Color:</strong> <span style="color:${item.color || '#000'}">${item.color || 'N/A'}</span>
-                `;
+                const response = await fetch(DATA_URL);
                 
-                contenedor.appendChild(div);
+                if (!response.ok) {
+                    throw new Error(`Error HTTP: ${response.status}`);
+                }
+                
+                const data = await response.json();
+                
+                if (!Array.isArray(data)) {
+                    throw new Error('Los datos no son un array válido');
+                }
+                
+                productsData = data;
+                extractCategories();
+                populateCategoryFilter();
+                renderProducts(productsData);
+                
+                statusElement.textContent = `${data.length} productos cargados correctamente`;
+            } catch (error) {
+                console.error('Error al cargar los datos:', error);
+                statusElement.textContent = `Error al cargar los datos: ${error.message}`;
+            }
+        }
+        
+        // Extraer categorías únicas de los productos
+        function extractCategories() {
+            const allCategories = productsData.map(product => product.categoria);
+            categories = [...new Set(allCategories)].filter(Boolean).sort();
+        }
+        
+        // Llenar el filtro de categorías
+        function populateCategoryFilter() {
+            categoryFilter.innerHTML = '<option value="">Todas las categorías</option>';
+            
+            categories.forEach(category => {
+                const option = document.createElement('option');
+                option.value = category;
+                option.textContent = category;
+                categoryFilter.appendChild(option);
             });
         }
+        
+        // Filtrar y ordenar productos
+        function filterProducts() {
+            const selectedCategory = categoryFilter.value;
+            const sortField = sortBy.value;
+            
+            let filteredProducts = [...productsData];
+            
+            // Filtrar por categoría
+            if (selectedCategory) {
+                filteredProducts = filteredProducts.filter(
+                    product => product.categoria === selectedCategory
+                );
+            }
+            
+            // Ordenar
+            filteredProducts.sort((a, b) => {
+                if (sortField === 'name') {
+                    return a.nombre.localeCompare(b.nombre);
+                } else if (sortField === 'price') {
+                    return a.precio_venta - b.precio_venta;
+                } else if (sortField === 'stock') {
+                    return b.stock - a.stock;
+                }
+                return 0;
+            });
+            
+            renderProducts(filteredProducts);
+        }
+        
+        // Renderizar productos en el grid
+        function renderProducts(products) {
+            productsGrid.innerHTML = '';
+            
+            if (products.length === 0) {
+                productsGrid.innerHTML = '<p>No se encontraron productos</p>';
+                return;
+            }
+            
+            products.forEach(product => {
+                const productCard = document.createElement('div');
+                productCard.className = 'product-card';
+                
+                // Determinar clase de stock
+                let stockClass = '';
+                let stockText = `${product.stock} en stock`;
+                
+                if (product.stock <= 0) {
+                    stockClass = 'no-stock';
+                    stockText = 'Agotado';
+                } else if (product.stock <= 5) {
+                    stockClass = 'low-stock';
+                    stockText = `Solo ${product.stock} disponibles`;
+                }
+                
+                // Formatear precios
+                const salePrice = formatCurrency(product.precio_venta);
+                
+                productCard.innerHTML = `
+                    <div class="product-image">
+                        <img src="${product.imagen_url || 'https://via.placeholder.com/300?text=Sin+imagen'}" alt="${product.nombre}">
+                        <span class="stock-badge ${stockClass}">${stockText}</span>
+                    </div>
+                    <div class="product-info">
+                        <div class="product-code">${product.codigo_interno || 'N/A'}</div>
+                        <h3 class="product-title">${product.nombre}</h3>
+                        <div class="product-price">${salePrice}</div>
+                        <div class="product-meta">
+                            <span>${product.categoria || 'Sin categoría'}</span>
+                            <span>SKU: ${product.sku || 'N/A'}</span>
+                        </div>
+                        <div class="product-actions">
+                            <button class="detail-btn" data-id="${product.codigo_interno}">Detalles</button>
+                            <button class="add-to-cart" ${product.stock <= 0 ? 'disabled' : ''}>Añadir</button>
+                        </div>
+                    </div>
+                `;
+                
+                productsGrid.appendChild(productCard);
+                
+                // Agregar evento al botón de detalles
+                productCard.querySelector('.detail-btn').addEventListener('click', () => {
+                    showProductDetails(product);
+                });
+            });
+        }
+        
+        // Mostrar detalles del producto en el modal
+        function showProductDetails(product) {
+            document.getElementById('modalTitle').textContent = product.nombre;
+            document.getElementById('modalDescription').textContent = product.descripcion || 'No hay descripción disponible';
+            document.getElementById('modalSKU').textContent = product.sku || 'N/A';
+            document.getElementById('modalInternalCode').textContent = product.codigo_interno || 'N/A';
+            document.getElementById('modalBarcode').textContent = product.codigo_barras || 'N/A';
+            document.getElementById('modalPurchasePrice').textContent = formatCurrency(product.precio_compra);
+            document.getElementById('modalSalePrice').textContent = formatCurrency(product.precio_venta);
+            document.getElementById('modalStock').textContent = product.stock <= 0 ? 'Agotado' : `${product.stock} unidades`;
+            document.getElementById('modalCategory').textContent = product.categoria || 'Sin categoría';
+            
+            const modalImage = document.getElementById('modalImage');
+            modalImage.src = product.imagen_url || 'https://via.placeholder.com/500?text=Sin+imagen';
+            modalImage.alt = product.nombre;
+            
+            // Mostrar modal
+            productModal.style.display = 'block';
+        }
+        
+        // Cerrar modal
+        function closeModal() {
+            productModal.style.display = 'none';
+        }
+        
+        // Formatear moneda
+        function formatCurrency(amount) {
+            return '$' + Number(amount).toLocaleString('es-CL');
+        }
+        
+        // Cerrar modal al hacer clic fuera del contenido
+        window.addEventListener('click', (event) => {
+            if (event.target === productModal) {
+                closeModal();
+            }
+        });
     </script>
 </body>
 </html>
