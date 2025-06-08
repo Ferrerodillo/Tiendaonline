@@ -574,7 +574,7 @@
     
     <script>
         // URL del archivo JSON en la nube (debes reemplazarla con tu URL real)
-        const DATA_URL = 'https://raw.githubusercontent.com/Ferrerodillo/Tiendaonline/refs/heads/main/datos.json';
+        const DATA_URL = 'https://raw.githubusercontent.com/Ferrerodillo/Tiendaonline/refs/heads/main/productos.csv';
         
         // Variables globales
         let productsData = [];
@@ -598,10 +598,7 @@
         closeModalBtn2.addEventListener('click', closeModal);
         
         // Cargar datos al iniciar
-        document.addEventListener('DOMContentLoaded', loadData);
-        
-        // Función para cargar datos desde la nube
-        async function loadData() {
+ async function loadData() {
             try {
                 statusElement.textContent = 'Cargando datos...';
                 productsGrid.innerHTML = '';
@@ -612,22 +609,46 @@
                     throw new Error(`Error HTTP: ${response.status}`);
                 }
                 
-                const data = await response.json();
+                const csvData = await response.text();
+                productsData = parseCSV(csvData);
                 
-                if (!Array.isArray(data)) {
-                    throw new Error('Los datos no son un array válido');
-                }
+                // Convertir tipos de datos numéricos
+                productsData.forEach(product => {
+                    product.precio_compra = parseFloat(product.precio_compra);
+                    product.precio_venta = parseFloat(product.precio_venta);
+                    product.stock = parseInt(product.stock);
+                });
                 
-                productsData = data;
                 extractCategories();
                 populateCategoryFilter();
                 renderProducts(productsData);
                 
-                statusElement.textContent = `${data.length} productos cargados correctamente`;
+                statusElement.textContent = `${productsData.length} productos cargados correctamente`;
             } catch (error) {
                 console.error('Error al cargar los datos:', error);
                 statusElement.textContent = `Error al cargar los datos: ${error.message}`;
             }
+        }
+
+        // Función para parsear CSV a array de objetos
+        function parseCSV(csv) {
+            const lines = csv.split('\n');
+            const headers = lines[0].split(',').map(h => h.trim());
+            
+            return lines.slice(1).map(line => {
+                const values = line.split(',');
+                const obj = {};
+                
+                headers.forEach((header, i) => {
+                    if (values[i]) {
+                        obj[header] = values[i].trim();
+                    } else {
+                        obj[header] = '';
+                    }
+                });
+                
+                return obj;
+            });
         }
         
         // Extraer categorías únicas de los productos
@@ -773,3 +794,4 @@
     </script>
 </body>
 </html>
+
