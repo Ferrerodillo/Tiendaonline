@@ -1,17 +1,38 @@
 [
     {
-        "nombre": "Objeto 1",
-        "tamaño": "Grande",
-        "color": "#FF5733"
+        "nombre": "Taladro Percutor 750W",
+        "descripcion": "Taladro percutor profesional con potencia de 750W, velocidad variable y reversa.",
+        "codigo_interno": "FERR-001",
+        "sku": "TLD-750-BLK",
+        "codigo_barras": "123456789012",
+        "precio_compra": 25000,
+        "precio_venta": 39990,
+        "stock": 15,
+        "categoria": "Herramientas eléctricas",
+        "imagen_url": "https://ejemplo.com/imagenes/taladro.jpg"
     },
     {
-        "nombre": "Objeto 2",
-        "tamaño": "Mediano",
-        "color": "#33FF57"
+        "nombre": "Juego de llaves combinadas",
+        "descripcion": "Juego de 10 llaves combinadas de acero cromo vanadio, tamaños de 6mm a 19mm.",
+        "codigo_interno": "FERR-002",
+        "sku": "LLV-10-SET",
+        "codigo_barras": "234567890123",
+        "precio_compra": 12000,
+        "precio_venta": 18990,
+        "stock": 8,
+        "categoria": "Herramientas manuales",
+        "imagen_url": "https://ejemplo.com/imagenes/llaves.jpg"
     },
     {
-        "nombre": "Objeto 3",
-        "tamaño": "Pequeño",
-        "color": "#3357FF"
+        "nombre": "Pintura blanca mate 4L",
+        "descripcion": "Pintura acrílica de alto tránsito, acabado mate, cubre aproximadamente 14m² por litro.",
+        "codigo_interno": "FERR-003",
+        "sku": "PNT-WHT-4L",
+        "codigo_barras": "345678901234",
+        "precio_compra": 8000,
+        "precio_venta": 12990,
+        "stock": 0,
+        "categoria": "Pinturas",
+        "imagen_url": "https://ejemplo.com/imagenes/pintura.jpg"
     }
 ]
