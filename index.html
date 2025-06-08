@@ -1,87 +1,101 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-  <meta charset="UTF-8">
-  <title>Artículos desde GitHub</title>
-  <style>
-    table {
-      width: 100%;
-      border-collapse: collapse;
-      margin-top: 20px;
-    }
-    th, td {
-      border: 1px solid #aaa;
-      padding: 8px;
-      text-align: left;
-    }
-    img {
-      max-width: 50px;
-    }
-  </style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Lector de Datos desde la Nube</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 600px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        .datos-container {
+            margin-top: 20px;
+            padding: 15px;
+            border-radius: 5px;
+        }
+        .dato-item {
+            margin-bottom: 10px;
+            padding: 8px;
+            border-left: 4px solid #ddd;
+        }
+        button {
+            padding: 10px 15px;
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+        button:hover {
+            background-color: #45a049;
+        }
+        .cargando {
+            color: #666;
+            font-style: italic;
+        }
+    </style>
 </head>
 <body>
-  <h1>Leer artículos desde archivo en GitHub</h1>
+    <h1>Lector de Datos desde la Nube</h1>
+    <p>Este ejemplo lee datos desde un archivo JSON alojado en la nube.</p>
+    
+    <button id="cargarDatos">Cargar Datos</button>
+    
+    <div id="estado" class="cargando">Presiona el botón para cargar los datos...</div>
+    
+    <div id="datosContainer" class="datos-container" style="display: none;">
+        <h2>Datos Cargados:</h2>
+        <div id="listaDatos"></div>
+    </div>
 
-  <input type="text" id="urlInput" placeholder="https://raw.githubusercontent.com/Ferrerodillo/Tiendaonline/refs/heads/main/productos.txt" size="80">
-  <button onclick="cargarArchivo()">Cargar</button>
-
-  <table id="productsTable">
-    <thead>
-      <tr>
-        <th>Categoría</th>
-        <th>Inventario</th>
-        <th>Imagen</th>
-        <th>Precio Compra</th>
-        <th>Precio Venta</th>
-        <th>SKU</th>
-        <th>Código Barras</th>
-        <th>Código Interno</th>
-        <th>Código Facturar</th>
-      </tr>
-    </thead>
-    <tbody></tbody>
-  </table>
-
-  <script>
-    function cargarArchivo() {
-      const url = document.getElementById('urlInput').value;
-      fetch(url)
-        .then(response => {
-          if (!response.ok) {
-            throw new Error('No se pudo cargar el archivo');
-          }
-          return response.text();
-        })
-        .then(texto => {
-          const lines = texto.split('\n');
-          const tbody = document.querySelector('#productsTable tbody');
-          tbody.innerHTML = '';
-
-          lines.forEach(line => {
-            const fields = line.trim().split(',');
-            if (fields.length < 9) return;
-
-            const row = document.createElement('tr');
-
-            fields.forEach((field, index) => {
-              const cell = document.createElement('td');
-              if (index === 2) {
-                const img = document.createElement('img');
-                img.src = field.trim();
-                cell.appendChild(img);
-              } else {
-                cell.textContent = field.trim();
-              }
-              row.appendChild(cell);
-            });
-
-            tbody.appendChild(row);
-          });
-        })
-        .catch(error => {
-          alert('Error al cargar el archivo: ' + error.message);
+    <script>
+        document.getElementById('cargarDatos').addEventListener('click', function() {
+            // URL de ejemplo de un archivo JSON en la nube
+            // Puedes reemplazarla con la URL de tu propio archivo
+            const url = 'https://raw.githubusercontent.com/Ferrerodillo/Tiendaonline/refs/heads/main/datos.json'; // Cambia esta URL
+            
+            document.getElementById('estado').textContent = 'Cargando datos...';
+            
+            fetch(url)
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error('Error al cargar los datos');
+                    }
+                    return response.json();
+                })
+                .then(data => {
+                    mostrarDatos(data);
+                    document.getElementById('estado').textContent = 'Datos cargados correctamente!';
+                    document.getElementById('datosContainer').style.display = 'block';
+                })
+                .catch(error => {
+                    document.getElementById('estado').textContent = 'Error: ' + error.message;
+                    console.error('Error:', error);
+                });
         });
-    }
-  </script>
+        
+        function mostrarDatos(datos) {
+            const contenedor = document.getElementById('listaDatos');
+            contenedor.innerHTML = '';
+            
+            // Suponemos que los datos son un array de objetos
+            datos.forEach(item => {
+                const div = document.createElement('div');
+                div.className = 'dato-item';
+                div.style.borderLeftColor = item.color || '#ddd';
+                
+                div.innerHTML = `
+                    <strong>Nombre:</strong> ${item.nombre || 'N/A'}<br>
+                    <strong>Tamaño:</strong> ${item.tamaño || 'N/A'}<br>
+                    <strong>Color:</strong> <span style="color:${item.color || '#000'}">${item.color || 'N/A'}</span>
+                `;
+                
+                contenedor.appendChild(div);
+            });
+        }
+    </script>
 </body>
 </html>
