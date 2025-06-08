@@ -1,35 +1,22 @@
-[
-  {
-    "imagen_url": "https://via.placeholder.com/150",
-    "nombre": "Martillo",
-    "cantidad": 20,
-    "precio_venta": 15.99,
-    "precio_compra": 10.00,
-    "categoria": "Ferretería"
-  },
-  {
-    "imagen_url": "https://via.placeholder.com/150",
-    "nombre": "Cuaderno",
-    "cantidad": 100,
-    "precio_venta": 1.50,
-    "precio_compra": 0.80,
-    "categoria": "Papelería"
-  },
-  {
-    "imagen_url": "https://via.placeholder.com/150",
-    "nombre": "Destornillador",
-    "cantidad": 50,
-    "precio_venta": 4.75,
-    "precio_compra": 2.00,
-    "categoria": "Ferretería"
-  },
-  {
-    "imagen_url": "https://via.placeholder.com/150",
-    "nombre": "Lapicero",
-    "cantidad": 200,
-    "precio_venta": 0.75,
-    "precio_compra": 0.30,
-    "categoria": "Papelería"
-  }
-]
+{
+  "order_id": "ORD123456",
+  "email": "cliente@ejemplo.com",
+  "shipping": "5.00",
+  "tax": "1.20",
+  "total": "46.20",
+  "orders": [
+    {
+      "image_url": "https://via.placeholder.com/64",
+      "name": "Martillo de acero",
+      "units": 2,
+      "price": "15.00"
+    },
+    {
+      "image_url": "https://via.placeholder.com/64",
+      "name": "Cuaderno profesional",
+      "units": 1,
+      "price": "14.20"
+    }
+  ]
+}
 
