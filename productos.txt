@@ -1,0 +1,2 @@
+Electrónica,10,https://example.com/imagen1.jpg,100,150,SKU123,1234567890123,INT001,FAC001
+Ropa,25,https://example.com/imagen2.jpg,20,35,SKU124,1234567890124,INT002,FAC002
