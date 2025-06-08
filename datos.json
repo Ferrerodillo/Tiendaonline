@@ -1,0 +1,17 @@
+[
+    {
+        "nombre": "Objeto 1",
+        "tamaño": "Grande",
+        "color": "#FF5733"
+    },
+    {
+        "nombre": "Objeto 2",
+        "tamaño": "Mediano",
+        "color": "#33FF57"
+    },
+    {
+        "nombre": "Objeto 3",
+        "tamaño": "Pequeño",
+        "color": "#3357FF"
+    }
+]
