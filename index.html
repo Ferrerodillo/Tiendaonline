@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <title>Artículos desde GitHub</title>
+  <style>
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 20px;
+    }
+    th, td {
+      border: 1px solid #aaa;
+      padding: 8px;
+      text-align: left;
+    }
+    img {
+      max-width: 50px;
+    }
+  </style>
+</head>
+<body>
+  <h1>Leer artículos desde archivo en GitHub</h1>
+
+  <input type="text" id="urlInput" placeholder="https://raw.githubusercontent.com/Ferrerodillo/Tiendaonline/main/productos.txt" size="80">
+  <button onclick="cargarArchivo()">Cargar</button>
+
+  <table id="productsTable">
+    <thead>
+      <tr>
+        <th>Categoría</th>
+        <th>Inventario</th>
+        <th>Imagen</th>
+        <th>Precio Compra</th>
+        <th>Precio Venta</th>
+        <th>SKU</th>
+        <th>Código Barras</th>
+        <th>Código Interno</th>
+        <th>Código Facturar</th>
+      </tr>
+    </thead>
+    <tbody></tbody>
+  </table>
+
+  <script>
+    function cargarArchivo() {
+      const url = document.getElementById('urlInput').value;
+      fetch(url)
+        .then(response => {
+          if (!response.ok) {
+            throw new Error('No se pudo cargar el archivo');
+          }
+          return response.text();
+        })
+        .then(texto => {
+          const lines = texto.split('\n');
+          const tbody = document.querySelector('#productsTable tbody');
+          tbody.innerHTML = '';
+
+          lines.forEach(line => {
+            const fields = line.trim().split(',');
+            if (fields.length < 9) return;
+
+            const row = document.createElement('tr');
+
+            fields.forEach((field, index) => {
+              const cell = document.createElement('td');
+              if (index === 2) {
+                const img = document.createElement('img');
+                img.src = field.trim();
+                cell.appendChild(img);
+              } else {
+                cell.textContent = field.trim();
+              }
+              row.appendChild(cell);
+            });
+
+            tbody.appendChild(row);
+          });
+        })
+        .catch(error => {
+          alert('Error al cargar el archivo: ' + error.message);
+        });
+    }
+  </script>
+</body>
+</html>
