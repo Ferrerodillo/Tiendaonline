@@ -1,4 +1,4 @@
-﻿id,nombre,descripcion,categoria,precio,imagen,,,,,,,,,codigo de barras
+﻿id,nombre,descripcion,categoria,precio,imagen,,,,,,,,,codigo
 1,Abaco Chico baco,Abaco Chico baco,Papeleria,30,https://raw.githubusercontent.com/Ferrerodillo/Tiendaonline/refs/heads/main/Imagenes/7501174995046.jpg,,,,,,,,,7.50E+12
 2,Abaco grande Baco,Abaco grande Baco,Papeleria,59,https://raw.githubusercontent.com/Ferrerodillo/Tiendaonline/refs/heads/main/Imagenes/7501174995053.jpg,,,,,,,,,7.50E+12
 3,abatelenguas,abatelenguas,Papeleria,0.5,https://raw.githubusercontent.com/Ferrerodillo/Tiendaonline/refs/heads/main/Imagenes/000000030052.jpg,,,,,,,,,30052
