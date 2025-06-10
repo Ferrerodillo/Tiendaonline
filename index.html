@@ -14,23 +14,29 @@
   height: 200px; /* Altura de la imagen (puedes usar px, %, etc.) */
   object-fit: cover; /* o object-fit: contain */
 }
-        /* Navbar estática */
+        /* Navbar estática con ajustes */
         body {
-            padding-top: 56px; /* Altura de la navbar para evitar que el contenido quede detrás */
+            padding-top: 70px; /* Aumenté el padding para dar más espacio */
         }
         .navbar {
             position: fixed;
             top: 0;
             right: 0;
             left: 0;
-            z-index: 1030; /* Asegura que la navbar esté por encima de otros elementos */
-            box-shadow: 0 2px 4px rgba(0,0,0,0.1); /* Sombra suave */
+            z-index: 1030;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+
+        /* Margen adicional para la sección de productos */
+        #productsSection {
+            margin-top: 90px; /* Espacio extra debajo de la navbar */
         }
 
         /* Resto de estilos... */
         .card {
             transition: transform 0.3s;
             height: 100%;
+            margin-bottom: 20px; /* Espacio entre tarjetas */
         }
         .card:hover {
             transform: scale(1.03);
