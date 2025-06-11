@@ -436,7 +436,7 @@
         let detailQuantity = 1;
 
         // Inicializar EmailJS (debes reemplazar con tus credenciales)
-        emailjs.init('TU_USER_ID_DE_EMAILJS');
+        emailjs.init('-DaNY5iTEaA9aMemL');
 
         // Esperar a que el DOM esté listo
         document.addEventListener('DOMContentLoaded', function() {
@@ -1020,7 +1020,7 @@
                 phone: document.getElementById('phone').value,
                 items: cart.map(item => `${item.name} (${item.quantity} x $${item.price.toFixed(2)})`).join('\n'),
                 subtotal: cart.reduce((total, item) => total + (item.price * item.quantity), 0).toFixed(2),
-                shipping: '5.00',
+                shipping: '35.00',
                 total: (cart.reduce((total, item) => total + (item.price * item.quantity), 0) + 5).toFixed(2),
                 date: new Date().toLocaleString()
             };
