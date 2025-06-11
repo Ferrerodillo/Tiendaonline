@@ -16,7 +16,7 @@
 }
         /* Navbar estática con ajustes */
         body {
-            padding-top: 70px; /* Aumenté el padding para dar más espacio */
+            padding-top: 120px; /* Aumenté el padding para dar más espacio */
         }
         .navbar {
             position: fixed;
@@ -97,10 +97,10 @@
             <div class="collapse navbar-collapse" id="navbarNav">
                 <ul class="navbar-nav me-auto">
                     <li class="nav-item">
-                        <a class="nav-link active" href="#" id="homeLink">Inicio</a>
+                        <a class="nav-link active" href="#" style="color: blue; font-size: 20px;" id="homeLink">Inicio</a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link" href="#" id="productsLink">Productos</a>
+                        <a class="nav-link" href="#" style="color: blue; font-size: 20px;" id="productsLink">Productos</a>
                     </li>
                 </ul>
                 <div class="d-flex">
@@ -120,10 +120,11 @@
         </div>
     </nav>
 
+    <!-- Contenido Principal -->
     <div class="container mt-4">
         <!-- Sección de Inicio -->
         <div id="homeSection">
-            <div class="jumbotron bg-light p-5 rounded mt-3">
+            <div class="jumbotron bg-light p-5 rounded">
                 <h1 class="display-4">Bienvenido a nuestra tienda</h1>
                 <p class="lead">Encuentra los mejores productos al mejor precio.</p>
                 <hr class="my-4">
@@ -133,18 +134,16 @@
         </div>
 
         <!-- Sección de Productos -->
-        <div id="productsSection" >
+        <div id="productsSection" class="hidden">
             <div class="row mb-4">
-                <div class="col-md-12" style="font-size: 1.9rem";>
+                <div class="col-md-8">
                     <h2>Nuestros Productos</h2>
                 </div>
-                <div class="col-md-12">
-			<div class="d-flex align-items-center">
-    			<span class="me-2" style="font-size: 1.9rem"; font-weight: bold;">  SELECCIONA UNA CATEGORIA</span>
-                    <select class="form-select" id="categoryFilter" style="font-size: 2.3rem; height: 100px;">
-                        <option value="all">TODAS LAS CATEGORIAS</option>
-                    </select>
+                <div class="col-md-4">
+                    <select class="form-select" id="categoryFilter">
+                        <option value="all">Todas las categorías</option>
                         <!-- Las opciones de categoría se cargarán dinámicamente -->
+                    </select>
                 </div>
             </div>
             
@@ -183,7 +182,7 @@
                             <hr>
                             <div class="d-flex justify-content-between fw-bold">
                                 <p>Total:</p>
-                                <p id="totalCost">$35.00</p>
+                                <p id="totalCost">$0.00</p>
                             </div>
                             <button class="btn btn-primary w-100 mt-3" id="checkoutBtn">Finalizar Compra</button>
                         </div>
@@ -794,7 +793,7 @@
             
             // Actualizar totales
             const subtotalValue = cart.reduce((total, item) => total + (item.price * item.quantity), 0);
-            const shippingCost = 5.00; // Costo fijo de envío
+            const shippingCost = 35.00; // Costo fijo de envío
             const totalValue = subtotalValue + shippingCost;
             
             subtotal.textContent = `$${subtotalValue.toFixed(2)}`;
@@ -904,7 +903,8 @@
                 showSection('productsSection');
                 displayProducts(products);
             });
-            
+
+   
             // Carrito
             document.getElementById('cartBtn').addEventListener('click', () => {
                 showSection('cartSection');
