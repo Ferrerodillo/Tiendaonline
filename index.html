@@ -1005,39 +1005,22 @@
 
         // Función para enviar el pedido
         function submitOrder() {
+
             if (cart.length === 0) {
                 showToast('El carrito está vacío');
                 return;
             }
-            
+const miemail  = "cesar.jarra@gmail.com";
             const formData = {
-                firstName: document.getElementById('firstName').value,
-                lastName: document.getElementById('lastName').value,
-                email: document.getElementById('email').value,
-                address: document.getElementById('address').value,
-                city: document.getElementById('city').value,
-                state: document.getElementById('state').value,
-                zipCode: document.getElementById('zipCode').value,
-                phone: document.getElementById('phone').value,
-                items: cart.map(item => `${item.name} (${item.quantity} x $${item.price.toFixed(2)})`).join('\n'),
-                subtotal: cart.reduce((total, item) => total + (item.price * item.quantity), 0).toFixed(2),
-                shipping: '35.00',
-                total: (cart.reduce((total, item) => total + (item.price * item.quantity), 0) + 5).toFixed(2),
-                date: new Date().toLocaleString()
+                order_id: document.getElementById('zipCode').value,
+                nombre_cliente: document.getElementById('lastName').value,
+                orders: document.getElementById('zipCode').value,
+                image_url: document.getElementById('address').value,
+                productos: cart.map(item => `${item.name} (${item.quantity} x $${item.price.toFixed(2)})`).join('\n'),
+                total: cart.reduce((total, item) => total + (item.price * item.quantity), 0).toFixed(2),
+                email_cliente: document.getElementById('email').value,
+              	email: miemail
             };
-            
-            // Guardar el pedido
-            const order = {
-                userEmail: formData.email,
-                items: cart.map(item => ({id: item.id, name: item.name, price: item.price, quantity: item.quantity})),
-                total: parseFloat(formData.total),
-                date: formData.date,
-                shippingAddress: `${formData.address}, ${formData.city}, ${formData.state} ${formData.zipCode}`,
-                status: 'Pendiente'
-            };
-            
-            orders.push(order);
-            localStorage.setItem('orders', JSON.stringify(orders));
             
             // Enviar email usando EmailJS
             emailjs.send('service_ynni6mh', 'template_mamyuhg', formData)
