@@ -470,8 +470,9 @@
                             category: product.categoria || product.category || 'Sin categoría',
                             description: product.descripcion || product.description || 'Descripción no disponible',
                             image: product.imagen || product.image || 'https://via.placeholder.com/150',
+			    codigo: product.codigo || product.sku || product.barcode || 0, // Nuevo campo stock
                             stock: parseInt(product.stock || product.existencia || product.cantidad || 0) // Nuevo campo stock
-                        }));
+                        })); 
                         
                         // Extraer categorías únicas
                         categories = [...new Set(products.map(p => p.category))];
@@ -532,7 +533,8 @@
                 filteredProducts = filteredProducts.filter(p => 
                     p.name.toLowerCase().includes(searchTerm) || 
                     p.description.toLowerCase().includes(searchTerm) ||
-                    p.category.toLowerCase().includes(searchTerm)
+                    p.category.toLowerCase().includes(searchTerm) ||
+		    p.codigo.toLowerCase().includes(searchTerm) 
                 );
             }
             
@@ -586,6 +588,7 @@
                             <h5 class="card-title" style="font-size: 1rem;">${product.name}</h5>
                             <p class="text-muted" style="font-size: 0.8rem;">${product.category}</p>
                             <p class="fw-bold" style="font-size: 0.9rem;">$${product.price.toFixed(2)}</p>
+			    <p class="text-muted" style="font-size: 0.8rem;">${product.codigo}</p>
                             <p class="stock-info ${stockStatus.class}">${stockStatus.text}</p>
                             <div class="d-flex justify-content-between">
                                 <button class="btn btn-sm btn-outline-primary view-detail" data-id="${product.id}">
