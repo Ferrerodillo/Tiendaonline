@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <title>Pedidos Firebase</title>
+</head>
+<body>
+  <h2>Acceso de Usuario</h2>
+  <input type="email" id="email" placeholder="Correo"><br>
+  <input type="password" id="password" placeholder="Contraseña"><br>
+  <button onclick="registrar()">Registrarse</button>
+  <button onclick="iniciar()">Iniciar Sesión</button>
+  <button onclick="cerrar()">Cerrar Sesión</button>
+
+  <h2>Pedidos</h2>
+  <button onclick="guardarPedido()">Guardar Pedido</button>
+  <ul id="lista"></ul>
+
+  <!-- Firebase -->
+  <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-database.js"></script>
+
+  <script>
+    // CONFIGURA ESTO CON TUS DATOS DE FIREBASE
+    const firebaseConfig = {
+      apiKey: "AIzaSyATKAFNmwhe9X0GQ5GxHiSmc3wiOhb7j18",
+      authDomain: "rodillo-2b699.firebaseapp.com",
+      databaseURL: "https://rodillo-2b699-default-rtdb.firebaseio.com/",
+      projectId: "rodillo-2b699",
+      storageBucket: "rodillo-2b699.firebasestorage.app",
+      messagingSenderId: "652395478682",
+      appId: "1:652395478682:web:f4447c35fee0599030a923"
+    };
+    firebase.initializeApp(firebaseConfig);
+
+    function registrar() {
+      const email = document.getElementById("email").value;
+      const pass = document.getElementById("password").value;
+      firebase.auth().createUserWithEmailAndPassword(email, pass)
+        .then(() => alert("Registrado"))
+        .catch(error => alert(error.message));
+    }
+
+    function iniciar() {
+      const email = document.getElementById("email").value;
+      const pass = document.getElementById("password").value;
+      firebase.auth().signInWithEmailAndPassword(email, pass)
+        .then(() => alert("Sesión iniciada"))
+        .catch(error => alert(error.message));
+    }
+
+    function cerrar() {
+      firebase.auth().signOut().then(() => alert("Sesión cerrada"));
+    }
+
+    function guardarPedido() {
+      const user = firebase.auth().currentUser;
+      if (user) {
+        const pedido = {
+          fecha: new Date().toISOString(),
+          producto: "Zapatos deportivos",
+          envio: "Av. Siempre Viva 123"
+        };
+        firebase.database().ref("pedidos/" + user.uid).push(pedido);
+      } else {
+        alert("Primero inicia sesión");
+      }
+    }
+
+    firebase.auth().onAuthStateChanged(user => {
+      const lista = document.getElementById("lista");
+      if (user) {
+        firebase.database().ref("pedidos/" + user.uid).on("value", snapshot => {
+          lista.innerHTML = "";
+          snapshot.forEach(child => {
+            const p = child.val();
+            lista.innerHTML += `<li>${p.fecha} - ${p.producto} - ${p.envio}</li>`;
+          });
+        });
+      } else {
+        lista.innerHTML = "";
+      }
+    });
+  </script>
+</body>
+</html>
