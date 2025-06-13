@@ -1,0 +1,614 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Perfil y Mis Datos con Firebase</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Inter Font -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+        }
+        /* Animación personalizada para la caja de mensajes */
+        @keyframes fade-in-up {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        .animate-fade-in-up {
+            animation: fade-in-up 0.3s ease-out forwards;
+        }
+    </style>
+</head>
+<body class="min-h-screen bg-gray-50 flex items-center justify-center p-4">
+
+    <div class="bg-white p-8 rounded-xl shadow-2xl w-full max-w-lg space-y-6 transform transition-all duration-300 hover:shadow-3xl">
+        <h1 class="text-3xl font-extrabold text-gray-800 text-center mb-6">
+            Mi Perfil y Mis Datos
+        </h1>
+
+        <!-- Indicador de carga para autenticación -->
+        <div id="authLoadingIndicator" class="text-center text-blue-600 font-medium animate-pulse hidden">
+            Cargando...
+        </div>
+
+        <!-- Sección de Autenticación (visible cuando no hay usuario) -->
+        <div id="authSection" class="space-y-4">
+            <h2 class="text-2xl font-bold text-gray-800 text-center">
+                Regístrate o Inicia Sesión
+            </h2>
+            <input
+                type="email"
+                id="authEmailInput"
+                placeholder="Email"
+                class="w-full p-3 border border-gray-300 rounded-lg focus:ring-blue-500 focus:border-blue-500 transition duration-200 ease-in-out"
+            />
+            <input
+                type="password"
+                id="authPasswordInput"
+                placeholder="Contraseña"
+                class="w-full p-3 border border-gray-300 rounded-lg focus:ring-blue-500 focus:border-blue-500 transition duration-200 ease-in-out"
+            />
+            <div class="flex flex-col sm:flex-row space-y-3 sm:space-y-0 sm:space-x-3">
+                <button
+                    id="registerButton"
+                    class="w-full bg-blue-600 text-white p-3 rounded-lg hover:bg-blue-700 transition duration-200 ease-in-out font-semibold shadow-md"
+                >
+                    Registrarse
+                </button>
+                <button
+                    id="loginButton"
+                    class="w-full bg-green-600 text-white p-3 rounded-lg hover:bg-green-700 transition duration-200 ease-in-out font-semibold shadow-md"
+                >
+                    Iniciar Sesión
+                </button>
+            </div>
+        </div>
+
+        <!-- Sección de Contenido (visible solo cuando hay usuario autenticado) -->
+        <div id="contentSection" class="hidden">
+            <div class="border border-green-200 bg-green-50 p-4 rounded-lg shadow-sm mb-6">
+                <p class="text-lg font-semibold text-green-700 mb-2">
+                    ¡Sesión Iniciada!
+                </p>
+                <p class="text-sm text-gray-700">
+                    <span class="font-medium">Email:</span> <span id="currentUserEmail"></span>
+                </p>
+                <p class="text-sm text-gray-700 break-words">
+                    <span class="font-medium">UID:</span> <span id="currentUserUid"></span>
+                </p>
+                <button
+                    id="logoutButton"
+                    class="w-full mt-4 bg-red-600 text-white p-3 rounded-lg hover:bg-red-700 transition duration-200 ease-in-out font-semibold shadow-md"
+                >
+                    Cerrar Sesión
+                </button>
+            </div>
+
+            <!-- Sección de Mi Perfil (Nuevos campos) -->
+            <div class="mb-6 p-4 border border-blue-200 bg-blue-50 rounded-lg shadow-sm">
+                <h2 class="text-xl font-bold text-blue-800 mb-3">Mi Perfil</h2>
+                <input type="text" id="profileNombreCompleto" placeholder="Nombre completo"
+                       class="w-full p-3 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500 transition duration-150 ease-in-out mb-3">
+                <input type="text" id="profileDireccion" placeholder="Dirección"
+                       class="w-full p-3 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500 transition duration-150 ease-in-out mb-3">
+                <input type="tel" id="profileTelefono" placeholder="Teléfono"
+                       class="w-full p-3 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500 transition duration-150 ease-in-out mb-3">
+                <input type="text" id="profileHorarioPedidos" placeholder="Horario para recibir pedidos"
+                       class="w-full p-3 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500 transition duration-150 ease-in-out mb-4">
+                <button id="saveProfileButton"
+                        class="w-full bg-blue-600 text-white p-3 rounded-md hover:bg-blue-700 transition duration-150 ease-in-out font-semibold shadow-md">
+                    Guardar/Actualizar Mi Perfil
+                </button>
+
+                <div id="currentProfileDisplay" class="mt-4 p-3 bg-blue-100 border border-blue-300 rounded-md hidden">
+                    <p class="font-semibold text-blue-900">Datos de Mi Perfil Actual:</p>
+                    <p>Nombre: <span id="displayNombreCompleto"></span></p>
+                    <p>Dirección: <span id="displayDireccion"></span></p>
+                    <p>Teléfono: <span id="displayTelefono"></span></p>
+                    <p>Horario Pedidos: <span id="displayHorarioPedidos"></span></p>
+                </div>
+            </div>
+
+            <hr class="my-6 border-gray-200">
+
+            <!-- Sección de Mis Datos Guardados (Funcionalidad anterior) -->
+            <h2 class="text-xl font-bold text-gray-800 mb-3">Mis Datos Guardados (Elementos Múltiples)</h2>
+            <input type="text" id="nombreInput" placeholder="Nombre de mi dato"
+                   class="w-full p-3 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500 transition duration-150 ease-in-out mb-4">
+            <button id="guardarDatosButton"
+                    class="w-full bg-indigo-600 text-white p-3 rounded-md hover:bg-indigo-700 transition duration-150 ease-in-out font-semibold shadow-md mb-4">
+                Guardar Nuevo Dato
+            </button>
+            <button id="recargarDatosButton"
+                    class="w-full bg-gray-300 text-gray-800 p-3 rounded-md hover:bg-gray-400 transition duration-150 ease-in-out font-semibold shadow-md mb-4">
+                Recargar Todos Mis Datos
+            </button>
+            <div id="datosGuardados" class="space-y-3">
+                <!-- Los datos se mostrarán aquí -->
+                <p class="text-center text-gray-500">Cargando mis datos...</p>
+            </div>
+        </div>
+
+        <!-- Caja de mensajes personalizada -->
+        <div id="messageBox" class="hidden fixed inset-0 flex items-center justify-center bg-black bg-opacity-30 z-50">
+            <div class="bg-white p-6 rounded-lg shadow-xl text-center max-w-sm w-full animate-fade-in-up">
+                <p id="messageText" class="text-lg font-medium text-gray-800"></p>
+                <button id="messageBoxClose" class="mt-4 bg-gray-200 text-gray-700 py-2 px-4 rounded-lg hover:bg-gray-300 transition duration-200">
+                    Aceptar
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Firebase SDKs (módulos) -->
+    <script type="module">
+        // Importa los módulos de Firebase
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
+        import {
+            getAuth,
+            createUserWithEmailAndPassword,
+            signInWithEmailAndPassword,
+            signOut,
+            onAuthStateChanged,
+            signInAnonymously,
+            signInWithCustomToken
+        } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
+        import {
+            getFirestore,
+            collection, // Usamos collection para el nuevo SDK
+            addDoc,
+            query,
+            orderBy,
+            getDocs,
+            serverTimestamp,
+            doc, // Para referencias a documentos específicos
+            setDoc, // Para guardar o actualizar documentos específicos
+            onSnapshot // Para escuchar cambios en tiempo real en un documento
+        } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+
+        // Configuración de Firebase: Usar la proporcionada por el entorno si existe (para Canvas),
+        // de lo contrario, usar la configuración hardcodeada de tu proyecto.
+        const firebaseConfig = typeof __firebase_config !== 'undefined'
+            ? JSON.parse(__firebase_config)
+            : {
+                apiKey: "AIzaSyATKAFNmwhe9X0GQ5GxHiSmc3wiOhb7j18",
+                authDomain: "rodillo-2b699.firebaseapp.com",
+                databaseURL: "https://rodillo-2b699-default-rtdb.firebaseio.com",
+                projectId: "rodillo-2b699",
+                storageBucket: "rodillo-2b699.firebasestorage.app",
+                messagingSenderId: "652395478682",
+                appId: "1:652395478682:web:f4447c35fee0599030a923"
+            };
+
+        const initialAuthToken = typeof __initial_auth_token !== 'undefined' ? __initial_auth_token : null;
+        const appId = typeof __app_id !== 'undefined' ? __app_id : 'default-app-id'; // Necesario para la ruta de datos privada
+
+        // Inicializa Firebase
+        const app = initializeApp(firebaseConfig);
+        const auth = getAuth(app);
+        const db = getFirestore(app);
+
+        let currentUser = null; // Variable global para almacenar el usuario autenticado
+        let profileSnapshotUnsubscribe = null; // Para desuscribir del listener del perfil
+        let dataListSnapshotUnsubscribe = null; // Para desuscribir del listener de la lista de datos
+
+        // --- Elementos del DOM ---
+        const authLoadingIndicator = document.getElementById('authLoadingIndicator');
+        const authSection = document.getElementById('authSection');
+        const contentSection = document.getElementById('contentSection');
+        const authEmailInput = document.getElementById('authEmailInput');
+        const authPasswordInput = document.getElementById('authPasswordInput');
+        const registerButton = document.getElementById('registerButton');
+        const loginButton = document.getElementById('loginButton');
+        const logoutButton = document.getElementById('logoutButton');
+        const currentUserEmailSpan = document.getElementById('currentUserEmail');
+        const currentUserUidSpan = document.getElementById('currentUserUid');
+
+        // Elementos para el Perfil del Usuario
+        const profileNombreCompleto = document.getElementById('profileNombreCompleto');
+        const profileDireccion = document.getElementById('profileDireccion');
+        const profileTelefono = document.getElementById('profileTelefono');
+        const profileHorarioPedidos = document.getElementById('profileHorarioPedidos');
+        const saveProfileButton = document.getElementById('saveProfileButton');
+        const currentProfileDisplay = document.getElementById('currentProfileDisplay');
+        const displayNombreCompleto = document.getElementById('displayNombreCompleto');
+        const displayDireccion = document.getElementById('displayDireccion');
+        const displayTelefono = document.getElementById('displayTelefono');
+        const displayHorarioPedidos = document.getElementById('displayHorarioPedidos');
+
+        // Elementos para la Lista de Datos (funcionalidad anterior)
+        const nombreInput = document.getElementById('nombreInput');
+        const guardarDatosButton = document.getElementById('guardarDatosButton');
+        const recargarDatosButton = document.getElementById('recargarDatosButton');
+        const datosGuardadosDiv = document.getElementById('datosGuardados');
+
+        const messageBox = document.getElementById('messageBox');
+        const messageText = document.getElementById('messageText');
+        const messageBoxClose = document.getElementById('messageBoxClose');
+
+        // --- Funciones Auxiliares ---
+
+        // Muestra/oculta el indicador de carga de autenticación
+        function showAuthLoading(show) {
+            if (show) {
+                authLoadingIndicator.classList.remove('hidden');
+            } else {
+                authLoadingIndicator.classList.add('hidden');
+            }
+            registerButton.disabled = show;
+            loginButton.disabled = show;
+            if (logoutButton) logoutButton.disabled = show;
+            if (saveProfileButton) saveProfileButton.disabled = show;
+            if (guardarDatosButton) guardarDatosButton.disabled = show;
+            if (recargarDatosButton) recargarDatosButton.disabled = show;
+        }
+
+        // Muestra mensaje personalizado
+        function showMessage(msg) {
+            messageText.textContent = msg;
+            messageBox.classList.remove('hidden');
+            messageBox.focus(); // Enfocar para accesibilidad
+        }
+
+        // Cierra mensaje personalizado
+        messageBoxClose.addEventListener('click', () => {
+            messageBox.classList.add('hidden');
+            messageText.textContent = '';
+        });
+
+        // --- Manejo de la Autenticación ---
+
+        // Función para actualizar la interfaz de usuario según el estado de autenticación
+        function updateUI() {
+            if (currentUser) {
+                authSection.classList.add('hidden');
+                contentSection.classList.remove('hidden');
+                currentUserEmailSpan.textContent = currentUser.email || 'N/A';
+                currentUserUidSpan.textContent = currentUser.uid;
+                loadUserProfile(); // Cargar y escuchar el perfil del usuario
+                leerDatos(); // Cargar y escuchar la lista de datos del usuario
+            } else {
+                authSection.classList.remove('hidden');
+                contentSection.classList.add('hidden');
+                datosGuardadosDiv.innerHTML = '<p class="text-center text-gray-500">Inicia sesión para ver y guardar tus datos.</p>';
+                // Desuscribirse de los listeners si el usuario se desloguea
+                profileSnapshotUnsubscribe && profileSnapshotUnsubscribe();
+                dataListSnapshotUnsubscribe && dataListSnapshotUnsubscribe();
+                // Limpiar campos del perfil y display
+                profileNombreCompleto.value = '';
+                profileDireccion.value = '';
+                profileTelefono.value = '';
+                profileHorarioPedidos.value = '';
+                currentProfileDisplay.classList.add('hidden');
+            }
+        }
+
+        // Listener de cambios de estado de autenticación
+        onAuthStateChanged(auth, async (user) => {
+            currentUser = user; // Actualiza la variable global de usuario
+            showAuthLoading(false); // Oculta el loading una vez que se verifica el estado inicial
+            updateUI(); // Actualiza la UI
+
+            // Si no hay usuario y no hay un token de autenticación inicial, intenta iniciar sesión anónimamente
+            if (!user && !initialAuthToken) {
+                try {
+                    await signInAnonymously(auth);
+                } catch (error) {
+                    console.error("Error al iniciar sesión anónimamente:", error);
+                    // No mostrar mensaje de error al usuario por login anónimo fallido si no es relevante
+                }
+            }
+        });
+
+        // Intentar iniciar sesión con token inicial si está disponible (cuando el DOM carga)
+        document.addEventListener('DOMContentLoaded', async () => {
+            if (initialAuthToken) {
+                showAuthLoading(true);
+                try {
+                    await signInWithCustomToken(auth, initialAuthToken);
+                    // onAuthStateChanged manejará el estado del usuario después de esto
+                } catch (error) {
+                    console.error("Error al iniciar sesión con token personalizado:", error);
+                    showMessage("Error con el token de autenticación. Intenta de nuevo.");
+                } finally {
+                    showAuthLoading(false);
+                }
+            } else {
+                showAuthLoading(false); // No hay token inicial, así que oculta el loading de auth
+            }
+        });
+
+
+        // --- Handlers de Botones de Autenticación ---
+
+        async function handleRegister() {
+            const email = authEmailInput.value;
+            const password = authPasswordInput.value;
+
+            if (!email || !password) {
+                showMessage("Por favor, ingresa un email y una contraseña.");
+                return;
+            }
+            if (password.length < 6) {
+                showMessage("La contraseña debe tener al menos 6 caracteres.");
+                return;
+            }
+
+            showAuthLoading(true);
+            try {
+                await createUserWithEmailAndPassword(auth, email, password);
+                showMessage("Usuario registrado y sesión iniciada exitosamente!");
+                authEmailInput.value = '';
+                authPasswordInput.value = '';
+            } catch (error) {
+                console.error("Error al registrar usuario:", error);
+                let errorMessage = "Error al registrar usuario.";
+                switch (error.code) {
+                    case 'auth/email-already-in-use':
+                        errorMessage = 'El email ya está en uso. Intenta iniciar sesión o usa otro email.';
+                        break;
+                    case 'auth/invalid-email':
+                        errorMessage = 'El email no es válido.';
+                        break;
+                    case 'auth/weak-password':
+                        errorMessage = 'La contraseña es muy débil (mínimo 6 caracteres).';
+                        break;
+                    default:
+                        errorMessage = 'Error de registro: ' + error.message;
+                }
+                showMessage(errorMessage);
+            } finally {
+                showAuthLoading(false);
+            }
+        }
+
+        async function handleLogin() {
+            const email = authEmailInput.value;
+            const password = authPasswordInput.value;
+
+            if (!email || !password) {
+                showMessage("Por favor, ingresa tu email y contraseña.");
+                return;
+            }
+
+            showAuthLoading(true);
+            try {
+                await signInWithEmailAndPassword(auth, email, password);
+                showMessage("Sesión iniciada exitosamente!");
+                authEmailInput.value = '';
+                authPasswordInput.value = '';
+            } catch (error) {
+                console.error("Error al iniciar sesión:", error);
+                let errorMessage = "Error al iniciar sesión.";
+                switch (error.code) {
+                    case 'auth/invalid-email':
+                        errorMessage = 'El email no es válido.';
+                        break;
+                    case 'auth/user-not-found':
+                        errorMessage = 'Usuario no encontrado. Por favor, regístrate.';
+                        break;
+                    case 'auth/wrong-password':
+                        errorMessage = 'Contraseña incorrecta.';
+                        break;
+                    case 'auth/too-many-requests':
+                        errorMessage = 'Demasiados intentos de inicio de sesión fallidos. Intenta más tarde.';
+                        break;
+                    default:
+                        errorMessage = 'Error de inicio de sesión: ' + error.message;
+                }
+                showMessage(errorMessage);
+            } finally {
+                showAuthLoading(false);
+            }
+        }
+
+        async function handleLogout() {
+            showAuthLoading(true);
+            try {
+                await signOut(auth);
+                showMessage("Sesión cerrada correctamente.");
+                authEmailInput.value = '';
+                authPasswordInput.value = '';
+                nombreInput.value = '';
+            } catch (error) {
+                console.error("Error al cerrar sesión:", error);
+                showMessage("Error al cerrar sesión: " + error.message);
+            } finally {
+                showAuthLoading(false);
+            }
+        }
+
+        // --- Funciones para Guardar y Cargar el PERFIL de Usuario (Nuevos campos) ---
+        async function saveUserProfile() {
+            if (!currentUser) {
+                showMessage("Debes iniciar sesión para guardar tu perfil.");
+                return;
+            }
+
+            const nombreCompleto = profileNombreCompleto.value.trim();
+            const direccion = profileDireccion.value.trim();
+            const telefono = profileTelefono.value.trim();
+            const horarioPedidos = profileHorarioPedidos.value.trim();
+
+            if (!nombreCompleto && !direccion && !telefono && !horarioPedidos) {
+                showMessage("Por favor, rellena al menos un campo para guardar tu perfil.");
+                return;
+            }
+
+            showAuthLoading(true); // Usamos el mismo indicador de carga para simplificar
+            try {
+                // Referencia al documento del perfil del usuario (UID del usuario como ID del documento)
+                const userProfileDocRef = doc(db, 'userProfiles', currentUser.uid);
+
+                await setDoc(userProfileDocRef, {
+                    nombreCompleto: nombreCompleto,
+                    direccion: direccion,
+                    telefono: telefono,
+                    horarioPedidos: horarioPedidos,
+                    // Opcional: información adicional
+                    emailRegistrado: currentUser.email,
+                    lastUpdated: serverTimestamp() // Marca de tiempo del servidor
+                }, { merge: true }); // Usar merge: true para actualizar campos existentes sin sobrescribir
+
+                showMessage("Perfil actualizado correctamente!");
+            } catch (e) {
+                console.error("Error al guardar el perfil: ", e);
+                showMessage("Error al guardar el perfil. Asegúrate de tener los permisos correctos en Firestore.");
+            } finally {
+                showAuthLoading(false);
+            }
+        }
+
+        function loadUserProfile() {
+            // Desuscribirse del listener anterior si existe
+            if (profileSnapshotUnsubscribe) {
+                profileSnapshotUnsubscribe();
+            }
+
+            if (!currentUser) {
+                // Limpiar campos y ocultar display si no hay usuario
+                profileNombreCompleto.value = '';
+                profileDireccion.value = '';
+                profileTelefono.value = '';
+                profileHorarioPedidos.value = '';
+                currentProfileDisplay.classList.add('hidden');
+                return;
+            }
+
+            const userProfileDocRef = doc(db, 'userProfiles', currentUser.uid);
+
+            profileSnapshotUnsubscribe = onSnapshot(userProfileDocRef, (docSnap) => {
+                if (docSnap.exists()) {
+                    const data = docSnap.data();
+                    profileNombreCompleto.value = data.nombreCompleto || '';
+                    profileDireccion.value = data.direccion || '';
+                    profileTelefono.value = data.telefono || '';
+                    profileHorarioPedidos.value = data.horarioPedidos || '';
+
+                    displayNombreCompleto.textContent = data.nombreCompleto || 'N/A';
+                    displayDireccion.textContent = data.direccion || 'N/A';
+                    displayTelefono.textContent = data.telefono || 'N/A';
+                    displayHorarioPedidos.textContent = data.horarioPedidos || 'N/A';
+                    currentProfileDisplay.classList.remove('hidden');
+                } else {
+                    // El documento de perfil no existe, limpiar campos
+                    profileNombreCompleto.value = '';
+                    profileDireccion.value = '';
+                    profileTelefono.value = '';
+                    profileHorarioPedidos.value = '';
+                    currentProfileDisplay.classList.add('hidden');
+                }
+            }, (error) => {
+                console.error("Error al cargar el perfil en tiempo real: ", error);
+                showMessage("Error al cargar tu perfil. Asegúrate de tener los permisos correctos.");
+            });
+        }
+
+
+        // --- Funciones para Guardar y Leer Datos (Múltiples elementos por usuario) ---
+
+        async function guardarDatos() {
+            if (!currentUser) {
+                showMessage("Debes iniciar sesión para guardar tus datos.");
+                return;
+            }
+
+            const nombreDelDato = nombreInput.value.trim();
+
+            if (nombreDelDato) {
+                showAuthLoading(true); // Usamos el mismo indicador de carga
+                try {
+                    // La ruta de la colección para elementos múltiples sigue siendo específica para el UID del usuario
+                    const userSpecificCollectionPath = `usuarios/${currentUser.uid}/misDatos`;
+                    const docRef = await addDoc(collection(db, userSpecificCollectionPath), {
+                        nombre: nombreDelDato,
+                        fechaGuardado: serverTimestamp(),
+                    });
+                    console.log("Documento escrito con ID: ", docRef.id);
+                    showMessage("Dato guardado correctamente!");
+                    nombreInput.value = '';
+                } catch (e) {
+                    console.error("Error al agregar documento a misDatos: ", e);
+                    showMessage("Error al guardar el dato. Asegúrate de tener los permisos correctos en Firestore.");
+                } finally {
+                    showAuthLoading(false);
+                }
+            } else {
+                showMessage("Por favor, ingresa un nombre para tu dato.");
+            }
+        }
+
+        function leerDatos() {
+            datosGuardadosDiv.innerHTML = '<p class="text-center text-gray-500">Cargando mis datos...</p>';
+
+            if (!currentUser) {
+                datosGuardadosDiv.innerHTML = '<p class="text-center text-gray-500">Inicia sesión para ver tus datos.</p>';
+                return;
+            }
+
+            // Desuscribirse del listener anterior si existe
+            if (dataListSnapshotUnsubscribe) {
+                dataListSnapshotUnsubscribe();
+            }
+
+            try {
+                const userSpecificCollectionPath = `usuarios/${currentUser.uid}/misDatos`;
+                const q = query(collection(db, userSpecificCollectionPath), orderBy("fechaGuardado", "desc"));
+
+                dataListSnapshotUnsubscribe = onSnapshot(q, (querySnapshot) => {
+                    if (querySnapshot.empty) {
+                        datosGuardadosDiv.innerHTML = '<p class="text-center text-gray-500">No tienes datos guardados aún.</p>';
+                        return;
+                    }
+
+                    datosGuardadosDiv.innerHTML = ''; // Limpiar después de confirmar que hay datos
+                    querySnapshot.forEach((doc) => {
+                        const data = doc.data();
+                        const divItem = document.createElement('div');
+                        divItem.classList.add('dato-item', 'bg-gray-50', 'p-3', 'rounded-md', 'border', 'border-gray-200', 'mb-2');
+                        divItem.innerHTML = `
+                            <p class="font-semibold text-gray-800">Nombre: ${data.nombre}</p>
+                            <p class="text-xs text-gray-500">Fecha: ${data.fechaGuardado ? new Date(data.fechaGuardado.toDate()).toLocaleString() : 'N/A'}</p>
+                        `;
+                        datosGuardadosDiv.appendChild(divItem);
+                    });
+                }, (error) => {
+                    console.error("Error al leer documentos de misDatos: ", error);
+                    showMessage("Error al cargar tus datos. Asegúrate de tener los permisos correctos.");
+                    datosGuardadosDiv.innerHTML = '<p class="text-center text-red-500">Error al cargar tus datos.</p>';
+                });
+            } catch (e) {
+                console.error("Error al configurar listener de misDatos: ", e);
+                showMessage("Error al configurar la carga de tus datos.");
+                datosGuardadosDiv.innerHTML = '<p class="text-center text-red-500">Error al cargar tus datos.</p>';
+            }
+        }
+
+
+        // --- Event Listeners ---
+        document.addEventListener('DOMContentLoaded', () => {
+            registerButton.addEventListener('click', handleRegister);
+            loginButton.addEventListener('click', handleLogin);
+            logoutButton.addEventListener('click', handleLogout);
+
+            // Nuevos listeners para el perfil
+            saveProfileButton.addEventListener('click', saveUserProfile);
+
+            // Listeners para la lista de datos anterior
+            guardarDatosButton.addEventListener('click', guardarDatos);
+            recargarDatosButton.addEventListener('click', leerDatos);
+
+            // La UI se actualiza por onAuthStateChanged, que también llama a loadUserProfile y leerDatos
+        });
+    </script>
+</body>
+</html>
