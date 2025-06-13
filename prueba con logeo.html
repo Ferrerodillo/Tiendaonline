@@ -1,0 +1,465 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Datos con Autenticación Firebase</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Inter Font -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+        }
+        /* Animación personalizada para la caja de mensajes */
+        @keyframes fade-in-up {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        .animate-fade-in-up {
+            animation: fade-in-up 0.3s ease-out forwards;
+        }
+    </style>
+</head>
+<body class="min-h-screen bg-gray-50 flex items-center justify-center p-4">
+
+    <div class="bg-white p-8 rounded-xl shadow-2xl w-full max-w-lg space-y-6 transform transition-all duration-300 hover:shadow-3xl">
+        <h1 class="text-3xl font-extrabold text-gray-800 text-center mb-6">
+            Gestión de Datos (Requiere Autenticación)
+        </h1>
+
+        <!-- Indicador de carga para autenticación -->
+        <div id="authLoadingIndicator" class="text-center text-blue-600 font-medium animate-pulse hidden">
+            Cargando...
+        </div>
+
+        <!-- Sección de Autenticación (visible cuando no hay usuario) -->
+        <div id="authSection" class="space-y-4">
+            <h2 class="text-2xl font-bold text-gray-800 text-center">
+                Regístrate o Inicia Sesión
+            </h2>
+            <input
+                type="email"
+                id="authEmailInput"
+                placeholder="Email"
+                class="w-full p-3 border border-gray-300 rounded-lg focus:ring-blue-500 focus:border-blue-500 transition duration-200 ease-in-out"
+            />
+            <input
+                type="password"
+                id="authPasswordInput"
+                placeholder="Contraseña"
+                class="w-full p-3 border border-gray-300 rounded-lg focus:ring-blue-500 focus:border-blue-500 transition duration-200 ease-in-out"
+            />
+            <div class="flex flex-col sm:flex-row space-y-3 sm:space-y-0 sm:space-x-3">
+                <button
+                    id="registerButton"
+                    class="w-full bg-blue-600 text-white p-3 rounded-lg hover:bg-blue-700 transition duration-200 ease-in-out font-semibold shadow-md"
+                >
+                    Registrarse
+                </button>
+                <button
+                    id="loginButton"
+                    class="w-full bg-green-600 text-white p-3 rounded-lg hover:bg-green-700 transition duration-200 ease-in-out font-semibold shadow-md"
+                >
+                    Iniciar Sesión
+                </button>
+            </div>
+        </div>
+
+        <!-- Sección de Contenido (visible solo cuando hay usuario autenticado) -->
+        <div id="contentSection" class="hidden">
+            <div class="border border-green-200 bg-green-50 p-4 rounded-lg shadow-sm mb-6">
+                <p class="text-lg font-semibold text-green-700 mb-2">
+                    ¡Sesión Iniciada!
+                </p>
+                <p class="text-sm text-gray-700">
+                    <span class="font-medium">Email:</span> <span id="currentUserEmail"></span>
+                </p>
+                <p class="text-sm text-gray-700 break-words">
+                    <span class="font-medium">UID:</span> <span id="currentUserUid"></span>
+                </p>
+                <button
+                    id="logoutButton"
+                    class="w-full mt-4 bg-red-600 text-white p-3 rounded-lg hover:bg-red-700 transition duration-200 ease-in-out font-semibold shadow-md"
+                >
+                    Cerrar Sesión
+                </button>
+            </div>
+
+            <h2 class="text-xl font-bold text-gray-800 mb-3">Guardar Datos</h2>
+            <input type="text" id="nombreInput" placeholder="Nombre"
+                   class="w-full p-3 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500 transition duration-150 ease-in-out mb-3">
+            <input type="email" id="emailInput" placeholder="Email"
+                   class="w-full p-3 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500 transition duration-150 ease-in-out mb-4">
+            <button id="guardarDatosButton"
+                    class="w-full bg-indigo-600 text-white p-3 rounded-md hover:bg-indigo-700 transition duration-150 ease-in-out font-semibold shadow-md">
+                Guardar Datos
+            </button>
+
+            <hr class="my-6 border-gray-200">
+
+            <h2 class="text-xl font-bold text-gray-800 mb-3">Datos Guardados</h2>
+            <button id="recargarDatosButton"
+                    class="w-full bg-gray-300 text-gray-800 p-3 rounded-md hover:bg-gray-400 transition duration-150 ease-in-out font-semibold shadow-md mb-4">
+                Recargar Datos
+            </button>
+            <div id="datosGuardados" class="space-y-3">
+                <!-- Los datos se mostrarán aquí -->
+                <p class="text-center text-gray-500">Cargando datos...</p>
+            </div>
+        </div>
+
+        <!-- Caja de mensajes personalizada -->
+        <div id="messageBox" class="hidden fixed inset-0 flex items-center justify-center bg-black bg-opacity-30 z-50">
+            <div class="bg-white p-6 rounded-lg shadow-xl text-center max-w-sm w-full animate-fade-in-up">
+                <p id="messageText" class="text-lg font-medium text-gray-800"></p>
+                <button id="messageBoxClose" class="mt-4 bg-gray-200 text-gray-700 py-2 px-4 rounded-lg hover:bg-gray-300 transition duration-200">
+                    Aceptar
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Firebase SDKs (módulos) -->
+    <script type="module">
+        // Importa los módulos de Firebase
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
+        import {
+            getAuth,
+            createUserWithEmailAndPassword,
+            signInWithEmailAndPassword,
+            signOut,
+            onAuthStateChanged,
+            signInAnonymously,
+            signInWithCustomToken
+        } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
+        import {
+            getFirestore,
+            collection, // Usamos collection en lugar de db.collection para el nuevo SDK
+            addDoc,
+            query,
+            orderBy,
+            getDocs,
+            serverTimestamp
+        } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+
+        // Configuración de Firebase (usar la proporcionada por el entorno si existe, sino la hardcodeada)
+        const firebaseConfig = {
+  		apiKey: "AIzaSyATKAFNmwhe9X0GQ5GxHiSmc3wiOhb7j18",
+  		authDomain: "rodillo-2b699.firebaseapp.com",
+  		databaseURL: "https://rodillo-2b699-default-rtdb.firebaseio.com",
+  		projectId: "rodillo-2b699",
+  		storageBucket: "rodillo-2b699.firebasestorage.app",
+  		messagingSenderId: "652395478682",
+  		appId: "1:652395478682:web:f4447c35fee0599030a923"
+            };
+
+        const initialAuthToken = typeof __initial_auth_token !== 'undefined' ? __initial_auth_token : null;
+        const appId = typeof __app_id !== 'undefined' ? __app_id : 'default-app-id'; // Necesario para la ruta de datos
+
+        // Inicializa Firebase
+        const app = initializeApp(firebaseConfig);
+        const auth = getAuth(app);
+        const db = getFirestore(app);
+
+        let currentUser = null; // Variable global para almacenar el usuario autenticado
+
+        // --- Elementos del DOM ---
+        const authLoadingIndicator = document.getElementById('authLoadingIndicator');
+        const authSection = document.getElementById('authSection');
+        const contentSection = document.getElementById('contentSection');
+        const authEmailInput = document.getElementById('authEmailInput');
+        const authPasswordInput = document.getElementById('authPasswordInput');
+        const registerButton = document.getElementById('registerButton');
+        const loginButton = document.getElementById('loginButton');
+        const logoutButton = document.getElementById('logoutButton');
+        const currentUserEmailSpan = document.getElementById('currentUserEmail');
+        const currentUserUidSpan = document.getElementById('currentUserUid');
+        const nombreInput = document.getElementById('nombreInput');
+        const emailInput = document.getElementById('emailInput');
+        const guardarDatosButton = document.getElementById('guardarDatosButton');
+        const recargarDatosButton = document.getElementById('recargarDatosButton');
+        const datosGuardadosDiv = document.getElementById('datosGuardados');
+        const messageBox = document.getElementById('messageBox');
+        const messageText = document.getElementById('messageText');
+        const messageBoxClose = document.getElementById('messageBoxClose');
+
+        // --- Funciones Auxiliares ---
+
+        // Muestra/oculta el indicador de carga de autenticación
+        function showAuthLoading(show) {
+            if (show) {
+                authLoadingIndicator.classList.remove('hidden');
+            } else {
+                authLoadingIndicator.classList.add('hidden');
+            }
+            registerButton.disabled = show;
+            loginButton.disabled = show;
+            logoutButton.disabled = show; // Deshabilita el logout mientras carga también
+        }
+
+        // Muestra mensaje personalizado
+        function showMessage(msg) {
+            messageText.textContent = msg;
+            messageBox.classList.remove('hidden');
+            messageBox.focus(); // Enfocar para accesibilidad
+        }
+
+        // Cierra mensaje personalizado
+        messageBoxClose.addEventListener('click', () => {
+            messageBox.classList.add('hidden');
+            messageText.textContent = '';
+        });
+
+        // --- Manejo de la Autenticación ---
+
+        // Función para actualizar la interfaz de usuario según el estado de autenticación
+        function updateUI() {
+            if (currentUser) {
+                authSection.classList.add('hidden');
+                contentSection.classList.remove('hidden');
+                currentUserEmailSpan.textContent = currentUser.email || 'N/A';
+                currentUserUidSpan.textContent = currentUser.uid;
+                leerDatos(); // Cargar datos si el usuario está autenticado
+            } else {
+                authSection.classList.remove('hidden');
+                contentSection.classList.add('hidden');
+                datosGuardadosDiv.innerHTML = '<p class="text-center text-gray-500">Inicia sesión para ver y guardar datos.</p>';
+            }
+        }
+
+        // Listener de cambios de estado de autenticación
+        onAuthStateChanged(auth, async (user) => {
+            currentUser = user; // Actualiza la variable global de usuario
+            showAuthLoading(false); // Oculta el loading una vez que se verifica el estado inicial
+            updateUI(); // Actualiza la UI
+
+            // Si no hay usuario y no hay un token de autenticación inicial, intenta iniciar sesión anónimamente
+            // Esto es para que Canvas pueda establecer un UID de sesión incluso sin credenciales.
+            if (!user && !initialAuthToken) {
+                try {
+                    await signInAnonymously(auth);
+                } catch (error) {
+                    console.error("Error al iniciar sesión anónimamente:", error);
+                    showMessage("Error al iniciar sesión anónimamente. Por favor, recarga la página.");
+                }
+            }
+        });
+
+        // Intentar iniciar sesión con token inicial si está disponible
+        document.addEventListener('DOMContentLoaded', async () => {
+            if (initialAuthToken) {
+                showAuthLoading(true);
+                try {
+                    await signInWithCustomToken(auth, initialAuthToken);
+                    // onAuthStateChanged manejará el estado del usuario después de esto
+                } catch (error) {
+                    console.error("Error al iniciar sesión con token personalizado:", error);
+                    showMessage("Error con el token de autenticación. Intenta de nuevo.");
+                    showAuthLoading(false);
+                }
+            }
+        });
+
+        // --- Handlers de Botones de Autenticación ---
+
+        async function handleRegister() {
+            const email = authEmailInput.value;
+            const password = authPasswordInput.value;
+
+            if (!email || !password) {
+                showMessage("Por favor, ingresa un email y una contraseña.");
+                return;
+            }
+            if (password.length < 6) {
+                showMessage("La contraseña debe tener al menos 6 caracteres.");
+                return;
+            }
+
+            showAuthLoading(true);
+            try {
+                await createUserWithEmailAndPassword(auth, email, password);
+                showMessage("Usuario registrado y sesión iniciada exitosamente!");
+                authEmailInput.value = '';
+                authPasswordInput.value = '';
+            } catch (error) {
+                console.error("Error al registrar usuario:", error);
+                let errorMessage = "Error al registrar usuario.";
+                switch (error.code) {
+                    case 'auth/email-already-in-use':
+                        errorMessage = 'El email ya está en uso. Intenta iniciar sesión o usa otro email.';
+                        break;
+                    case 'auth/invalid-email':
+                        errorMessage = 'El email no es válido.';
+                        break;
+                    case 'auth/weak-password':
+                        errorMessage = 'La contraseña es muy débil (mínimo 6 caracteres).';
+                        break;
+                    default:
+                        errorMessage = 'Error de registro: ' + error.message;
+                }
+                showMessage(errorMessage);
+            } finally {
+                showAuthLoading(false);
+            }
+        }
+
+        async function handleLogin() {
+            const email = authEmailInput.value;
+            const password = authPasswordInput.value;
+
+            if (!email || !password) {
+                showMessage("Por favor, ingresa tu email y contraseña.");
+                return;
+            }
+
+            showAuthLoading(true);
+            try {
+                await signInWithEmailAndPassword(auth, email, password);
+                showMessage("Sesión iniciada exitosamente!");
+                authEmailInput.value = '';
+                authPasswordInput.value = '';
+            } catch (error) {
+                console.error("Error al iniciar sesión:", error);
+                let errorMessage = "Error al iniciar sesión.";
+                switch (error.code) {
+                    case 'auth/invalid-email':
+                        errorMessage = 'El email no es válido.';
+                        break;
+                    case 'auth/user-not-found':
+                        errorMessage = 'Usuario no encontrado. Por favor, regístrate.';
+                        break;
+                    case 'auth/wrong-password':
+                        errorMessage = 'Contraseña incorrecta.';
+                        break;
+                    case 'auth/too-many-requests':
+                        errorMessage = 'Demasiados intentos de inicio de sesión fallidos. Intenta más tarde.';
+                        break;
+                    default:
+                        errorMessage = 'Error de inicio de sesión: ' + error.message;
+                }
+                showMessage(errorMessage);
+            } finally {
+                showAuthLoading(false);
+            }
+        }
+
+        async function handleLogout() {
+            showAuthLoading(true);
+            try {
+                await signOut(auth);
+                showMessage("Sesión cerrada correctamente.");
+                nombreInput.value = '';
+                emailInput.value = '';
+            } catch (error) {
+                console.error("Error al cerrar sesión:", error);
+                showMessage("Error al cerrar sesión: " + error.message);
+            } finally {
+                showAuthLoading(false);
+            }
+        }
+
+        // --- Funciones para Guardar y Leer Datos (Requieren Autenticación) ---
+
+        async function guardarDatos() {
+            if (!currentUser) {
+                showMessage("Debes iniciar sesión para guardar datos.");
+                return;
+            }
+
+            const nombre = nombreInput.value;
+            const dataEmail = emailInput.value; // Renombrado para evitar conflicto con authEmailInput
+
+            if (nombre && dataEmail) {
+                try {
+                    // Agrega un nuevo documento a la colección "usuarios"
+                    // Nota: Si quieres datos privados por usuario, la colección debería ser
+                    // `artifacts/${appId}/users/${currentUser.uid}/usuarios`
+                    const docRef = await addDoc(collection(db, "usuarios"), {
+                        nombre: nombre,
+                        email: dataEmail,
+                        fechaGuardado: serverTimestamp(), // Para guardar la fecha actual del servidor
+                        guardadoPorUid: currentUser.uid // Guarda el UID del usuario que lo guardó
+                    });
+                    console.log("Documento escrito con ID: ", docRef.id);
+                    showMessage("Datos guardados correctamente!");
+                    nombreInput.value = '';
+                    emailInput.value = '';
+                    // leerDatos() se llama automáticamente por onAuthStateChanged o manualmente por botón
+                } catch (e) {
+                    console.error("Error al agregar documento: ", e);
+                    showMessage("Error al guardar datos. Asegúrate de tener permisos.");
+                }
+            } else {
+                showMessage("Por favor, ingresa nombre y email.");
+            }
+        }
+
+        async function leerDatos() {
+            datosGuardadosDiv.innerHTML = '<p class="text-center text-gray-500">Cargando datos...</p>'; // Limpiar y mostrar carga
+
+            if (!currentUser) {
+                // Esto puede ocurrir si se llama leerDatos antes de que onAuthStateChanged establezca el usuario.
+                // updateUI ya debería manejar el mensaje apropiado.
+                return;
+            }
+
+            try {
+                // Obtén todos los documentos de la colección "usuarios", ordenados por fecha
+                // Nota: Si tus reglas de seguridad no permiten `orderBy` sin índice, necesitarás crear uno.
+                // Opcionalmente, puedes remover `orderBy` y ordenar en el cliente.
+                const q = query(collection(db, "usuarios"), orderBy("fechaGuardado", "desc"));
+                const querySnapshot = await getDocs(q);
+
+                if (querySnapshot.empty) {
+                    datosGuardadosDiv.innerHTML = '<p class="text-center text-gray-500">No hay datos guardados aún.</p>';
+                    return;
+                }
+
+                datosGuardadosDiv.innerHTML = ''; // Limpiar después de confirmar que hay datos
+                querySnapshot.forEach((doc) => {
+                    const data = doc.data();
+                    const divItem = document.createElement('div');
+                    divItem.classList.add('dato-item', 'bg-gray-50', 'p-3', 'rounded-md', 'border', 'border-gray-200');
+                    divItem.innerHTML = `
+                        <p class="font-semibold text-gray-800">${data.nombre}</p>
+                        <p class="text-sm text-gray-600">Email: ${data.email}</p>
+                        <p class="text-xs text-gray-500">Guardado por UID: ${data.guardadoPorUid || 'N/A'}</p>
+                        <p class="text-xs text-gray-500">Fecha: ${data.fechaGuardado ? new Date(data.fechaGuardado.toDate()).toLocaleString() : 'N/A'}</p>
+                    `;
+                    datosGuardadosDiv.appendChild(divItem);
+                });
+            } catch (e) {
+                console.error("Error al leer documentos: ", e);
+                // Si el error es por falta de autenticación, updateUI ya lo maneja
+                if (e.code === 'permission-denied') {
+                    showMessage("Permiso denegado. Asegúrate de haber iniciado sesión.");
+                } else {
+                    showMessage("Error al cargar los datos.");
+                }
+                datosGuardadosDiv.innerHTML = '<p class="text-center text-red-500">Error al cargar los datos.</p>';
+            }
+        }
+
+        // --- Event Listeners ---
+        // Se añaden los listeners una vez que el DOM está completamente cargado
+        document.addEventListener('DOMContentLoaded', () => {
+            registerButton.addEventListener('click', handleRegister);
+            loginButton.addEventListener('click', handleLogin);
+            logoutButton.addEventListener('click', handleLogout);
+            guardarDatosButton.addEventListener('click', guardarDatos);
+            recargarDatosButton.addEventListener('click', leerDatos);
+
+            // Cargar los datos inicialmente si ya hay una sesión (manejado por updateUI)
+            updateUI();
+        });
+    </script>
+</body>
+</html>
