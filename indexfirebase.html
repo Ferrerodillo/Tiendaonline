@@ -1,83 +1,90 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Acceso a Firebase Realtime Database</title>
+  <meta charset="UTF-8">
+  <title>Pedidos Firebase</title>
 </head>
 <body>
-    <h1>Datos de Firebase Realtime Database</h1>
+  <h2>Acceso de Usuario</h2>
+  <input type="email" id="email" placeholder="Correo"><br>
+  <input type="password" id="password" placeholder="Contraseña"><br>
+  <button onclick="registrar()">Registrarse</button>
+  <button onclick="iniciar()">Iniciar Sesión</button>
+  <button onclick="cerrar()">Cerrar Sesión</button>
 
-    <div id="data-display"></div>
+  <h2>Pedidos</h2>
+  <button onclick="guardarPedido()">Guardar Pedido</button>
+  <ul id="lista"></ul>
 
-    <input type="text" id="messageInput" placeholder="Escribe tu mensaje">
-    <button id="sendMessageButton">Enviar mensaje</button>
+  <!-- Firebase -->
+  <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-database.js"></script>
 
     <script src="https://www.gstatic.com/firebasejs/9.6.4/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.6.4/firebase-database-compat.js"></script>
 
-    <script>
-        // Tu configuración de Firebase (reemplaza con la tuya)
-const firebaseConfig = {
-  apiKey: "AIzaSyATKAFNmwhe9X0GQ5GxHiSmc3wiOhb7j18",
-  authDomain: "rodillo-2b699.firebaseapp.com",
-  databaseURL: "https://rodillo-2b699-default-rtdb.firebaseio.com",
-  projectId: "rodillo-2b699",
-  storageBucket: "rodillo-2b699.firebasestorage.app",
-  messagingSenderId: "652395478682",
-  appId: "1:652395478682:web:f4447c35fee0599030a923"
-};
+  <script>
+    // CONFIGURA ESTO CON TUS DATOS DE FIREBASE
+    const firebaseConfig = {
+      apiKey: "AIzaSyATKAFNmwhe9X0GQ5GxHiSmc3wiOhb7j18",
+      authDomain: "rodillo-2b699.firebaseapp.com",
+      databaseURL: "https://rodillo-2b699-default-rtdb.firebaseio.com/",
+      projectId: "rodillo-2b699",
+      storageBucket: "rodillo-2b699.firebasestorage.app",
+      messagingSenderId: "652395478682",
+      appId: "1:652395478682:web:f4447c35fee0599030a923"
+    };
+    firebase.initializeApp(firebaseConfig);
 
-        // Inicializa Firebase
-        firebase.initializeApp(firebaseConfig);
+    function registrar() {
+      const email = document.getElementById("email").value;
+      const pass = document.getElementById("password").value;
+      firebase.auth().createUserWithEmailAndPassword(email, pass)
+        .then(() => alert("Registrado"))
+        .catch(error => alert(error.message));
+    }
 
-        // Obtén una referencia a la base de datos
-        const database = firebase.database();
-        const messagesRef = database.ref('messages'); // 'messages' es el nodo raíz donde guardaremos los mensajes
+    function iniciar() {
+      const email = document.getElementById("email").value;
+      const pass = document.getElementById("password").value;
+      firebase.auth().signInWithEmailAndPassword(email, pass)
+        .then(() => alert("Sesión iniciada"))
+        .catch(error => alert(error.message));
+    }
 
-        // Referencias a elementos del DOM
-        const dataDisplay = document.getElementById('data-display');
-        const messageInput = document.getElementById('messageInput');
-        const sendMessageButton = document.getElementById('sendMessageButton');
+    function cerrar() {
+      firebase.auth().signOut().then(() => alert("Sesión cerrada"));
+    }
 
-        // --- Funcionalidad para LEER datos ---
-        // Escucha cambios en el nodo 'messages'
-        messagesRef.on('value', (snapshot) => {
-            dataDisplay.innerHTML = ''; // Limpia el contenido anterior
+    function guardarPedido() {
+      const user = firebase.auth().currentUser;
+      if (user) {
+        const pedido = {
+          fecha: new Date().toISOString(),
+          producto: "Zapatos deportivos",
+          envio: "Av. Siempre Viva 123"
+        };
+        firebase.database().ref("pedidos/" + user.uid).push(pedido);
+      } else {
+        alert("Primero inicia sesión");
+      }
+    }
 
-            const data = snapshot.val(); // Obtiene los datos del snapshot
-
-            if (data) {
-                // Itera sobre los mensajes y los muestra
-                for (let key in data) {
-                    const messageElement = document.createElement('p');
-                    messageElement.textContent = `Mensaje: ${data[key].text}`;
-                    dataDisplay.appendChild(messageElement);
-                }
-            } else {
-                dataDisplay.textContent = 'No hay mensajes aún.';
-            }
+    firebase.auth().onAuthStateChanged(user => {
+      const lista = document.getElementById("lista");
+      if (user) {
+        firebase.database().ref("pedidos/" + user.uid).on("value", snapshot => {
+          lista.innerHTML = "";
+          snapshot.forEach(child => {
+            const p = child.val();
+            lista.innerHTML += `<li>${p.fecha} - ${p.producto} - ${p.envio}</li>`;
+          });
         });
-
-        // --- Funcionalidad para ESCRIBIR datos ---
-        sendMessageButton.addEventListener('click', () => {
-            const messageText = messageInput.value.trim();
-
-            if (messageText !== '') {
-                // push() genera una clave única para cada nuevo mensaje
-                messagesRef.push({
-                    text: messageText,
-                    timestamp: firebase.database.ServerValue.TIMESTAMP // Agrega un timestamp del servidor
-                })
-                .then(() => {
-                    messageInput.value = ''; // Limpia el input después de enviar
-                })
-                .catch((error) => {
-                    console.error("Error al escribir el mensaje: ", error);
-                });
-            }
-        });
-    </script>
+      } else {
+        lista.innerHTML = "";
+      }
+    });
+  </script>
 </body>
 </html>
-
