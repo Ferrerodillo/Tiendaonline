@@ -641,6 +641,8 @@
 
         const initialAuthToken = typeof __initial_auth_token !== 'undefined' ? __initial_auth_token : null;
         const appId = typeof __app_id !== 'undefined' ? __app_id : 'default-app-id';
+        // Clave de API para el asistente Gemini. Esta será provista por el entorno de Canvas.
+        const geminiApiKey = typeof __api_key !== 'undefined' ? __api_key : ''; 
 
         // Initialize Firebase
         const app = initializeApp(firebaseConfig);
@@ -1360,8 +1362,8 @@
             };
 
             try {
-                const apiKey = ""; // Canvas will provide this.
-                const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${apiKey}`;
+                // Se usa la clave de API obtenida de __api_key
+                const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${geminiApiKey}`;
                 const response = await fetch(apiUrl, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
@@ -1470,7 +1472,7 @@
                             price: parseFloat(product.precio || product.price || 0),
                             category: product.categoria || product.category || 'Sin categoría',
                             description: product.descripcion || product.description || 'Descripción no disponible',
-                            image: product.imagen || product.image || 'https://via.placeholder.com/150',
+                            image: product.imagen || product.image || 'https://placehold.co/150x150/FFCC00/000000?text=Martillo',
 			                codigo: product.codigo || product.sku || product.barcode || 'N/A',
                             stock: parseInt(product.stock || product.existencia || product.cantidad || 0)
                         })); 
@@ -1917,7 +1919,7 @@
                     const phoneEl = document.getElementById('phone');
 
                     if (firstNameEl && modalProfileNombreCompleto) firstNameEl.value = modalProfileNombreCompleto.value.split(' ')[0] || '';
-                    if (lastNameEl && modalProfileNombreCompleto) lastNameEl.value = modalProfileNombreCompleto.value.split(' ').slice(1).join(' ') || '';
+                    if (lastNameEl && modalProfileNombreCompleto) lastNameEl.value = modalProfileNombreCompletov.value.split(' ').slice(1).join(' ') || '';
                     if (emailEl && currentUser) emailEl.value = currentUser.email || '';
                     if (addressEl && modalProfileDireccion) addressEl.value = modalProfileDireccion.value || '';
                     if (phoneEl && modalProfileTelefono) phoneEl.value = modalProfileTelefono.value || '';
