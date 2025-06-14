@@ -1059,10 +1059,12 @@
             }
 
             const totalAmount = cart.reduce((total, item) => total + (item.price * item.quantity), 0) + 35.00; // Sumar costo de envío
-
+	    const email = "cesar.jarra@gmail.com";
+		
             const orderDetails = {
-                order_id: `ORD-${Date.now()}`, // Generar un ID de pedido único
                 nombre_cliente: `${firstName} ${lastName}`,
+		order_id: `ORD-${Date.now()}`, // Generar un ID de pedido único
+		fecha_pedido: new Date().toLocaleString('es-ES'),
                 email_cliente: email,
                 telefono_cliente: phone,
                 direccion_envio: `${address}, ${city}, ${state}, CP ${zipCode}`,
@@ -1070,7 +1072,7 @@
                 subtotal: cart.reduce((total, item) => total + (item.price * item.quantity), 0).toFixed(2),
                 costo_envio: '35.00',
                 total: totalAmount.toFixed(2),
-                fecha_pedido: new Date().toLocaleString('es-ES')
+		email
             };
             
             // Enviar email usando EmailJS
