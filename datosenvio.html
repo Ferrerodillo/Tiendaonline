@@ -145,8 +145,8 @@
     <div id="authModal" class="modal-backdrop hidden">
         <div class="modal-content">
             <i id="authModalClose" class="fas fa-times modal-close-button"></i>
-            <h2 class="text-2xl font-bold text-gray-800 text-center mb-6">
-                Acceder a tu Cuenta
+            <h2 id="authModalTitle" class="text-2xl font-bold text-gray-800 text-center mb-6">
+                Iniciar Sesión
             </h2>
             <div class="space-y-4">
                 <!-- Nuevo Label de Información de Registro -->
@@ -171,20 +171,30 @@
                     placeholder="Confirmar Contraseña"
                     class="w-full p-3 border border-gray-300 rounded-lg focus:ring-blue-500 focus:border-blue-500 transition duration-200 ease-in-out hidden"
                 />
-                <div class="flex flex-col sm:flex-row space-y-3 sm:space-y-0 sm:space-x-3">
+                
+                <!-- Botones para CAMBIAR MODO de Registro/Login -->
+                <div class="flex justify-center space-x-3 mb-4">
                     <button
-                        id="modalRegisterButton"
-                        class="w-full bg-blue-600 text-white p-3 rounded-lg hover:bg-blue-700 transition duration-200 ease-in-out font-semibold shadow-md"
+                        id="showRegisterModeButton"
+                        class="px-4 py-2 text-sm font-semibold rounded-md border border-transparent transition duration-200 ease-in-out text-gray-600 hover:text-blue-600 hover:border-blue-600"
                     >
-                        Registrarse
+                        Quiero Registrarme
                     </button>
                     <button
-                        id="modalLoginButton"
-                        class="w-full bg-green-600 text-white p-3 rounded-lg hover:bg-green-700 transition duration-200 ease-in-out font-semibold shadow-md"
+                        id="showLoginModeButton"
+                        class="px-4 py-2 text-sm font-semibold rounded-md border border-transparent transition duration-200 ease-in-out text-gray-600 hover:text-green-600 hover:border-green-600"
                     >
-                        Iniciar Sesión
+                        Quiero Iniciar Sesión
                     </button>
                 </div>
+
+                <!-- Botón de ACCIÓN (Registrar o Iniciar Sesión) -->
+                <button
+                    id="modalAuthSubmitButton"
+                    class="w-full bg-blue-600 text-white p-3 rounded-lg hover:bg-blue-700 transition duration-200 ease-in-out font-semibold shadow-md mt-4"
+                >
+                    Continuar
+                </button>
 
                 <!-- Sección de Recuperar Contraseña en el modal -->
                 <div class="mt-6 pt-4 border-t border-gray-200">
@@ -324,12 +334,14 @@
         // Authentication Modal elements
         const authModal = document.getElementById('authModal');
         const authModalCloseButton = document.getElementById('authModalClose');
-        const registrationInfoLabel = document.getElementById('registrationInfoLabel'); // New label element
+        const authModalTitle = document.getElementById('authModalTitle'); // Nuevo título del modal
+        const registrationInfoLabel = document.getElementById('registrationInfoLabel');
         const modalAuthEmailInput = document.getElementById('modalAuthEmailInput');
         const modalAuthPasswordInput = document.getElementById('modalAuthPasswordInput');
         const modalConfirmPasswordInput = document.getElementById('modalConfirmPasswordInput');
-        const modalRegisterButton = document.getElementById('modalRegisterButton');
-        const modalLoginButton = document.getElementById('modalLoginButton');
+        const showRegisterModeButton = document.getElementById('showRegisterModeButton'); // Nuevo botón
+        const showLoginModeButton = document.getElementById('showLoginModeButton');     // Nuevo botón
+        const modalAuthSubmitButton = document.getElementById('modalAuthSubmitButton'); // Nuevo botón para submit
         const modalResetPasswordEmail = document.getElementById('modalResetPasswordEmail');
         const modalResetPasswordButton = document.getElementById('modalResetPasswordButton');
 
@@ -377,8 +389,7 @@
             }
             // Disable/enable relevant buttons during loading
             userIconButton.disabled = show;
-            modalRegisterButton.disabled = show;
-            modalLoginButton.disabled = show;
+            modalAuthSubmitButton.disabled = show; // Deshabilita el botón de acción
             modalResetPasswordButton.disabled = show;
             if (logoutButton) logoutButton.disabled = show;
             if (modalSaveProfileButton) modalSaveProfileButton.disabled = show;
@@ -387,6 +398,10 @@
             if (recargarDatosButton) recargarDatosButton.disabled = show;
             if (editProfileButton) editProfileButton.disabled = show;
             if (openChangePasswordModalButton) openChangePasswordModalButton.disabled = show;
+            
+            // También deshabilita los botones de cambio de modo
+            showRegisterModeButton.disabled = show;
+            showLoginModeButton.disabled = show;
         }
 
         // Show custom message box
@@ -411,11 +426,12 @@
             // Clear inputs when opening modals
             if (modalElement === authModal) {
                 // Set default mode to login when opening auth modal
-                authModalCurrentMode = 'login';
-                updateAuthModalUI(); // Update UI based on mode
+                authModalCurrentMode = 'login'; // Por defecto al abrir
+                updateAuthModalUI(); // Actualizar UI basada en el modo
                 modalAuthEmailInput.value = '';
                 modalAuthPasswordInput.value = '';
                 modalResetPasswordEmail.value = '';
+                modalConfirmPasswordInput.value = ''; // Asegurar que siempre se limpie
             } else if (modalElement === changePasswordModal) {
                 modalCurrentPasswordInput.value = '';
                 modalNewPasswordInput.value = '';
@@ -429,13 +445,21 @@
         // Function to update the auth modal UI based on current mode
         function updateAuthModalUI() {
             if (authModalCurrentMode === 'register') {
+                authModalTitle.textContent = 'Registrarse';
                 modalConfirmPasswordInput.classList.remove('hidden');
                 registrationInfoLabel.classList.remove('hidden');
                 modalAuthPasswordInput.placeholder = 'Contraseña (mín. 6 caracteres)';
+                modalAuthSubmitButton.textContent = 'Registrarse';
+                modalAuthSubmitButton.classList.remove('bg-green-600', 'hover:bg-green-700');
+                modalAuthSubmitButton.classList.add('bg-blue-600', 'hover:bg-blue-700');
             } else { // 'login' mode
+                authModalTitle.textContent = 'Iniciar Sesión';
                 modalConfirmPasswordInput.classList.add('hidden');
                 registrationInfoLabel.classList.add('hidden');
                 modalAuthPasswordInput.placeholder = 'Contraseña';
+                modalAuthSubmitButton.textContent = 'Iniciar Sesión';
+                modalAuthSubmitButton.classList.remove('bg-blue-600', 'hover:bg-blue-700');
+                modalAuthSubmitButton.classList.add('bg-green-600', 'hover:bg-green-700');
             }
             // Always clear password fields on mode switch for a cleaner UX
             modalAuthPasswordInput.value = '';
@@ -509,14 +533,16 @@
 
         // --- Authentication Button Handlers (within Auth Modal) ---
 
-        async function handleRegister() {
-            // First, switch to register mode if not already
-            if (authModalCurrentMode !== 'register') {
-                authModalCurrentMode = 'register';
-                updateAuthModalUI();
-                return; // Stop here, wait for next click to actually register
+        // Función que se ejecuta al hacer clic en el botón de acción (Continuar)
+        async function handleAuthSubmit() {
+            if (authModalCurrentMode === 'register') {
+                handleRegisterAction();
+            } else {
+                handleLoginAction();
             }
+        }
 
+        async function handleRegisterAction() { // Renamed from handleRegister
             const email = modalAuthEmailInput.value;
             const password = modalAuthPasswordInput.value;
             const confirmPassword = modalConfirmPasswordInput.value;
@@ -561,11 +587,7 @@
             }
         }
 
-        async function handleLogin() {
-            // Switch to login mode
-            authModalCurrentMode = 'login';
-            updateAuthModalUI(); // Update UI to hide register fields
-
+        async function handleLoginAction() { // Renamed from handleLogin
             const email = modalAuthEmailInput.value;
             const password = modalAuthPasswordInput.value;
 
@@ -873,16 +895,28 @@
         document.addEventListener('DOMContentLoaded', () => {
             // Main UI interactions
             userIconButton.addEventListener('click', () => {
-                authModalCurrentMode = 'login'; // Reset to login mode when opening
+                authModalCurrentMode = 'login'; // Default to login mode
+                updateAuthModalUI(); // Update UI for login mode
                 openModal(authModal);
             });
             authModalCloseButton.addEventListener('click', () => closeModal(authModal));
             profileModalCloseButton.addEventListener('click', () => closeModal(profileModal));
             changePasswordModalCloseButton.addEventListener('click', () => closeModal(changePasswordModal));
 
-            // Authentication actions
-            modalRegisterButton.addEventListener('click', handleRegister);
-            modalLoginButton.addEventListener('click', handleLogin);
+            // Authentication mode switch buttons
+            showRegisterModeButton.addEventListener('click', () => {
+                authModalCurrentMode = 'register';
+                updateAuthModalUI();
+            });
+            showLoginModeButton.addEventListener('click', () => {
+                authModalCurrentMode = 'login';
+                updateAuthModalUI();
+            });
+
+            // Authentication action button
+            modalAuthSubmitButton.addEventListener('click', handleAuthSubmit); // This button now handles both login/register
+
+            // Other authentication actions
             logoutButton.addEventListener('click', handleLogout);
             modalResetPasswordButton.addEventListener('click', handleResetPassword);
 
