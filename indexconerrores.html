@@ -477,7 +477,7 @@
                             category: product.categoria || product.category || 'Sin categoría',
                             description: product.descripcion || product.description || 'Descripción no disponible',
                             image: product.imagen || product.image || 'https://via.placeholder.com/150',
-			    codigo: product.codigo || product.sku || product.barcode || 0, // Nuevo campo stock
+			    codigo: parseInt(product.codigo || product.sku || product.barcode || 0), // Nuevo campo stock
                             stock: parseInt(product.stock || product.existencia || product.cantidad || 0) // Nuevo campo stock
                         })); 
                         
