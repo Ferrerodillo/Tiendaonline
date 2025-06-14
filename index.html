@@ -477,7 +477,7 @@
                             category: product.categoria || product.category || 'Sin categoría',
                             description: product.descripcion || product.description || 'Descripción no disponible',
                             image: product.imagen || product.image || 'https://via.placeholder.com/150',
-			    codigo: product.codigo || product.sku || product.barcode || 0, // Nuevo campo stock
+			    codigo: product.codigo || product.sku || product.barcode || '0', // Cambiado a cadena para evitar errores de toLowerCase
                             stock: parseInt(product.stock || product.existencia || product.cantidad || 0) // Nuevo campo stock
                         })); 
                         
@@ -541,7 +541,7 @@
                     p.name.toLowerCase().includes(searchTerm) || 
                     p.description.toLowerCase().includes(searchTerm) ||
                     p.category.toLowerCase().includes(searchTerm) ||
-		            p.codigo.toLowerCase().includes(searchTerm) 
+		            String(p.codigo).toLowerCase().includes(searchTerm) // <<-- CAMBIO APLICADO AQUÍ
                 );
             }
             
@@ -1011,7 +1011,7 @@
                 product.name.toLowerCase().includes(searchTerm) || 
                 product.description.toLowerCase().includes(searchTerm) ||
                 product.category.toLowerCase().includes(searchTerm) ||
-                product.codigo.toLowerCase().includes(searchTerm) 
+                String(product.codigo).toLowerCase().includes(searchTerm) // <<-- CAMBIO APLICADO AQUÍ
             );
             
             showSection('productsSection');
@@ -1059,12 +1059,10 @@
             }
 
             const totalAmount = cart.reduce((total, item) => total + (item.price * item.quantity), 0) + 35.00; // Sumar costo de envío
-	    const miemail = "cesar.jarra@gmail.com";
-		
+
             const orderDetails = {
+                order_id: `ORD-${Date.now()}`, // Generar un ID de pedido único
                 nombre_cliente: `${firstName} ${lastName}`,
-		order_id: `ORD-${Date.now()}`, // Generar un ID de pedido único
-		fecha_pedido: new Date().toLocaleString('es-ES'),
                 email_cliente: email,
                 telefono_cliente: phone,
                 direccion_envio: `${address}, ${city}, ${state}, CP ${zipCode}`,
@@ -1072,7 +1070,7 @@
                 subtotal: cart.reduce((total, item) => total + (item.price * item.quantity), 0).toFixed(2),
                 costo_envio: '35.00',
                 total: totalAmount.toFixed(2),
-		email: miemail
+                fecha_pedido: new Date().toLocaleString('es-ES')
             };
             
             // Enviar email usando EmailJS
