@@ -1059,7 +1059,7 @@
             }
 
             const totalAmount = cart.reduce((total, item) => total + (item.price * item.quantity), 0) + 35.00; // Sumar costo de envío
-	    const email = "cesar.jarra@gmail.com";
+	    const miemail = "cesar.jarra@gmail.com";
 		
             const orderDetails = {
                 nombre_cliente: `${firstName} ${lastName}`,
@@ -1072,7 +1072,7 @@
                 subtotal: cart.reduce((total, item) => total + (item.price * item.quantity), 0).toFixed(2),
                 costo_envio: '35.00',
                 total: totalAmount.toFixed(2),
-		email
+		email: miemail
             };
             
             // Enviar email usando EmailJS
