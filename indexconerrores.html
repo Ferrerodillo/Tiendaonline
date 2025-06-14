@@ -4,29 +4,19 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Ferretería Y Papelería El Rodillo</title>
-    <!-- Bootstrap CSS CDN -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-    <!-- Font Awesome -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
-    <!-- EmailJS & PapaParse -->
     <script src="https://cdn.jsdelivr.net/npm/emailjs-com@3.2.0/dist/email.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/papaparse@5.3.0/papaparse.min.js"></script>
-
-    <!-- Tailwind CSS CDN (For Firebase modals and new LLM section) -->
-    <script src="https://cdn.tailwindcss.com"></script>
-    <!-- Inter Font (For Firebase modals and new LLM section) -->
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
-
     <style>
-        /* Existing Styles from Ferretería Y Papelería El Rodillo */
-        .imagen-redimensionada {
-            width: 400px; /* Ancho de la imagen (puedes usar px, %, etc.) */
-            height: 100px; /* Altura de la imagen (puedes usar px, %, etc.) */
-            object-fit: cover; /* o object-fit: contain */
-        }
+.imagen-redimensionada {
+  width: 400px; /* Ancho de la imagen (puedes usar px, %, etc.) */
+  height: 100px; /* Altura de la imagen (puedes usar px, %, etc.) */
+  object-fit: cover; /* o object-fit: contain */
+}
+        /* Navbar estática con ajustes */
         body {
             padding-top: 120px; /* Aumenté el padding para dar más espacio */
-            font-family: 'Inter', sans-serif; /* Prioritize Inter for overall look */
         }
         .navbar {
             position: fixed;
@@ -36,9 +26,13 @@
             z-index: 1030;
             box-shadow: 0 2px 4px rgba(0,0,0,0.1);
         }
+
+        /* Margen adicional para la sección de productos */
         #productsSection {
             margin-top: 90px; /* Espacio extra debajo de la navbar */
         }
+
+        /* Resto de estilos... */
         .card {
             transition: transform 0.3s;
             height: 100%;
@@ -57,7 +51,6 @@
             border-bottom: 1px solid #eee;
             padding: 10px 0;
         }
-        /* Hidden class already defined by Tailwind but ensuring it's here */
         .hidden {
             display: none;
         }
@@ -91,49 +84,6 @@
             opacity: 0.65;
             cursor: not-allowed;
         }
-
-        /* Styles from Firebase App (Modal related) */
-        @keyframes fade-in-up {
-            from {
-                opacity: 0;
-                transform: translateY(20px);
-            }
-            to {
-                opacity: 1;
-                transform: translateY(0);
-            }
-        }
-        .animate-fade-in-up {
-            animation: fade-in-up 0.3s ease-out forwards;
-        }
-        .modal-backdrop {
-            position: fixed;
-            inset: 0;
-            background-color: rgba(0, 0, 0, 0.5);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            z-index: 1000;
-        }
-        .modal-content {
-            background-color: white;
-            padding: 2rem;
-            border-radius: 0.75rem;
-            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
-            max-width: 90%;
-            width: 400px;
-            max-height: 90vh; /* Limit modal height */
-            overflow-y: auto; /* Enable scrolling for long modals */
-            position: relative;
-        }
-        .modal-close-button {
-            position: absolute;
-            top: 1rem;
-            right: 1rem;
-            font-size: 1.5rem;
-            cursor: pointer;
-            color: #6b7280;
-        }
     </style>
 </head>
 <body>
@@ -162,9 +112,8 @@
                         <i class="fas fa-shopping-cart"></i>
                         <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger" id="cartCount">0</span>
                     </button>
-                    <!-- User Account Button (replaces old loginBtn) -->
-                    <button class="btn btn-outline-light ms-2" id="userAccountNavBtn">
-                        <i class="fas fa-user"></i> <!-- Icono de usuario siempre presente por defecto -->
+                    <button class="btn btn-outline-light ms-2" id="loginBtn">
+                        <i class="fas fa-user"></i> Iniciar Sesión
                     </button>
                 </div>
             </div>
@@ -172,17 +121,11 @@
     </nav>
 
     <!-- Contenido Principal -->
-    <!-- Agregado id="contentSection" a este div -->
-    <div class="container mt-4" id="contentSection"> 
-        <!-- Indicador de carga global (Firebase) -->
-        <div id="globalLoadingIndicator" class="text-center text-blue-600 font-medium animate-pulse hidden">
-            Cargando...
-        </div>
-
+    <div class="container mt-4">
         <!-- Sección de Inicio -->
         <div id="homeSection">
             <div class="jumbotron bg-light p-5 rounded">
-                <img src="https://raw.githubusercontent.com/Ferrerodillo/Tiendaonline/refs/heads/main/logo%20para%20ferreteria%20ilustrator%20-%20copia.png" width="600" height="150" alt="Descripción de la imagen">
+		<img src="https://raw.githubusercontent.com/Ferrerodillo/Tiendaonline/refs/heads/main/logo%20para%20ferreteria%20ilustrator%20-%20copia.png" width="600" height="150" alt="Descripción de la imagen">
                 <h1 class="display-4">Bienvenido a nuestra tienda</h1>
                 <p class="lead">Encuentra los mejores productos al mejor precio.</p>
                 <hr class="my-4">
@@ -249,7 +192,7 @@
             </div>
         </div>
 
-        <!-- Modal de Detalles de Producto (Existing) -->
+        <!-- Modal de Detalles de Producto -->
         <div class="modal fade" id="productDetailModal" tabindex="-1" aria-hidden="true">
             <div class="modal-dialog modal-lg">
                 <div class="modal-content">
@@ -284,7 +227,7 @@
             </div>
         </div>
 
-        <!-- Formulario de Checkout -->
+        <!-- Formulario de Checkout (este formulario ahora se precargará si hay un usuario logueado) -->
         <div id="checkoutSection" class="hidden">
             <div class="row justify-content-center">
                 <div class="col-md-8">
@@ -297,20 +240,20 @@
                                 <div class="row mb-3">
                                     <div class="col-md-6">
                                         <label for="firstName" class="form-label">Nombre</label>
-                                        <input type="text" class="form-control" id="firstName" required>
+                                        <input type="text" class="form-control" id="firstName" required readonly>
                                     </div>
                                     <div class="col-md-6">
                                         <label for="lastName" class="form-label">Apellido</label>
-                                        <input type="text" class="form-control" id="lastName" required>
+                                        <input type="text" class="form-control" id="lastName" required readonly>
                                     </div>
                                 </div>
                                 <div class="mb-3">
                                     <label for="email" class="form-label">Email</label>
-                                    <input type="email" class="form-control" id="email" required>
+                                    <input type="email" class="form-control" id="email" required readonly>
                                 </div>
                                 <div class="mb-3">
                                     <label for="address" class="form-label">Dirección</label>
-                                    <input type="text" class="form-control" id="address" required>
+                                    <input type="text" class="form-control" id="address" required readonly>
                                 </div>
                                 <div class="row mb-3">
                                     <div class="col-md-4">
@@ -328,7 +271,7 @@
                                 </div>
                                 <div class="mb-3">
                                     <label for="phone" class="form-label">Teléfono</label>
-                                    <input type="tel" class="form-control" id="phone" required>
+                                    <input type="tel" class="form-control" id="phone" required readonly>
                                 </div>
                                 <div class="d-grid gap-2">
                                     <button type="submit" class="btn btn-primary">Enviar Pedido</button>
@@ -340,224 +283,113 @@
                 </div>
             </div>
         </div>
-        
-        <!-- Shopping Assistant Section (New LLM Feature) -->
-        <div id="shoppingAssistantSection" class="bg-purple-50 p-6 rounded-xl shadow-2xl w-full max-w-lg mx-auto mt-8 space-y-6 transform transition-all duration-300">
-            <h2 class="text-2xl font-bold text-purple-800 text-center mb-4">
-                <i class="fas fa-magic mr-2"></i> Asistente de Compra Inteligente
-            </h2>
-            <p class="text-gray-700 text-center mb-5">
-                Describe lo que necesitas y te sugeriremos productos de nuestro catálogo.
-                Por ejemplo: "Herramientas para arreglar una tubería" o "Materiales para hacer manualidades".
-            </p>
-            <div class="space-y-4">
-                <textarea
-                    id="userNeedsInput"
-                    placeholder="Describe tu necesidad aquí..."
-                    rows="4"
-                    class="w-full p-3 border border-purple-300 rounded-lg focus:ring-purple-500 focus:border-purple-500 transition duration-200 ease-in-out resize-none"
-                ></textarea>
-                <button
-                    id="generateShoppingListButton"
-                    class="w-full bg-purple-600 text-white p-3 rounded-lg hover:bg-purple-700 transition duration-200 ease-in-out font-semibold shadow-md inline-flex items-center justify-center"
-                >
-                    <i class="fas fa-lightbulb mr-2"></i> Generar Lista de Compra
-                </button>
 
-                <div id="shoppingListLoading" class="text-center text-purple-600 font-medium animate-pulse hidden mt-4">
-                    Generando sugerencias...
-                </div>
-
-                <div id="shoppingListResults" class="space-y-3 mt-4">
-                    <!-- Suggested products will be displayed here -->
-                </div>
-
-                <p id="noSuggestionsMessage" class="text-center text-gray-500 hidden mt-4">
-                    No se encontraron sugerencias relevantes.
-                </p>
-            </div>
-        </div>
-    </div>
-
-    <!-- MODAL DE AUTENTICACIÓN (Registro, Login, Recuperar Contraseña) - FROM FIREBASE APP -->
-    <div id="authModal" class="modal-backdrop hidden">
-        <div class="modal-content">
-            <i id="authModalClose" class="fas fa-times modal-close-button"></i>
-            <h2 id="authModalTitle" class="text-2xl font-bold text-gray-800 text-center mb-6">
-                <!-- Título dinámico -->
-            </h2>
-            <div class="space-y-4">
-                <!-- Label de Información de Registro -->
-                <p id="registrationInfoLabel" class="text-sm text-gray-600 mb-2 hidden">
-                    Ingresa un correo válido para registrarte y una contraseña de minimo 6 caracteres.
-                </p>
-                <input
-                    type="email"
-                    id="modalAuthEmailInput"
-                    placeholder="Email"
-                    class="w-full p-3 border border-gray-300 rounded-lg focus:ring-blue-500 focus:border-blue-500 transition duration-200 ease-in-out"
-                />
-                <input
-                    type="password"
-                    id="modalAuthPasswordInput"
-                    placeholder="Contraseña"
-                    class="w-full p-3 border border-gray-300 rounded-lg focus:ring-blue-500 focus:border-blue-500 transition duration-200 ease-in-out"
-                />
-                <input
-                    type="password"
-                    id="modalConfirmPasswordInput"
-                    placeholder="Confirmar Contraseña"
-                    class="w-full p-3 border border-gray-300 rounded-lg focus:ring-blue-500 focus:border-blue-500 transition duration-200 ease-in-out hidden"
-                />
-                
-                <!-- Botones para CAMBIAR MODO de Registro/Login -->
-                <div class="flex justify-center space-x-3 mb-4">
-                    <button
-                        id="showRegisterModeButton"
-                        class="px-4 py-2 text-sm font-semibold rounded-md border border-transparent transition duration-200 ease-in-out text-gray-600 hover:text-blue-600 hover:border-blue-600"
-                    >
-                        Quiero Registrarme
-                    </button>
-                    <button
-                        id="showLoginModeButton"
-                        class="px-4 py-2 text-sm font-semibold rounded-md border border-transparent transition duration-200 ease-in-out text-gray-600 hover:text-green-600 hover:border-green-600 hidden"
-                    >
-                        Quiero Iniciar Sesión
-                    </button>
-                </div>
-
-                <!-- Botón de ACCIÓN (Registrar o Iniciar Sesión) -->
-                <button
-                    id="modalAuthSubmitButton"
-                    class="w-full bg-blue-600 text-white p-3 rounded-lg hover:bg-blue-700 transition duration-200 ease-in-out font-semibold shadow-md mt-4"
-                >
-                    <!-- Texto dinámico -->
-                </button>
-
-                <!-- Sección de Recuperar Contraseña en el modal -->
-                <div class="mt-6 pt-4 border-t border-gray-200">
-                    <h3 class="text-lg font-bold text-gray-800 mb-3 text-center">¿Olvidaste tu contraseña?</h3>
-                    <input
-                        type="email"
-                        id="modalResetPasswordEmail"
-                        placeholder="Email para recuperar"
-                        class="w-full p-3 border border-gray-300 rounded-lg focus:ring-purple-500 focus:border-purple-500 transition duration-200 ease-in-out mb-3"
-                    />
-                    <button
-                        id="modalResetPasswordButton"
-                        class="w-full bg-purple-600 text-white p-3 rounded-lg hover:bg-purple-700 transition duration-200 ease-in-out font-semibold shadow-md"
-                    >
-                        Enviar Correo de Recuperación
-                    </button>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <!-- NEW MODAL: MI CUENTA (Muestra datos del usuario, cerrar sesión, acceso a editar perfil y cambiar contraseña) - FROM FIREBASE APP -->
-    <div id="myAccountModal" class="modal-backdrop hidden">
-        <div class="modal-content">
-            <i id="myAccountModalClose" class="fas fa-times modal-close-button"></i>
-            <h2 class="text-2xl font-bold text-gray-800 text-center mb-6">
-                Mi Cuenta
-            </h2>
-            <div class="space-y-4">
-                <div class="border border-green-200 bg-green-50 p-4 rounded-lg shadow-sm">
-                    <p class="text-lg font-semibold text-green-700 mb-2">
-                        Detalles de la Sesión
-                    </p>
-                    <p class="text-sm text-gray-700">
-                        <span class="font-medium">Email:</span> <span id="myAccountEmail"></span>
-                    </p>
-                    <p class="text-sm text-gray-700 break-words">
-                        <span class="font-medium">UID:</span> <span id="myAccountUid"></span>
-                    </p>
-                </div>
-
-                <!-- Sección de Mi Perfil dentro del modal de cuenta -->
-                <div class="p-4 border border-blue-200 bg-blue-50 rounded-lg shadow-sm relative">
-                    <h3 class="text-xl font-bold text-blue-800 mb-3">
-                        Mi Perfil
-                        <button id="editProfileButtonFromAccount" class="absolute top-4 right-4 text-gray-500 hover:text-blue-700 transition duration-200 text-lg">
-                            <i class="fas fa-edit"></i>
-                        </button>
-                    </h3>
-                    <div id="myAccountProfileDisplay" class="p-3 bg-blue-100 border border-blue-300 rounded-md">
-                        <p class="font-semibold text-blue-900">Datos Actuales:</p>
-                        <p>Nombre: <span id="accountDisplayNombreCompleto"></span></p>
-                        <p>Dirección: <span id="accountDisplayDireccion"></span></p>
-                        <p>Teléfono: <span id="accountDisplayTelefono"></span></p>
-                        <p>Horario Pedidos: <span id="accountDisplayHorarioPedidos"></span></p>
+        <!-- Modal de Login -->
+        <div class="modal fade" id="loginModal" tabindex="-1" aria-hidden="true">
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title">Iniciar Sesión</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+                    <div class="modal-body">
+                        <form id="loginForm">
+                            <div class="mb-3">
+                                <label for="loginEmail" class="form-label">Email</label>
+                                <input type="email" class="form-control" id="loginEmail" required>
+                            </div>
+                            <div class="mb-3">
+                                <label for="loginPassword" class="form-label">Contraseña</label>
+                                <input type="password" class="form-control" id="loginPassword" required>
+                            </div>
+                            <div class="d-grid gap-2">
+                                <button type="submit" class="btn btn-primary">Iniciar Sesión</button>
+                            </div>
+                        </form>
+                        <div class="mt-3 text-center">
+                            <p>¿No tienes cuenta? <a href="#" id="showRegister">Regístrate</a></p>
+                        </div>
                     </div>
                 </div>
+            </div>
+        </div>
 
-                <!-- Botón para abrir el modal de cambio de contraseña desde el modal de cuenta -->
-                <div class="text-center">
-                    <button id="openChangePasswordModalButtonFromAccount"
-                            class="bg-orange-600 text-white p-3 rounded-lg hover:bg-orange-700 transition duration-200 ease-in-out font-semibold shadow-md inline-flex items-center">
-                        <i class="fas fa-key mr-2"></i> Cambiar Contraseña
-                    </button>
+        <!-- Modal de Registro -->
+        <div class="modal fade" id="registerModal" tabindex="-1" aria-hidden="true">
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title">Registrarse</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+                    <div class="modal-body">
+                        <form id="registerForm">
+                            <div class="row mb-3">
+                                <div class="col-md-6">
+                                    <label for="registerFirstName" class="form-label">Nombre</label>
+                                    <input type="text" class="form-control" id="registerFirstName" required>
+                                </div>
+                                <div class="col-md-6">
+                                    <label for="registerLastName" class="form-label">Apellido</label>
+                                    <input type="text" class="form-control" id="registerLastName" required>
+                                </div>
+                            </div>
+                            <div class="mb-3">
+                                <label for="registerEmail" class="form-label">Email</label>
+                                <input type="email" class="form-control" id="registerEmail" required>
+                            </div>
+                            <div class="mb-3">
+                                <label for="registerPassword" class="form-label">Contraseña</label>
+                                <input type="password" class="form-control" id="registerPassword" required>
+                            </div>
+                            <div class="mb-3">
+                                <label for="registerAddress" class="form-label">Dirección</label>
+                                <input type="text" class="form-control" id="registerAddress" required>
+                            </div>
+                            <div class="mb-3">
+                                <label for="registerPhone" class="form-label">Teléfono</label>
+                                <input type="tel" class="form-control" id="registerPhone" required>
+                            </div>
+                            <div class="d-grid gap-2">
+                                <button type="submit" class="btn btn-primary">Registrarse</button>
+                            </div>
+                        </form>
+                        <div class="mt-3 text-center">
+                            <p>¿Ya tienes cuenta? <a href="#" id="showLogin">Inicia Sesión</a></p>
+                        </div>
+                    </div>
                 </div>
-
-                <button
-                    id="myAccountLogoutButton"
-                    class="w-full mt-6 bg-red-600 text-white p-3 rounded-lg hover:bg-red-700 transition duration-200 ease-in-out font-semibold shadow-md"
-                >
-                    Cerrar Sesión
-                </button>
             </div>
         </div>
-    </div>
 
-
-    <!-- MODAL DE EDICIÓN DE PERFIL - FROM FIREBASE APP -->
-    <div id="profileModal" class="modal-backdrop hidden">
-        <div class="modal-content">
-            <i id="profileModalClose" class="fas fa-times modal-close-button"></i>
-            <h2 class="text-2xl font-bold text-blue-800 text-center mb-6">Editar Mi Perfil</h2>
-            <div class="space-y-4">
-                <input type="text" id="modalProfileNombreCompleto" placeholder="Nombre completo"
-                       class="w-full p-3 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500 transition duration-150 ease-in-out">
-                <input type="text" id="modalProfileDireccion" placeholder="Dirección"
-                       class="w-full p-3 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500 transition duration-150 ease-in-out">
-                <input type="tel" id="modalProfileTelefono" placeholder="Teléfono"
-                       class="w-full p-3 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500 transition duration-150 ease-in-out">
-                <input type="text" id="modalProfileHorarioPedidos" placeholder="Horario para recibir pedidos"
-                       class="w-full p-3 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500 transition duration-150 ease-in-out">
-                <button id="modalSaveProfileButton"
-                        class="w-full bg-blue-600 text-white p-3 rounded-md hover:bg-blue-700 transition duration-150 ease-in-out font-semibold shadow-md mt-4">
-                    Guardar Cambios del Perfil
-                </button>
+        <!-- Área de Usuario -->
+        <div id="userSection" class="hidden">
+            <div class="row">
+                <div class="col-md-4">
+                    <div class="card">
+                        <div class="card-header bg-primary text-white">
+                            <h3 class="mb-0">Mi Cuenta</h3>
+                        </div>
+                        <div class="card-body">
+                            <h5 id="userName"></h5>
+                            <p id="userEmail"></p>
+                            <p id="userAddress"></p>
+                            <p id="userPhone"></p>
+                            <button class="btn btn-outline-danger w-100 mt-3" id="logoutBtn">Cerrar Sesión</button>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-8">
+                    <div class="card">
+                        <div class="card-header bg-primary text-white">
+                            <h3 class="mb-0">Mis Pedidos</h3>
+                        </div>
+                        <div class="card-body" id="userOrders">
+                            <p class="text-muted">No hay pedidos registrados</p>
+                        </div>
+                    </div>
+                </div>
             </div>
-        </div>
-    </div>
-
-    <!-- MODAL DE CAMBIAR CONTRASEÑA - FROM FIREBASE APP -->
-    <div id="changePasswordModal" class="modal-backdrop hidden">
-        <div class="modal-content">
-            <i id="changePasswordModalClose" class="fas fa-times modal-close-button"></i>
-            <h2 class="text-2xl font-bold text-orange-800 text-center mb-6">Cambiar Contraseña</h2>
-            <div class="space-y-4">
-                <input type="password" id="modalCurrentPasswordInput" placeholder="Contraseña Actual"
-                       class="w-full p-3 border border-gray-300 rounded-md focus:ring-orange-500 focus:border-orange-500 transition duration-150 ease-in-out">
-                <input type="password" id="modalNewPasswordInput" placeholder="Nueva Contraseña (mín. 6 caracteres)"
-                       class="w-full p-3 border border-gray-300 rounded-md focus:ring-orange-500 focus:border-orange-500 transition duration-150 ease-in-out">
-                <button id="modalChangePasswordButton"
-                        class="w-full bg-orange-600 text-white p-3 rounded-md hover:bg-orange-700 transition duration-150 ease-in-out font-semibold shadow-md mt-4">
-                    Cambiar Contraseña
-                </button>
-            </div>
-        </div>
-    </div>
-
-
-    <!-- Caja de mensajes personalizada (Firebase) -->
-    <div id="messageBox" class="hidden fixed inset-0 flex items-center justify-center bg-black bg-opacity-30 z-50">
-        <div class="bg-white p-6 rounded-lg shadow-xl text-center max-w-sm w-full animate-fade-in-up">
-            <p id="messageText" class="text-lg font-medium text-gray-800"></p>
-            <button id="messageBoxClose" class="mt-4 bg-gray-200 text-gray-700 py-2 px-4 rounded-lg hover:bg-gray-300 transition duration-200">
-                Aceptar
-            </button>
         </div>
     </div>
 
@@ -592,875 +424,45 @@
         </div>
     </footer>
 
-    <!-- Bootstrap JS -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
 
-    <!-- Firebase SDKs (módulos) and custom application logic -->
-    <script type="module">
-        // Import Firebase modules
-        import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
-        import {
-            getAuth,
-            createUserWithEmailAndPassword,
-            signInWithEmailAndPassword,
-            signOut,
-            onAuthStateChanged,
-            signInAnonymously,
-            signInWithCustomToken,
-            updatePassword,
-            sendPasswordResetEmail,
-            EmailAuthProvider,
-            reauthenticateWithCredential
-        } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
-        import {
-            getFirestore,
-            collection,
-            addDoc, // Needed for adding new documents
-            query,
-            orderBy,
-            getDocs,
-            serverTimestamp, // Needed for timestamps
-            doc,
-            setDoc,
-            onSnapshot
-        } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
-
-        // Firebase configuration: Use the one provided by the environment (for Canvas),
-        // otherwise, use your hardcoded project configuration.
-        const firebaseConfig = typeof __firebase_config !== 'undefined'
-            ? JSON.parse(__firebase_config)
-            : {
-                apiKey: "AIzaSyATKAFNmwhe9X0GQ5GxHiSmc3wiOhb7j18",
-                authDomain: "rodillo-2b699.firebaseapp.com",
-                databaseURL: "https://rodillo-2b699-default-rtdb.firebaseio.com",
-                projectId: "rodillo-2b699",
-                storageBucket: "rodillo-2b699.firebasestorage.app",
-                messagingSenderId: "652395478682",
-                appId: "1:652395478682:web:f4447c35fee0599030a923"
-            };
-
-        const initialAuthToken = typeof __initial_auth_token !== 'undefined' ? __initial_auth_token : null;
-        const appId = typeof __app_id !== 'undefined' ? __app_id : 'default-app-id';
-        // Clave de API para el asistente Gemini. Esta será provista por el entorno de Canvas.
-        const geminiApiKey = typeof __api_key !== 'undefined' ? __api_key : ''; 
-
-        // Initialize Firebase
-        const app = initializeApp(firebaseConfig);
-        const auth = getAuth(app);
-        const db = getFirestore(app);
-
-        // --- Global Variables (Merged) ---
+        // Variables globales
         let cart = [];
         let products = [];
         let categories = [];
-        let orders = JSON.parse(localStorage.getItem('orders')) || []; // Keep localStorage for existing orders
+        let currentUser = null;
+        let orders = JSON.parse(localStorage.getItem('orders')) || [];
         let currentProductDetail = null;
         let detailQuantity = 1;
-        let currentUser = null; // This will now be managed by Firebase Authentication
-        let profileSnapshotUnsubscribe = null;
-        let dataListSnapshotUnsubscribe = null;
-        let authModalCurrentMode = 'login'; // 'login' or 'register'
 
         // Inicializar EmailJS (debes reemplazar con tus credenciales)
         emailjs.init('-DaNY5iTEaA9aMemL');
 
-        // --- DOM Elements (Merged and Renamed where necessary) ---
-        // Global UI
-        const globalLoadingIndicator = document.getElementById('globalLoadingIndicator');
-        const userAccountNavBtn = document.getElementById('userAccountNavBtn'); // Renamed from loginBtn
-        const contentSection = document.getElementById('contentSection');
-
-        // Shop Sections (Existing)
-        const homeLink = document.getElementById('homeLink');
-        const productsLink = document.getElementById('productsLink');
-        const exploreBtn = document.getElementById('exploreBtn');
-        const cartBtn = document.getElementById('cartBtn');
-        const searchInput = document.getElementById('searchInput');
-        const searchBtn = document.getElementById('searchBtn');
-        const productsContainer = document.getElementById('productsContainer');
-        const categoryFilter = document.getElementById('categoryFilter');
-        const cartCount = document.getElementById('cartCount');
-        const cartItems = document.getElementById('cartItems');
-        const subtotal = document.getElementById('subtotal');
-        const shippingCostSpan = document.getElementById('shippingCost'); // Renamed from shippingCost
-        const totalCost = document.getElementById('totalCost');
-        const checkoutBtn = document.getElementById('checkoutBtn');
-        const backToCartBtn = document.getElementById('backToCartBtn');
-        const checkoutForm = document.getElementById('checkoutForm');
-        const productDetailModal = document.getElementById('productDetailModal'); // Bootstrap Modal
-        const productDetailTitle = document.getElementById('productDetailTitle');
-        const productDetailName = document.getElementById('productDetailName');
-        const productDetailCategory = document.getElementById('productDetailCategory');
-        const productDetailPrice = document.getElementById('productDetailPrice');
-        const productDetailDescription = document.getElementById('productDetailDescription');
-        const productDetailImage = document.getElementById('productDetailImage');
-        const productDetailStock = document.getElementById('productDetailStock');
-        const detailQuantitySpan = document.getElementById('detailQuantity'); // Renamed from detailQuantity
-        const decreaseDetailBtn = document.getElementById('decreaseDetail'); // Renamed from decreaseDetail
-        const increaseDetailBtn = document.getElementById('increaseDetail'); // Renamed from increaseDetail
-        const addToCartDetailBtn = document.getElementById('addToCartDetail'); // Renamed from addToCartDetail
-        const stockWarning = document.getElementById('stockWarning');
-
-        // Authentication Modal elements (Firebase)
-        const authModal = document.getElementById('authModal');
-        const authModalCloseButton = document.getElementById('authModalClose');
-        const authModalTitle = document.getElementById('authModalTitle');
-        const registrationInfoLabel = document.getElementById('registrationInfoLabel');
-        const modalAuthEmailInput = document.getElementById('modalAuthEmailInput');
-        const modalAuthPasswordInput = document.getElementById('modalAuthPasswordInput');
-        const modalConfirmPasswordInput = document.getElementById('modalConfirmPasswordInput');
-        const showRegisterModeButton = document.getElementById('showRegisterModeButton');
-        const showLoginModeButton = document.getElementById('showLoginModeButton');
-        const modalAuthSubmitButton = document.getElementById('modalAuthSubmitButton');
-        const modalResetPasswordEmail = document.getElementById('modalResetPasswordEmail');
-        const modalResetPasswordButton = document.getElementById('modalResetPasswordButton');
-
-        // My Account Modal elements (Firebase)
-        const myAccountButton = document.getElementById('myAccountButton');
-        const myAccountModal = document.getElementById('myAccountModal');
-        const myAccountModalClose = document.getElementById('myAccountModalClose');
-        const myAccountEmailSpan = document.getElementById('myAccountEmail');
-        const myAccountUidSpan = document.getElementById('myAccountUid');
-        const myAccountProfileDisplay = document.getElementById('myAccountProfileDisplay');
-        const accountDisplayNombreCompleto = document.getElementById('accountDisplayNombreCompleto');
-        const accountDisplayDireccion = document.getElementById('accountDisplayDireccion');
-        const accountDisplayTelefono = document.getElementById('accountDisplayTelefono');
-        const accountDisplayHorarioPedidos = document.getElementById('accountDisplayHorarioPedidos');
-        const editProfileButtonFromAccount = document.getElementById('editProfileButtonFromAccount');
-        const openChangePasswordModalButtonFromAccount = document.getElementById('openChangePasswordModalButtonFromAccount');
-        const myAccountLogoutButton = document.getElementById('myAccountLogoutButton');
-
-        // Profile Edit Modal elements (Firebase)
-        const profileModal = document.getElementById('profileModal');
-        const profileModalCloseButton = document.getElementById('profileModalClose');
-        const modalProfileNombreCompleto = document.getElementById('modalProfileNombreCompleto');
-        const modalProfileDireccion = document.getElementById('modalProfileDireccion');
-        const modalProfileTelefono = document.getElementById('modalProfileTelefono');
-        const modalProfileHorarioPedidos = document.getElementById('modalProfileHorarioPedidos');
-        const modalSaveProfileButton = document.getElementById('modalSaveProfileButton');
-
-        // Change Password Modal elements (Firebase)
-        const changePasswordModal = document.getElementById('changePasswordModal');
-        const changePasswordModalCloseButton = document.getElementById('changePasswordModalClose');
-        const modalCurrentPasswordInput = document.getElementById('modalCurrentPasswordInput');
-        const modalNewPasswordInput = document.getElementById('modalNewPasswordInput');
-        const modalChangePasswordButton = document.getElementById('modalChangePasswordButton');
-
-        // Data List (Firebase - misDatos)
-        const nombreInput = document.getElementById('nombreInput');
-        const guardarDatosButton = document.getElementById('guardarDatosButton');
-        const recargarDatosButton = document.getElementById('recargarDatosButton');
-        const datosGuardadosDiv = document.getElementById('datosGuardados');
-
-        const messageBox = document.getElementById('messageBox');
-        const messageText = document.getElementById('messageText');
-        const messageBoxClose = document.getElementById('messageBoxClose');
-
-        // Set initial state of userAccountNavBtn to ensure icon is always visible.
-        // This runs as soon as the script is parsed, ensuring the icon is there
-        // before any auth state changes take effect.
-        if (userAccountNavBtn) { // Safety check in case DOM is not fully loaded yet (though unlikely for direct script)
-            userAccountNavBtn.innerHTML = '<i class="fas fa-user"></i>';
-        }
-
-        // --- Functions (Merged and Adapted) ---
-
-        // Helper: Show/hide global loading indicator
-        function showGlobalLoading(show) {
-            if (globalLoadingIndicator) {
-                if (show) {
-                    globalLoadingIndicator.classList.remove('hidden');
-                } else {
-                    globalLoadingIndicator.classList.add('hidden');
-                }
-            }
-            // Disable/enable relevant buttons during loading
-            if (userAccountNavBtn) userAccountNavBtn.disabled = show;
-            if (modalAuthSubmitButton) modalAuthSubmitButton.disabled = show;
-            if (modalResetPasswordButton) modalResetPasswordButton.disabled = show;
-            if (myAccountButton) myAccountButton.disabled = show;
-            if (myAccountLogoutButton) myAccountLogoutButton.disabled = show;
-            if (modalSaveProfileButton) modalSaveProfileButton.disabled = show;
-            if (modalChangePasswordButton) modalChangePasswordButton.disabled = show;
-            if (guardarDatosButton) guardarDatosButton.disabled = show;
-            if (recargarDatosButton) recargarDatosButton.disabled = show;
-            if (editProfileButtonFromAccount) editProfileButtonFromAccount.disabled = show;
-            if (openChangePasswordModalButtonFromAccount) openChangePasswordModalButtonFromAccount.disabled = show;
+        // Esperar a que el DOM esté listo
+        document.addEventListener('DOMContentLoaded', function() {
+            // Cargar productos desde CSV en GitHub
+            loadProductsFromGitHubCSV();
             
-            // Also disable mode switch buttons
-            if (showRegisterModeButton) showRegisterModeButton.disabled = show;
-            if (showLoginModeButton) showLoginModeButton.disabled = show;
-
-            // Disable relevant shop buttons during loading
-            if (cartBtn) cartBtn.disabled = show;
-            if (checkoutBtn) checkoutBtn.disabled = show;
-            if (addToCartDetailBtn) addToCartDetailBtn.disabled = show;
-            // Disable LLM button during loading
-            const generateShoppingListButton = document.getElementById('generateShoppingListButton');
-            if (generateShoppingListButton) generateShoppingListButton.disabled = show;
-        }
-
-        // Helper: Show custom message box (from Firebase app)
-        function showMessage(msg) {
-            if (messageText && messageBox) {
-                messageText.textContent = msg;
-                messageBox.classList.remove('hidden');
-                messageBox.focus();
-            }
-        }
-
-        // Helper: Close custom message box
-        if (messageBoxClose) {
-            messageBoxClose.addEventListener('click', () => {
-                if (messageBox) messageBox.classList.add('hidden');
-                if (messageText) messageText.textContent = '';
-            });
-        }
-
-        // Modal Control Functions (from Firebase app)
-        function openModal(modalElement) {
-            if (modalElement) {
-                modalElement.classList.remove('hidden');
-                if (modalElement === authModal) {
-                    authModalCurrentMode = 'login'; // Always start in login mode when opening the modal
-                    updateAuthModalUI(); // Update UI based on mode
-                    if (modalAuthEmailInput) modalAuthEmailInput.value = '';
-                    if (modalAuthPasswordInput) modalAuthPasswordInput.value = '';
-                    if (modalResetPasswordEmail) modalResetPasswordEmail.value = '';
-                    if (modalConfirmPasswordInput) modalConfirmPasswordInput.value = '';
-                } else if (modalElement === changePasswordModal) {
-                    if (modalCurrentPasswordInput) modalCurrentPasswordInput.value = '';
-                    if (modalNewPasswordInput) modalNewPasswordInput.value = '';
-                }
-            }
-        }
-
-        function closeModal(modalElement) {
-            if (modalElement) {
-                modalElement.classList.add('hidden');
-            }
-        }
-
-        // Function to update the auth modal UI based on current mode
-        function updateAuthModalUI() {
-            if (!authModalTitle || !registrationInfoLabel || !modalConfirmPasswordInput || !showRegisterModeButton || !showLoginModeButton || !modalAuthPasswordInput || !modalAuthSubmitButton) {
-                console.error("Auth modal UI elements not found.");
-                return;
-            }
-
-            if (authModalCurrentMode === 'register') {
-                authModalTitle.textContent = 'Registrarse';
-                registrationInfoLabel.classList.remove('hidden');
-                modalConfirmPasswordInput.classList.remove('hidden');
-                showRegisterModeButton.classList.add('hidden'); // Hide "Quiero Registrarme"
-                showLoginModeButton.classList.remove('hidden'); // Show "Quiero Iniciar Sesión"
-                modalAuthPasswordInput.placeholder = 'Contraseña (mín. 6 caracteres)';
-                modalAuthSubmitButton.textContent = 'Registrarse';
-                modalAuthSubmitButton.classList.remove('bg-green-600', 'hover:bg-green-700');
-                modalAuthSubmitButton.classList.add('bg-blue-600', 'hover:bg-blue-700');
-            } else { // 'login' mode
-                authModalTitle.textContent = 'Iniciar Sesión';
-                registrationInfoLabel.classList.add('hidden');
-                modalConfirmPasswordInput.classList.add('hidden');
-                showRegisterModeButton.classList.remove('hidden'); // Show "Quiero Registrarme"
-                showLoginModeButton.classList.add('hidden'); // Hide "Quiero Iniciar Sesión"
-                modalAuthPasswordInput.placeholder = 'Contraseña';
-                modalAuthSubmitButton.textContent = 'Iniciar Sesión';
-                modalAuthSubmitButton.classList.remove('bg-blue-600', 'hover:bg-blue-700');
-                modalAuthSubmitButton.classList.add('bg-green-600', 'hover:bg-green-700');
-            }
-            // Always clear password fields on mode switch for a cleaner UX
-            if (modalAuthPasswordInput) modalAuthPasswordInput.value = '';
-            if (modalConfirmPasswordInput) modalConfirmPasswordInput.value = '';
-        }
-
-        // --- Firebase Auth & Firestore Functions ---
-
-        // Function to update UI based on authentication state (Firebase)
-        function updateUI() {
-            // Get DOM elements for LLM section inside updateUI to ensure they exist after contentSection is shown
-            const shoppingAssistantSection = document.getElementById('shoppingAssistantSection');
-            
-            // Check if contentSection exists before trying to access its classList
-            if (contentSection) {
-                if (currentUser) {
-                    contentSection.classList.remove('hidden');
-                    // Ensure LLM elements exist before trying to access them
-                    if (shoppingAssistantSection) shoppingAssistantSection.classList.remove('hidden');
-                    
-                    loadUserProfile(); // Load and listen to user profile
-                    leerDatos(); // Load and listen to user's data list
-                    closeModal(authModal); // Close auth modal if user logs in successfully
-
-                    // Update text of userAccountNavBtn (navbar icon)
-                    if (userAccountNavBtn) userAccountNavBtn.innerHTML = `<i class="fas fa-user"></i> ${currentUser.email}`;
-                } else {
-                    contentSection.classList.add('hidden');
-                    // Ensure LLM elements exist before trying to access them
-                    if (shoppingAssistantSection) shoppingAssistantSection.classList.add('hidden');
-
-                    if (datosGuardadosDiv) datosGuardadosDiv.innerHTML = '<p class="text-center text-gray-500">Inicia sesión para ver y guardar tus datos.</p>';
-                    // Unsubscribe from listeners if user logs out
-                    profileSnapshotUnsubscribe && profileSnapshotUnsubscribe();
-                    dataListSnapshotUnsubscribe && dataListSnapshotUnsubscribe();
-                    // Clear all modal and display fields
-                    if (modalProfileNombreCompleto) modalProfileNombreCompleto.value = '';
-                    if (modalProfileDireccion) modalProfileDireccion.value = '';
-                    if (modalProfileTelefono) modalProfileTelefono.value = '';
-                    if (modalProfileHorarioPedidos) modalProfileHorarioPedidos.value = '';
-                    if (myAccountProfileDisplay) myAccountProfileDisplay.classList.add('hidden'); // Hide profile display in MyAccount modal
-                    if (accountDisplayNombreCompleto) accountDisplayNombreCompleto.textContent = 'N/A'; // Clear display spans
-                    if (accountDisplayDireccion) accountDisplayDireccion.textContent = 'N/A';
-                    if (accountDisplayTelefono) accountDisplayTelefono.textContent = 'N/A';
-                    if (accountDisplayHorarioPedidos) accountDisplayHorarioPedidos.textContent = 'N/A';
-                    if (modalCurrentPasswordInput) modalCurrentPasswordInput.value = '';
-                    if (modalNewPasswordInput) modalNewPasswordInput.value = '';
-                    // Ensure modals are not shown immediately unless user clicks icon
-                    closeModal(profileModal);
-                    closeModal(changePasswordModal);
-                    closeModal(myAccountModal); // Close My Account modal on logout
-
-                    if (userAccountNavBtn) userAccountNavBtn.innerHTML = `<i class="fas fa-user"></i>`; // Reset icon
-                }
-            } else {
-                console.error("Element with id 'contentSection' not found. Cannot update UI visibility.");
-            }
-        }
-
-        // Authentication state change listener (Firebase)
-        onAuthStateChanged(auth, async (user) => {
-            currentUser = user; // Set global currentUser based on Firebase auth state
-            showGlobalLoading(false); // Hide loading once initial check is done
-            updateUI(); // Update UI based on Firebase auth state
-
-            // If no user and no initial auth token, try anonymous login (for Canvas environment)
-            if (!user && !initialAuthToken) {
-                try {
-                    await signInAnonymously(auth);
-                } catch (error) {
-                    console.error("Error al iniciar sesión anónimamente:", error);
-                }
-            }
-        });
-
-        // Attempt to sign in with initial token (on DOM load - Firebase)
-        document.addEventListener('DOMContentLoaded', async () => {
-            // Load products when the DOM is ready, regardless of authentication status
-            loadProductsFromGitHubCSV(); 
-
-            if (initialAuthToken) {
-                showGlobalLoading(true);
-                try {
-                    await signInWithCustomToken(auth, initialAuthToken);
-                } catch (error) {
-                    console.error("Error al iniciar sesión con token personalizado:", error);
-                    showMessage("Error con el token de autenticación. Intenta de nuevo.");
-                } finally {
-                    showGlobalLoading(false);
-                }
-            } else {
-                showGlobalLoading(false);
-            }
-
-            // Set up event listeners once the DOM is ready and initial loading is complete
+            // Configurar eventos
             setupEventListeners();
+            
+            // Cargar el usuario actual si existe en localStorage
+            const storedUser = localStorage.getItem('currentUser');
+            if (storedUser) {
+                currentUser = JSON.parse(storedUser);
+                showUserSection(); // Mostrar la sección de usuario si hay un usuario logueado
+            } else {
+                showSection('homeSection'); // Mostrar sección de inicio por defecto
+            }
         });
-
-        // Function that executes when the action button (Continuar) is clicked in auth modal (Firebase)
-        async function handleAuthSubmit() {
-            if (authModalCurrentMode === 'register') {
-                handleRegisterAction();
-            } else {
-                handleLoginAction();
-            }
-        }
-
-        // Handles user registration (Firebase)
-        async function handleRegisterAction() {
-            const email = modalAuthEmailInput.value;
-            const password = modalAuthPasswordInput.value;
-            const confirmPassword = modalConfirmPasswordInput.value;
-
-            if (!email || !password || !confirmPassword) {
-                showMessage("Por favor, ingresa email, contraseña y confirma la contraseña.");
-                return;
-            }
-            if (password.length < 6) {
-                showMessage("La contraseña debe tener al menos 6 caracteres.");
-                return;
-            }
-            if (password !== confirmPassword) {
-                showMessage("Las contraseñas no coinciden. Por favor, inténtalo de nuevo.");
-                return;
-            }
-
-            showGlobalLoading(true);
-            try {
-                await createUserWithEmailAndPassword(auth, email, password);
-                showMessage("Usuario registrado y sesión iniciada exitosamente!");
-            } catch (error) {
-                console.error("Error al registrar usuario:", error);
-                let errorMessage = "Error al registrar usuario.";
-                switch (error.code) {
-                    case 'auth/email-already-in-use':
-                        errorMessage = 'El email ya está en uso. Intenta iniciar sesión o usa otro email.';
-                        break;
-                    case 'auth/invalid-email':
-                        errorMessage = 'El email no es válido.';
-                        break;
-                    case 'auth/weak-password':
-                        errorMessage = 'La contraseña es muy débil (mínimo 6 caracteres).';
-                        break;
-                    default:
-                        errorMessage = 'Error de registro: ' + error.message;
-                }
-                showMessage(errorMessage);
-            } finally {
-                showGlobalLoading(false);
-            }
-        }
-
-        // Handles user login (Firebase)
-        async function handleLoginAction() {
-            const email = modalAuthEmailInput.value;
-            const password = modalAuthPasswordInput.value;
-
-            if (!email || !password) {
-                showMessage("Por favor, ingresa tu email y contraseña.");
-                return;
-            }
-
-            showGlobalLoading(true);
-            try {
-                await signInWithEmailAndPassword(auth, email, password);
-                showMessage("Sesión iniciada exitosamente!");
-            } catch (error) {
-                console.error("Error al iniciar sesión:", error);
-                let errorMessage = "Error al iniciar sesión.";
-                switch (error.code) {
-                    case 'auth/invalid-email':
-                        errorMessage = 'El email no es válido.';
-                        break;
-                    case 'auth/user-not-found':
-                        errorMessage = 'Usuario no encontrado. Por favor, regístrate.';
-                        break;
-                    case 'auth/wrong-password':
-                        errorMessage = 'Contraseña incorrecta.';
-                        break;
-                    case 'auth/too-many-requests':
-                        errorMessage = 'Demasiados intentos de inicio de sesión fallidos. Intenta más tarde.';
-                        break;
-                    default:
-                        errorMessage = 'Error de inicio de sesión: ' + error.message;
-                }
-                showMessage(errorMessage);
-            } finally {
-                showGlobalLoading(false);
-            }
-        }
-
-        // Handles user logout (Firebase)
-        async function handleLogout() {
-            showGlobalLoading(true);
-            try {
-                await signOut(auth);
-                showMessage("Sesión cerrada correctamente.");
-                if (nombreInput) nombreInput.value = ''; // Clear data list input
-            } catch (error) {
-                console.error("Error al cerrar sesión:", error);
-                showMessage("Error al cerrar sesión: " + error.message);
-            } finally {
-                showGlobalLoading(false);
-            }
-        }
-
-        // Handles password recovery (Firebase)
-        async function handleResetPassword() {
-            const email = modalResetPasswordEmail.value.trim();
-            if (!email) {
-                showMessage("Por favor, ingresa tu email para recuperar la contraseña.");
-                return;
-            }
-
-            showGlobalLoading(true);
-            try {
-                await sendPasswordResetEmail(auth, email);
-                showMessage("¡Correo de recuperación enviado! Revisa tu bandeja de entrada.");
-                if (modalResetPasswordEmail) modalResetPasswordEmail.value = '';
-            } catch (error) {
-                console.error("Error al enviar correo de recuperación:", error);
-                let errorMessage = "Error al enviar el correo de recuperación.";
-                switch (error.code) {
-                    case 'auth/invalid-email':
-                        errorMessage = 'El email ingresado no es válido.';
-                        break;
-                    case 'auth/user-not-found':
-                        errorMessage = 'No hay ningún usuario registrado con ese email.';
-                        break;
-                    default:
-                        errorMessage = 'Error: ' + error.message;
-                }
-                showMessage(errorMessage);
-            } finally {
-                showGlobalLoading(false);
-            }
-        }
-
-        // Handles password change (Firebase)
-        async function handleChangePassword() {
-            const currentPassword = modalCurrentPasswordInput.value;
-            const newPassword = modalNewPasswordInput.value;
-
-            if (!currentUser) {
-                showMessage("Debes iniciar sesión para cambiar tu contraseña.");
-                closeModal(changePasswordModal);
-                return;
-            }
-            if (!currentPassword || !newPassword) {
-                showMessage("Por favor, ingresa tu contraseña actual y la nueva contraseña.");
-                return;
-            }
-            if (newPassword.length < 6) {
-                showMessage("La nueva contraseña debe tener al menos 6 caracteres.");
-                return;
-            }
-
-            showGlobalLoading(true);
-            try {
-                const credential = EmailAuthProvider.credential(currentUser.email, currentPassword);
-                await reauthenticateWithCredential(currentUser, credential);
-                await updatePassword(currentUser, newPassword);
-                showMessage("Contraseña cambiada exitosamente!");
-                closeModal(changePasswordModal);
-            } catch (error) {
-                console.error("Error al cambiar contraseña:", error);
-                let errorMessage = "Error al cambiar contraseña.";
-                switch (error.code) {
-                    case 'auth/wrong-password':
-                        errorMessage = 'La contraseña actual es incorrecta.';
-                        break;
-                    case 'auth/weak-password':
-                        errorMessage = 'La nueva contraseña es muy débil (mínimo 6 caracteres).';
-                        break;
-                    case 'auth/requires-recent-login':
-                        errorMessage = 'Por favor, inicia sesión de nuevo antes de cambiar tu contraseña.';
-                        break;
-                    case 'auth/invalid-credential':
-                        errorMessage = 'Credenciales inválidas. Por favor, verifica tu contraseña actual.';
-                        break;
-                        // For reauthentication, auth/user-mismatch might also occur, or auth/user-disabled
-                    default:
-                        errorMessage = 'Error: ' + error.message;
-                }
-                showMessage(errorMessage);
-            } finally {
-                showGlobalLoading(false);
-            }
-        }
-
-        // Functions for Saving and Loading User Profile (Firebase - within Profile Modal)
-        async function saveUserProfile() {
-            if (!currentUser) {
-                showMessage("Debes iniciar sesión para guardar tu perfil.");
-                closeModal(profileModal);
-                return;
-            }
-
-            const nombreCompleto = modalProfileNombreCompleto ? modalProfileNombreCompleto.value.trim() : '';
-            const direccion = modalProfileDireccion ? modalProfileDireccion.value.trim() : '';
-            const telefono = modalProfileTelefono ? modalProfileTelefono.value.trim() : '';
-            const horarioPedidos = modalProfileHorarioPedidos ? modalProfileHorarioPedidos.value.trim() : '';
-
-            if (!nombreCompleto && !direccion && !telefono && !horarioPedidos) {
-                showMessage("Por favor, rellena al menos un campo para guardar tu perfil.");
-                return;
-            }
-
-            showGlobalLoading(true);
-            try {
-                const userProfileDocRef = doc(db, 'userProfiles', currentUser.uid);
-
-                await setDoc(userProfileDocRef, {
-                    nombreCompleto: nombreCompleto,
-                    direccion: direccion,
-                    telefono: telefono,
-                    horarioPedidos: horarioPedidos,
-                    emailRegistrado: currentUser.email,
-                    lastUpdated: serverTimestamp()
-                }, { merge: true });
-
-                showMessage("Perfil actualizado correctamente!");
-                closeModal(profileModal);
-            } catch (e) {
-                console.error("Error al guardar el perfil: ", e);
-                showMessage("Error al guardar el perfil. Asegúrate de tener los permisos correctos en Firestore.");
-            } finally {
-                showGlobalLoading(false);
-            }
-        }
-
-        function loadUserProfile() {
-            if (profileSnapshotUnsubscribe) {
-                profileSnapshotUnsubscribe();
-            }
-
-            if (!currentUser) {
-                if (modalProfileNombreCompleto) modalProfileNombreCompleto.value = '';
-                if (modalProfileDireccion) modalProfileDireccion.value = '';
-                if (modalProfileTelefono) modalProfileTelefono.value = '';
-                if (modalProfileHorarioPedidos) modalProfileHorarioPedidos.value = '';
-                if (myAccountProfileDisplay) myAccountProfileDisplay.classList.add('hidden'); // Safely check for existence
-                return;
-            }
-
-            const userProfileDocRef = doc(db, 'userProfiles', currentUser.uid);
-
-            profileSnapshotUnsubscribe = onSnapshot(userProfileDocRef, (docSnap) => {
-                if (docSnap.exists()) {
-                    const data = docSnap.data();
-                    // Populate modal inputs (profileModal)
-                    if (modalProfileNombreCompleto) modalProfileNombreCompleto.value = data.nombreCompleto || '';
-                    if (modalProfileDireccion) modalProfileDireccion.value = data.direccion || '';
-                    if (modalProfileTelefono) modalProfileTelefono.value = data.telefono || '';
-                    if (modalProfileHorarioPedidos) modalProfileHorarioPedidos.value = data.horarioPedidos || '';
-
-                    // Display in My Account Modal
-                    if (accountDisplayNombreCompleto) accountDisplayNombreCompleto.textContent = data.nombreCompleto || 'N/A';
-                    if (accountDisplayDireccion) accountDisplayDireccion.textContent = data.direccion || 'N/A';
-                    if (accountDisplayTelefono) accountDisplayTelefono.textContent = data.telefono || 'N/A';
-                    if (accountDisplayHorarioPedidos) accountDisplayHorarioPedidos.textContent = data.horarioPedidos || 'N/A';
-                    if (myAccountProfileDisplay) myAccountProfileDisplay.classList.remove('hidden');
-                } else {
-                    // Profile document does not exist
-                    if (modalProfileNombreCompleto) modalProfileNombreCompleto.value = '';
-                    if (modalProfileDireccion) modalProfileDireccion.value = '';
-                    if (modalProfileTelefono) modalProfileTelefono.value = '';
-                    if (modalProfileHorarioPedidos) modalProfileHorarioPedidos.value = '';
-                    if (accountDisplayNombreCompleto) accountDisplayNombreCompleto.textContent = 'N/A';
-                    if (accountDisplayDireccion) accountDisplayDireccion.textContent = 'N/A';
-                    if (accountDisplayTelefono) accountDisplayTelefono.textContent = 'N/A';
-                    if (accountDisplayHorarioPedidos) accountDisplayHorarioPedidos.textContent = 'N/A';
-                    if (myAccountProfileDisplay) myAccountProfileDisplay.classList.add('hidden');
-                }
-            }, (error) => {
-                console.error("Error al cargar el perfil en tiempo real: ", error);
-                showMessage("Error al cargar tu perfil. Asegúrate de tener los permisos correctos.");
-            });
-        }
-
-
-        // Functions for Saving and Reading Custom Data (Firebase - Mis Datos Guardados)
-        async function guardarDatos() {
-            if (!currentUser) {
-                showMessage("Debes iniciar sesión para guardar tus datos.");
-                return;
-            }
-
-            const nombreDelDato = nombreInput ? nombreInput.value.trim() : '';
-
-            if (nombreDelDato) {
-                showGlobalLoading(true);
-                try {
-                    // Using the correct Firestore path for private user data
-                    const userSpecificCollectionPath = `artifacts/${appId}/users/${currentUser.uid}/misDatos`;
-                    const docRef = await addDoc(collection(db, userSpecificCollectionPath), {
-                        nombre: nombreDelDato,
-                        fechaGuardado: serverTimestamp(),
-                    });
-                    console.log("Documento escrito con ID: ", docRef.id);
-                    showMessage("Dato guardado correctamente!");
-                    if (nombreInput) nombreInput.value = '';
-                } catch (e) {
-                    console.error("Error al agregar documento a misDatos: ", e);
-                    showMessage("Error al guardar el dato. Asegúrate de tener los permisos correctos en Firestore.");
-                } finally {
-                    showGlobalLoading(false);
-                }
-            } else {
-                showMessage("Por favor, ingresa un nombre para tu dato.");
-            }
-        }
-
-        function leerDatos() {
-            if (!datosGuardadosDiv) return; // Safely check if element exists
-            datosGuardadosDiv.innerHTML = '<p class="text-center text-gray-500">Cargando mis datos...</p>';
-
-            if (!currentUser) {
-                datosGuardadosDiv.innerHTML = '<p class="text-center text-gray-500">Inicia sesión para ver tus datos.</p>';
-                return;
-            }
-
-            if (dataListSnapshotUnsubscribe) {
-                dataListSnapshotUnsubscribe();
-            }
-
-            try {
-                // Using the correct Firestore path for private user data
-                const userSpecificCollectionPath = `artifacts/${appId}/users/${currentUser.uid}/misDatos`;
-                const q = query(collection(db, userSpecificCollectionPath), orderBy("fechaGuardado", "desc"));
-
-                dataListSnapshotUnsubscribe = onSnapshot(q, (querySnapshot) => {
-                    if (querySnapshot.empty) {
-                        datosGuardadosDiv.innerHTML = '<p class="text-center text-gray-500">No tienes datos guardados aún.</p>';
-                        return;
-                    }
-
-                    datosGuardadosDiv.innerHTML = '';
-                    querySnapshot.forEach((doc) => {
-                        const data = doc.data();
-                        const divItem = document.createElement('div');
-                        divItem.classList.add('dato-item', 'bg-gray-50', 'p-3', 'rounded-md', 'border', 'border-gray-200', 'mb-2');
-                        divItem.innerHTML = `
-                            <p class="font-semibold text-gray-800">Nombre: ${data.nombre}</p>
-                            <p class="text-xs text-gray-500">Fecha: ${data.fechaGuardado ? new Date(data.fechaGuardado.toDate()).toLocaleString() : 'N/A'}</p>
-                        `;
-                        datosGuardadosDiv.appendChild(divItem);
-                    });
-                }, (error) => {
-                    console.error("Error al leer documentos de misDatos: ", error);
-                    showMessage("Error al cargar tus datos. Asegúrate de tener los permisos correctos.");
-                    datosGuardadosDiv.innerHTML = '<p class="text-center text-red-500">Error al cargar tus datos.</p>';
-                });
-            } catch (e) {
-                console.error("Error al configurar listener de misDatos: ", e);
-                showMessage("Error al configurar la carga de tus datos.");
-                datosGuardadosDiv.innerHTML = '<p class="text-center text-red-500">Error al cargar tus datos.</p>';
-            }
-        }
-
-
-        // --- LLM Integration: Shopping List Assistant ---
-        async function generateShoppingList() {
-            const userNeedsInput = document.getElementById('userNeedsInput');
-            const shoppingListResults = document.getElementById('shoppingListResults');
-            const shoppingListLoading = document.getElementById('shoppingListLoading');
-            const generateShoppingListButton = document.getElementById('generateShoppingListButton');
-            const noSuggestionsMessage = document.getElementById('noSuggestionsMessage');
-
-            const userNeed = userNeedsInput ? userNeedsInput.value.trim() : '';
-            if (!userNeed) {
-                showMessage("Por favor, describe lo que necesitas para que el asistente pueda ayudarte.");
-                return;
-            }
-
-            if (shoppingListResults) shoppingListResults.innerHTML = ''; // Clear previous results
-            if (noSuggestionsMessage) noSuggestionsMessage.classList.add('hidden');
-            if (shoppingListLoading) shoppingListLoading.classList.remove('hidden');
-            if (generateShoppingListButton) generateShoppingListButton.disabled = true;
-
-            let chatHistory = [];
-            const prompt = `Actúa como un experto en ferretería y papelería. El usuario describe su necesidad: "${userNeed}". Identifica y devuelve una lista de 3 a 5 palabras clave de categorías de productos o tipos de artículos que podrían ser útiles para el usuario, en formato JSON ARRAY de strings. Por ejemplo, si el usuario dice "Necesito pintar una pared", la respuesta podría ser ["pintura", "brocha", "rodillo", "cinta adhesiva"]. Asegúrate de que las palabras clave sean generales y puedan coincidir con categorías o nombres de productos de una ferretería o papelería. No incluyas explicaciones, solo el array JSON.`;
-
-            chatHistory.push({ role: "user", parts: [{ text: prompt }] });
-            const payload = {
-                contents: chatHistory,
-                generationConfig: {
-                    responseMimeType: "application/json",
-                    responseSchema: {
-                        type: "ARRAY",
-                        items: { "type": "STRING" }
-                    }
-                }
-            };
-
-            try {
-                // Se usa la clave de API obtenida de __api_key
-                const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${geminiApiKey}`;
-                const response = await fetch(apiUrl, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify(payload)
-                });
-
-                if (!response.ok) {
-                    const errorData = await response.json();
-                    throw new Error(`Error ${response.status}: ${errorData.error.message}`);
-                }
-
-                const result = await response.json();
-                const keywords = JSON.parse(result.candidates[0].content.parts[0].text);
-
-                if (keywords && keywords.length > 0) {
-                    let suggestedProducts = [];
-                    // Collect all product names, descriptions, and categories for searching
-                    const searchableProducts = products.map(p => ({
-                        ...p,
-                        searchString: `${p.name.toLowerCase()} ${p.description.toLowerCase()} ${p.category.toLowerCase()} ${p.codigo.toLowerCase()}`
-                    }));
-
-                    // Search for products matching keywords
-                    keywords.forEach(keyword => {
-                        const lowerKeyword = keyword.toLowerCase();
-                        const matchingProducts = searchableProducts.filter(p =>
-                            p.searchString.includes(lowerKeyword)
-                        );
-                        // Add unique matches to suggestedProducts
-                        matchingProducts.forEach(mp => {
-                            if (!suggestedProducts.some(sp => sp.id === mp.id)) {
-                                suggestedProducts.push(mp);
-                            }
-                        });
-                    });
-
-                    if (suggestedProducts.length > 0) {
-                        // Limit to top N suggestions, ensuring no duplicates.
-                        const finalSuggestions = suggestedProducts.slice(0, 8); // Limit to top 8 suggestions
-
-                        finalSuggestions.forEach(product => {
-                            const productElement = document.createElement('div');
-                            productElement.className = 'flex items-center justify-between p-3 border border-purple-300 bg-purple-100 rounded-md shadow-sm';
-                            productElement.innerHTML = `
-                                <div class="flex-grow">
-                                    <h4 class="font-semibold text-purple-900">${product.name}</h4>
-                                    <p class="text-sm text-gray-700">$${product.price.toFixed(2)}</p>
-                                </div>
-                                <button class="bg-blue-500 text-white px-3 py-1 rounded-md hover:bg-blue-600 transition duration-150 ease-in-out add-to-cart-assistant" data-id="${product.id}">
-                                    <i class="fas fa-cart-plus"></i> Añadir
-                                </button>
-                            `;
-                            if (shoppingListResults) shoppingListResults.appendChild(productElement);
-                        });
-
-                        // Add event listeners for the new "Añadir" buttons
-                        document.querySelectorAll('.add-to-cart-assistant').forEach(button => {
-                            button.addEventListener('click', function() {
-                                const productId = parseInt(this.getAttribute('data-id'));
-                                addToCart(productId); // Use existing addToCart function
-                                showToast(`Producto sugerido añadido al carrito.`);
-                            });
-                        });
-                    } else {
-                        if (noSuggestionsMessage) {
-                            noSuggestionsMessage.classList.remove('hidden');
-                            noSuggestionsMessage.textContent = "No se encontraron sugerencias relevantes en nuestro catálogo. Intenta describir tu necesidad de otra manera.";
-                        }
-                    }
-                } else {
-                    if (noSuggestionsMessage) {
-                        noSuggestionsMessage.classList.remove('hidden');
-                        noSuggestionsMessage.textContent = "El asistente no pudo generar sugerencias. Por favor, intenta de nuevo con una descripción diferente.";
-                    }
-                }
-
-            } catch (error) {
-                console.error("Error al generar la lista de compras:", error);
-                showMessage("Hubo un error al generar la lista de compras. Por favor, inténtalo de nuevo. " + error.message);
-                if (noSuggestionsMessage) { // Show message on error
-                    noSuggestionsMessage.classList.remove('hidden');
-                    noSuggestionsMessage.textContent = 'Error: ' + error.message;
-                }
-            } finally {
-                if (shoppingListLoading) shoppingListLoading.classList.add('hidden');
-                if (generateShoppingListButton) generateShoppingListButton.disabled = false;
-            }
-        }
-
-
-        // --- Existing Shop Functions (Adapted) ---
 
         // Función para cargar productos desde un CSV en GitHub
         function loadProductsFromGitHubCSV() {
+            // URL del archivo CSV en GitHub (formato raw)
             const githubCsvUrl = 'https://raw.githubusercontent.com/Ferrerodillo/Tiendaonline/refs/heads/main/productos.csv';
+            
+            // Configuración para evitar caché (opcional)
             const nocacheUrl = githubCsvUrl + '?nocache=' + (new Date()).getTime();
             
             Papa.parse(nocacheUrl, {
@@ -1474,11 +476,12 @@
                             price: parseFloat(product.precio || product.price || 0),
                             category: product.categoria || product.category || 'Sin categoría',
                             description: product.descripcion || product.description || 'Descripción no disponible',
-                            image: product.imagen || product.image || 'https://placehold.co/150x150/FFCC00/000000?text=Martillo',
-			                codigo: product.codigo || product.sku || product.barcode || 'N/A',
-                            stock: parseInt(product.stock || product.existencia || product.cantidad || 0)
+                            image: product.imagen || product.image || 'https://via.placeholder.com/150',
+			    codigo: product.codigo || product.sku || product.barcode || 0, // Nuevo campo stock
+                            stock: parseInt(product.stock || product.existencia || product.cantidad || 0) // Nuevo campo stock
                         })); 
                         
+                        // Extraer categorías únicas
                         categories = [...new Set(products.map(p => p.category))];
                         populateCategoryFilter();
                         
@@ -1497,31 +500,42 @@
         // Función para poblar el filtro de categorías
         function populateCategoryFilter() {
             const filter = document.getElementById('categoryFilter');
-            if (!filter) return; // Safety check
+            
+            // Ordenar categorías alfabéticamente
             categories.sort();
+            
+            // Limpiar opciones existentes (excepto la primera)
             while (filter.options.length > 1) {
                 filter.remove(1);
             }
+            
+            // Agregar categorías
             categories.forEach(category => {
                 const option = document.createElement('option');
                 option.value = category;
                 option.textContent = category;
                 filter.appendChild(option);
             });
-            filter.addEventListener('change', filterProducts);
+            
+            // Evento para filtrar
+            filter.addEventListener('change', function() {
+                filterProducts();
+            });
         }
 
         // Función para filtrar productos por categoría y búsqueda
         function filterProducts() {
-            const category = document.getElementById('categoryFilter') ? document.getElementById('categoryFilter').value : 'all';
-            const searchTerm = document.getElementById('searchInput') ? document.getElementById('searchInput').value.toLowerCase() : '';
+            const category = document.getElementById('categoryFilter').value;
+            const searchTerm = document.getElementById('searchInput').value.toLowerCase();
             
             let filteredProducts = products;
             
+            // Filtrar por categoría
             if (category !== 'all') {
                 filteredProducts = filteredProducts.filter(p => p.category === category);
             }
             
+            // Filtrar por término de búsqueda
             if (searchTerm) {
                 filteredProducts = filteredProducts.filter(p => 
                     p.name.toLowerCase().includes(searchTerm) || 
@@ -1530,6 +544,7 @@
 		            p.codigo.toLowerCase().includes(searchTerm) 
                 );
             }
+            
             displayProducts(filteredProducts);
         }
 
@@ -1537,14 +552,15 @@
         function loadSampleProducts() {
             console.log("Cargando productos de ejemplo...");
             products = [
-                {id: 1, name: "Martillo de Uña", price: 19.99, category: "Herramientas", description: "Martillo robusto para todo tipo de trabajos.", image: "https://placehold.co/150x150/FFCC00/000000?text=Martillo", stock: 5, codigo: "HER001"},
-                {id: 2, name: "Juego de Destornilladores", price: 29.99, category: "Herramientas", description: "Set completo de destornilladores para reparaciones.", image: "https://placehold.co/150x150/FF6600/FFFFFF?text=Destornilladores", stock: 3, codigo: "HER002"},
-                {id: 3, name: "Pintura Acrílica Blanca", price: 39.99, category: "Pinturas", description: "Pintura de alta calidad para interiores y exteriores.", image: "https://placehold.co/150x150/CCCCCC/000000?text=Pintura", stock: 0, codigo: "PINT001"},
-                {id: 4, name: "Cuaderno Profesional", price: 4.99, category: "Papelería", description: "Cuaderno grande con espiral y 100 hojas.", image: "https://placehold.co/150x150/99CCFF/000000?text=Cuaderno", stock: 10, codigo: "PAPEL001"},
-                {id: 5, name: "Tijeras Escolares", price: 5.99, category: "Papelería", description: "Tijeras seguras y ergonómicas para niños.", image: "https://placehold.co/150x150/FF99CC/000000?text=Tijeras", stock: 1, codigo: "PAPEL002"},
-                {id: 6, name: "Kit de Brochas Variadas", price: 15.00, category: "Pinturas", description: "Set de brochas para diferentes aplicaciones de pintura.", image: "https://placehold.co/150x150/FFCC99/000000?text=Brochas", stock: 8, codigo: "PINT002"}
+                {id: 1, name: "Producto Ejemplo 1", price: 19.99, category: "Electrónicos", description: "Descripción detallada del producto electrónico de ejemplo", image: "https://via.placeholder.com/150", stock: 5, codigo: "ELEC001"},
+                {id: 2, name: "Producto Ejemplo 2", price: 29.99, category: "Ropa", description: "Descripción detallada del producto de ropa de ejemplo", image: "https://via.placeholder.com/150", stock: 3, codigo: "ROPA002"},
+                {id: 3, name: "Producto Ejemplo 3", price: 39.99, category: "Hogar", description: "Descripción detallada del producto para el hogar de ejemplo", image: "https://via.placeholder.com/150", stock: 0, codigo: "HOGAR003"},
+                {id: 4, name: "Producto Ejemplo 4", price: 49.99, category: "Electrónicos", description: "Otro producto electrónico con características avanzadas", image: "https://via.placeholder.com/150", stock: 10, codigo: "ELEC004"},
+                {id: 5, name: "Producto Ejemplo 5", price: 59.99, category: "Ropa", description: "Otra prenda de vestir de alta calidad", image: "https://via.placeholder.com/150", stock: 1, codigo: "ROPA005"},
+                {id: 6, name: "Producto Ejemplo 6", price: 69.99, category: "Hogar", description: "Producto para el hogar con garantía extendida", image: "https://via.placeholder.com/150", stock: 8, codigo: "HOGAR006"}
             ];
             
+            // Extraer categorías únicas
             categories = [...new Set(products.map(p => p.category))];
             populateCategoryFilter();
             
@@ -1555,7 +571,6 @@
         // Función para mostrar productos
         function displayProducts(productsToDisplay) {
             const container = document.getElementById('productsContainer');
-            if (!container) return; // Safety check
             container.innerHTML = '';
             
             if (productsToDisplay.length === 0) {
@@ -1567,6 +582,7 @@
                 const productCard = document.createElement('div');
                 productCard.className = 'col-md-3 mb-4';
                 
+                // Determinar el estado del stock
                 const stockStatus = getStockStatus(product);
                 const isOutOfStock = product.stock <= 0;
                 const addButtonDisabled = isOutOfStock ? 'disabled' : '';
@@ -1596,6 +612,7 @@
                 container.appendChild(productCard);
             });
             
+            // Agregar eventos a los botones "Agregar al carrito"
             document.querySelectorAll('.add-to-cart').forEach(button => {
                 button.addEventListener('click', function() {
                     const productId = parseInt(this.getAttribute('data-id'));
@@ -1603,6 +620,7 @@
                 });
             });
             
+            // Agregar eventos a los botones "Ver detalles"
             document.querySelectorAll('.view-detail').forEach(button => {
                 button.addEventListener('click', function() {
                     const productId = parseInt(this.getAttribute('data-id'));
@@ -1637,76 +655,67 @@
             if (!product) return;
             
             currentProductDetail = product;
-            detailQuantity = 1; // Reset quantity for detail view
+            detailQuantity = 1;
             
-            if (productDetailTitle) productDetailTitle.textContent = product.name;
-            if (productDetailName) productDetailName.textContent = product.name;
-            if (productDetailCategory) productDetailCategory.textContent = product.category;
-            if (productDetailPrice) productDetailPrice.textContent = `$${product.price.toFixed(2)}`;
-            if (productDetailDescription) productDetailDescription.textContent = product.description;
-            if (productDetailImage) productDetailImage.src = product.image;
-            if (detailQuantitySpan) detailQuantitySpan.textContent = detailQuantity;
+            document.getElementById('productDetailTitle').textContent = product.name;
+            document.getElementById('productDetailName').textContent = product.name;
+            document.getElementById('productDetailCategory').textContent = product.category;
+            document.getElementById('productDetailPrice').textContent = `$${product.price.toFixed(2)}`;
+            document.getElementById('productDetailDescription').textContent = product.description;
+            document.getElementById('productDetailImage').src = product.image;
+            document.getElementById('detailQuantity').textContent = detailQuantity;
             
+            // Mostrar información de stock
             const stockStatus = getStockStatus(product);
-            if (productDetailStock) {
-                productDetailStock.textContent = stockStatus.text;
-                productDetailStock.className = `stock-info ${stockStatus.class}`;
+            document.getElementById('productDetailStock').textContent = stockStatus.text;
+            document.getElementById('productDetailStock').className = `stock-info ${stockStatus.class}`;
+            
+            // Habilitar/deshabilitar botón según stock
+            const addButton = document.getElementById('addToCartDetail');
+            if (product.stock <= 0) {
+                addButton.disabled = true;
+                addButton.classList.add('btn-out-of-stock');
+                document.getElementById('stockWarning').classList.remove('hidden');
+            } else {
+                addButton.disabled = false;
+                addButton.classList.remove('btn-out-of-stock');
+                document.getElementById('stockWarning').classList.add('hidden');
             }
             
-            const addButton = addToCartDetailBtn;
-            if (addButton) {
-                if (product.stock <= 0) {
-                    addButton.disabled = true;
-                    addButton.classList.add('btn-out-of-stock');
-                    if (stockWarning) stockWarning.classList.remove('hidden');
-                } else {
-                    addButton.disabled = false;
-                    addButton.classList.remove('btn-out-of-stock');
-                    if (stockWarning) stockWarning.classList.add('hidden');
-                }
-            }
-            
-            if (productDetailModal) {
-                const modal = new bootstrap.Modal(productDetailModal);
-                modal.show();
-            }
+            const modal = new bootstrap.Modal(document.getElementById('productDetailModal'));
+            modal.show();
         }
 
         // Función para agregar producto al carrito desde el modal de detalles
         function setupDetailModalEvents() {
-            if (increaseDetailBtn) {
-                increaseDetailBtn.addEventListener('click', function() {
-                    if (currentProductDetail && detailQuantity < currentProductDetail.stock) {
-                        detailQuantity++;
-                        if (detailQuantitySpan) detailQuantitySpan.textContent = detailQuantity;
-                        
-                        if (detailQuantity >= currentProductDetail.stock) {
-                            if (stockWarning) stockWarning.classList.remove('hidden');
-                        }
+            document.getElementById('increaseDetail').addEventListener('click', function() {
+                if (currentProductDetail && detailQuantity < currentProductDetail.stock) {
+                    detailQuantity++;
+                    document.getElementById('detailQuantity').textContent = detailQuantity;
+                    
+                    // Mostrar advertencia si se alcanza el límite de stock
+                    if (detailQuantity >= currentProductDetail.stock) {
+                        document.getElementById('stockWarning').classList.remove('hidden');
                     }
-                });
-            }
+                }
+            });
             
-            if (decreaseDetailBtn) {
-                decreaseDetailBtn.addEventListener('click', function() {
-                    if (detailQuantity > 1) {
-                        detailQuantity--;
-                        if (detailQuantitySpan) detailQuantitySpan.textContent = detailQuantity;
-                        if (stockWarning) stockWarning.classList.add('hidden');
-                    }
-                });
-            }
+            document.getElementById('decreaseDetail').addEventListener('click', function() {
+                if (detailQuantity > 1) {
+                    detailQuantity--;
+                    document.getElementById('detailQuantity').textContent = detailQuantity;
+                    document.getElementById('stockWarning').classList.add('hidden');
+                }
+            });
             
-            if (addToCartDetailBtn) {
-                addToCartDetailBtn.addEventListener('click', function() {
-                    if (currentProductDetail) {
-                        addToCart(currentProductDetail.id, detailQuantity);
-                        const modal = bootstrap.Modal.getInstance(productDetailModal);
-                        if (modal) modal.hide();
-                        showToast(`${currentProductDetail.name} (${detailQuantity}) agregado al carrito`);
-                    }
-                });
-            }
+            document.getElementById('addToCartDetail').addEventListener('click', function() {
+                if (currentProductDetail) {
+                    addToCart(currentProductDetail.id, detailQuantity);
+                    const modal = bootstrap.Modal.getInstance(document.getElementById('productDetailModal'));
+                    modal.hide();
+                    showToast(`${currentProductDetail.name} (${detailQuantity}) agregado al carrito`);
+                }
+            });
         }
 
         // Función para agregar producto al carrito (con cantidad opcional)
@@ -1714,6 +723,7 @@
             const product = products.find(p => p.id === productId);
             if (!product || product.stock <= 0) return;
             
+            // Verificar que no se exceda el stock disponible
             const cartItem = cart.find(item => item.id === productId);
             const totalInCart = cartItem ? cartItem.quantity : 0;
             const availableStock = product.stock - totalInCart;
@@ -1731,26 +741,31 @@
                     name: product.name,
                     price: product.price,
                     quantity: quantity,
-                    maxStock: product.stock
+                    maxStock: product.stock // Guardamos el stock máximo para validaciones
                 });
             }
             
+            // Actualizar la interfaz
             updateCart();
             showToast(`${product.name}${quantity > 1 ? ` (${quantity})` : ''} agregado al carrito`);
             
-            // Check if productsSection exists before trying to access its classList
-            const productsSectionElement = document.getElementById('productsSection');
-            if (productsSectionElement && !productsSectionElement.classList.contains('hidden')) {
+            // Si estamos en la sección de productos, actualizar la visualización
+            if (!document.getElementById('productsSection').classList.contains('hidden')) {
                 displayProducts(products);
             }
         }
 
         // Función para actualizar el carrito
         function updateCart() {
-            if (!cartCount || !cartItems || !subtotal || !totalCost || !shippingCostSpan) return; // Safety checks
+            const cartCount = document.getElementById('cartCount');
+            const cartItems = document.getElementById('cartItems');
+            const subtotal = document.getElementById('subtotal');
+            const totalCost = document.getElementById('totalCost');
             
-            cartCount.textContent = cart.reduce((total, item) => total + (item.quantity || 0), 0); // Handle potentially undefined quantity
+            // Actualizar contador
+            cartCount.textContent = cart.reduce((total, item) => total + item.quantity, 0);
             
+            // Actualizar lista de items
             if (cart.length === 0) {
                 cartItems.innerHTML = '<p class="text-muted">Tu carrito está vacío</p>';
             } else {
@@ -1758,6 +773,8 @@
                 cart.forEach(item => {
                     const product = products.find(p => p.id === item.id);
                     const availableStock = product ? product.stock : 0;
+                    // Fix: maxAvailable should be based on initial product stock, not current item quantity
+                    const maxAllowedInCart = product.stock; 
                     
                     const itemElement = document.createElement('div');
                     itemElement.className = 'cart-item';
@@ -1765,16 +782,16 @@
                         <div class="d-flex justify-content-between">
                             <div>
                                 <h6>${item.name}</h6>
-                                <p class="text-muted">$${(item.price || 0).toFixed(2)} c/u</p>
+                                <p class="text-muted">$${item.price.toFixed(2)} c/u</p>
                                 <small class="stock-info">Disponibles: ${availableStock}</small>
                             </div>
                             <div class="d-flex align-items-center">
                                 <button class="btn btn-sm btn-outline-secondary decrease-quantity" data-id="${item.id}" 
-                                    ${(item.quantity || 0) <= 1 ? 'disabled' : ''}>-</button>
-                                <span class="mx-2">${item.quantity || 0}</span>
+                                    ${item.quantity <= 1 ? 'disabled' : ''}>-</button>
+                                <span class="mx-2">${item.quantity}</span>
                                 <button class="btn btn-sm btn-outline-secondary increase-quantity" data-id="${item.id}"
-                                    ${(item.quantity || 0) >= availableStock ? 'disabled' : ''}>+</button>
-                                <span class="ms-3 fw-bold">$${((item.price || 0) * (item.quantity || 0)).toFixed(2)}</span>
+                                    ${item.quantity >= maxAllowedInCart ? 'disabled' : ''}>+</button>
+                                <span class="ms-3 fw-bold">$${(item.price * item.quantity).toFixed(2)}</span>
                                 <button class="btn btn-sm btn-outline-danger ms-2 remove-item" data-id="${item.id}">
                                     <i class="fas fa-trash"></i>
                                 </button>
@@ -1785,14 +802,15 @@
                 });
             }
             
-            const subtotalValue = cart.reduce((total, item) => total + ((item.price || 0) * (item.quantity || 0)), 0);
-            const shippingCost = 35.00;
+            // Actualizar totales
+            const subtotalValue = cart.reduce((total, item) => total + (item.price * item.quantity), 0);
+            const shippingCost = 35.00; // Costo fijo de envío
             const totalValue = subtotalValue + shippingCost;
             
             subtotal.textContent = `$${subtotalValue.toFixed(2)}`;
             totalCost.textContent = `$${totalValue.toFixed(2)}`;
-            shippingCostSpan.textContent = `$${shippingCost.toFixed(2)}`;
             
+            // Agregar eventos a los botones del carrito
             document.querySelectorAll('.decrease-quantity').forEach(button => {
                 button.addEventListener('click', function() {
                     const productId = parseInt(this.getAttribute('data-id'));
@@ -1825,6 +843,7 @@
             
             const newQuantity = cart[itemIndex].quantity + change;
             
+            // Validar que no se exceda el stock disponible o sea menor a 0
             if (newQuantity > product.stock) {
                 showToast(`No hay suficiente stock. Solo quedan ${product.stock} unidades disponibles.`);
                 return;
@@ -1838,8 +857,8 @@
             
             updateCart();
             
-            const productsSectionElement = document.getElementById('productsSection');
-            if (productsSectionElement && !productsSectionElement.classList.contains('hidden')) {
+            // Si estamos en la sección de productos, actualizar la visualización
+            if (!document.getElementById('productsSection').classList.contains('hidden')) {
                 displayProducts(products);
             }
         }
@@ -1874,229 +893,338 @@
             }, 3000);
         }
 
-        // Función para mostrar una sección y ocultar las demás (main shop sections)
+        // Función para mostrar una sección y ocultar las demás
         function showSection(sectionId) {
-            document.querySelectorAll('#homeSection, #productsSection, #cartSection, #checkoutSection, #shoppingAssistantSection').forEach(section => {
+            document.querySelectorAll('#homeSection, #productsSection, #cartSection, #checkoutSection, #userSection').forEach(section => {
                 section.classList.add('hidden');
             });
-            const targetSection = document.getElementById(sectionId);
-            if (targetSection) {
-                targetSection.classList.remove('hidden');
-            } else {
-                console.error(`Sección con id '${sectionId}' no encontrada.`);
-            }
+            
+            document.getElementById(sectionId).classList.remove('hidden');
         }
 
-        // Función para configurar los event listeners (Updated and Consolidated)
+        // Función para configurar los event listeners
         function setupEventListeners() {
             // Navegación
-            if (homeLink) homeLink.addEventListener('click', () => showSection('homeSection'));
-            if (productsLink) productsLink.addEventListener('click', () => {
+            document.getElementById('homeLink').addEventListener('click', () => showSection('homeSection'));
+            document.getElementById('productsLink').addEventListener('click', () => {
                 showSection('productsSection');
-                displayProducts(products); // Ensure products are displayed when Products link is clicked
+                displayProducts(products);
             });
-            if (exploreBtn) exploreBtn.addEventListener('click', () => {
+            document.getElementById('exploreBtn').addEventListener('click', () => {
                 showSection('productsSection');
-                displayProducts(products); // Ensure products are displayed when Explore Products button is clicked
+                displayProducts(products);
             });
 
+   
             // Carrito
-            if (cartBtn) cartBtn.addEventListener('click', () => {
+            document.getElementById('cartBtn').addEventListener('click', () => {
                 showSection('cartSection');
                 updateCart();
             });
             
             // Checkout
-            if (checkoutBtn) checkoutBtn.addEventListener('click', () => {
+            document.getElementById('checkoutBtn').addEventListener('click', () => {
                 if (cart.length === 0) {
                     showToast('El carrito está vacío');
                     return;
                 }
-                // Pre-populate checkout form if user profile data is available from the modalProfile inputs
-                if (currentUser) {
-                    const firstNameEl = document.getElementById('firstName');
-                    const lastNameEl = document.getElementById('lastName');
-                    const emailEl = document.getElementById('email');
-                    const addressEl = document.getElementById('address');
-                    const phoneEl = document.getElementById('phone');
-
-                    if (firstNameEl && modalProfileNombreCompleto) firstNameEl.value = modalProfileNombreCompleto.value.split(' ')[0] || '';
-                    if (lastNameEl && modalProfileNombreCompleto) lastNameEl.value = modalProfileNombreCompleto.value.split(' ').slice(1).join(' ') || '';
-                    if (emailEl && currentUser) emailEl.value = currentUser.email || '';
-                    if (addressEl && modalProfileDireccion) addressEl.value = modalProfileDireccion.value || '';
-                    if (phoneEl && modalProfileTelefono) phoneEl.value = modalProfileTelefono.value || '';
-                    // City, State, Zip code are not in profile, user must fill
+                if (!currentUser) {
+                    showToast('Por favor, inicia sesión para finalizar tu compra.');
+                    const loginModal = new bootstrap.Modal(document.getElementById('loginModal'));
+                    loginModal.show();
+                    return;
                 }
+                populateCheckoutForm(); // Precargar datos del usuario
                 showSection('checkoutSection');
             });
             
-            if (backToCartBtn) backToCartBtn.addEventListener('click', () => {
+            document.getElementById('backToCartBtn').addEventListener('click', () => {
                 showSection('cartSection');
             });
             
             // Formulario de checkout
-            if (checkoutForm) checkoutForm.addEventListener('submit', function(e) {
+            document.getElementById('checkoutForm').addEventListener('submit', function(e) {
                 e.preventDefault();
                 submitOrder();
             });
             
             // Búsqueda
-            if (searchBtn) searchBtn.addEventListener('click', filterProducts);
-            if (searchInput) searchInput.addEventListener('keypress', function(e) {
+            document.getElementById('searchBtn').addEventListener('click', searchProducts);
+            document.getElementById('searchInput').addEventListener('keypress', function(e) {
                 if (e.key === 'Enter') {
-                    filterProducts();
+                    searchProducts();
                 }
             });
             
             // Configurar eventos del modal de detalles
             setupDetailModalEvents();
 
-            // Firebase Authentication & Account Management Modals
-            if (userAccountNavBtn) userAccountNavBtn.addEventListener('click', () => {
-                // If user is logged in, open My Account modal. Otherwise, open Auth Modal.
+            // Login/Registro
+            document.getElementById('loginBtn').addEventListener('click', () => {
                 if (currentUser) {
-                    openModal(myAccountModal);
+                    showUserSection();
                 } else {
-                    openModal(authModal);
+                    const loginModal = new bootstrap.Modal(document.getElementById('loginModal'));
+                    loginModal.show();
                 }
             });
-
-            // Close buttons for Firebase-managed modals
-            if (authModalCloseButton) authModalCloseButton.addEventListener('click', () => closeModal(authModal));
-            if (profileModalCloseButton) profileModalCloseButton.addEventListener('click', () => closeModal(profileModal));
-            if (changePasswordModalCloseButton) changePasswordModalCloseButton.addEventListener('click', () => closeModal(changePasswordModal));
-            if (myAccountModalClose) myAccountModalClose.addEventListener('click', () => closeModal(myAccountModal));
-
-            // Authentication mode switch buttons (within authModal)
-            if (showRegisterModeButton) showRegisterModeButton.addEventListener('click', () => {
-                authModalCurrentMode = 'register';
-                updateAuthModalUI();
+            
+            document.getElementById('showRegister').addEventListener('click', function(e) {
+                e.preventDefault();
+                const loginModal = bootstrap.Modal.getInstance(document.getElementById('loginModal'));
+                loginModal.hide();
+                const registerModal = new bootstrap.Modal(document.getElementById('registerModal'));
+                registerModal.show();
             });
-            if (showLoginModeButton) showLoginModeButton.addEventListener('click', () => {
-                authModalCurrentMode = 'login';
-                updateAuthModalUI();
+            
+            document.getElementById('showLogin').addEventListener('click', function(e) {
+                e.preventDefault();
+                const registerModal = bootstrap.Modal.getInstance(document.getElementById('registerModal'));
+                registerModal.hide();
+                const loginModal = new bootstrap.Modal(document.getElementById('loginModal'));
+                loginModal.show();
             });
-
-            // Authentication action button (within authModal)
-            if (modalAuthSubmitButton) modalAuthSubmitButton.addEventListener('click', handleAuthSubmit);
-
-            // My Account button (main content - if visible)
-            // Removed myAccountButton from main content, it's handled by userAccountNavBtn now.
-            // But if it were present, the check would be: if (myAccountButton) myAccountButton.addEventListener('click', () => openModal(myAccountModal));
-
-            // Logout button (now within My Account modal)
-            if (myAccountLogoutButton) myAccountLogoutButton.addEventListener('click', handleLogout);
-            if (modalResetPasswordButton) modalResetPasswordButton.addEventListener('click', handleResetPassword); // Password reset from auth modal
-
-            // Profile actions (from My Account modal)
-            if (editProfileButtonFromAccount) editProfileButtonFromAccount.addEventListener('click', () => {
-                closeModal(myAccountModal); // Close current modal
-                openModal(profileModal); // Open profile edit modal
+            
+            document.getElementById('loginForm').addEventListener('submit', function(e) {
+                e.preventDefault();
+                loginUser();
             });
-            if (modalSaveProfileButton) modalSaveProfileButton.addEventListener('click', saveUserProfile);
-
-            // Change Password actions (from My Account modal)
-            if (openChangePasswordModalButtonFromAccount) openChangePasswordModalButtonFromAccount.addEventListener('click', () => {
-                closeModal(myAccountModal); // Close current modal
-                openModal(changePasswordModal); // Open change password modal
+            
+            document.getElementById('registerForm').addEventListener('submit', function(e) {
+                e.preventDefault();
+                registerUser();
             });
-            if (modalChangePasswordButton) modalChangePasswordButton.addEventListener('click', handleChangePassword);
+            
+            document.getElementById('logoutBtn').addEventListener('click', logoutUser);
+        }
 
-            // Data list actions (misDatos from Firebase)
-            if (guardarDatosButton) guardarDatosButton.addEventListener('click', guardarDatos);
-            if (recargarDatosButton) recargarDatosButton.addEventListener('click', leerDatos);
+        // Función para buscar productos
+        function searchProducts() {
+            const searchTerm = document.getElementById('searchInput').value.toLowerCase();
+            
+            if (!searchTerm) {
+                displayProducts(products);
+                return;
+            }
+            
+            const filteredProducts = products.filter(product => 
+                product.name.toLowerCase().includes(searchTerm) || 
+                product.description.toLowerCase().includes(searchTerm) ||
+                product.category.toLowerCase().includes(searchTerm) ||
+                product.codigo.toLowerCase().includes(searchTerm) 
+            );
+            
+            showSection('productsSection');
+            displayProducts(filteredProducts);
+        }
 
-            // LLM Feature Event Listener
-            const generateShoppingListButton = document.getElementById('generateShoppingListButton');
-            if (generateShoppingListButton) { // Check if element exists before adding listener
-                generateShoppingListButton.addEventListener('click', generateShoppingList);
+        // Función para precargar el formulario de checkout con los datos del usuario logueado
+        function populateCheckoutForm() {
+            if (currentUser) {
+                document.getElementById('firstName').value = currentUser.firstName || '';
+                document.getElementById('lastName').value = currentUser.lastName || '';
+                document.getElementById('email').value = currentUser.email || '';
+                document.getElementById('address').value = currentUser.address || '';
+                document.getElementById('phone').value = currentUser.phone || '';
+                // 'city', 'state', 'zipCode' no están en el objeto currentUser original, se mantienen editables
             }
         }
 
-        // Función para enviar el pedido (Adapted for Firebase currentUser email and Firestore)
-        async function submitOrder() { // Made function async
+        // Función para enviar el pedido
+        function submitOrder() {
             if (cart.length === 0) {
                 showToast('El carrito está vacío');
                 return;
             }
-
-            const customerEmail = currentUser ? currentUser.email : (document.getElementById('email') ? document.getElementById('email').value : '');
-            const firstName = document.getElementById('firstName') ? document.getElementById('firstName').value : '';
-            const lastName = document.getElementById('lastName') ? document.getElementById('lastName').value : '';
-            const customerName = `${firstName} ${lastName}`;
-
-            const address = document.getElementById('address') ? document.getElementById('address').value : '';
-            const city = document.getElementById('city') ? document.getElementById('city').value : '';
-            const state = document.getElementById('state') ? document.getElementById('state').value : '';
-            const zipCode = document.getElementById('zipCode') ? document.getElementById('zipCode').value : '';
-            const shippingAddress = `${address}, ${city}, ${state} ${zipCode}`;
-
-            const customerPhone = document.getElementById('phone') ? document.getElementById('phone').value : '';
-
-            const orderTotal = (cart.reduce((total, item) => total + (item.price * item.quantity), 0) + 35.00);
-
-            // Prepare order data for saving
-            const orderData = {
-                userEmail: customerEmail,
-                userId: currentUser ? currentUser.uid : 'anonymous', // Store UID for Firestore path
-                date: new Date().toISOString(), // Use ISO string for consistent date
-                timestamp: serverTimestamp(), // Firestore timestamp
-                status: 'Pendiente',
-                shippingAddress: shippingAddress,
-                phone: customerPhone,
-                items: cart.map(item => ({
-                    id: item.id,
-                    name: item.name,
-                    quantity: item.quantity,
-                    price: item.price
-                })),
-                total: parseFloat(orderTotal.toFixed(2)) // Ensure total is a number
-            };
-
-            // --- Firestore: Guardar el pedido ---
-            if (currentUser) {
-                try {
-                    // Define the Firestore collection path for user-specific orders
-                    const userOrdersCollectionRef = collection(db, `artifacts/${appId}/users/${currentUser.uid}/orders`);
-                    await addDoc(userOrdersCollectionRef, orderData);
-                    console.log("Pedido guardado en Firestore:", orderData);
-                    showToast("Pedido guardado en la base de datos.");
-                } catch (e) {
-                    console.error("Error al guardar el pedido en Firestore:", e);
-                    showMessage("Error al guardar el pedido en la base de datos. Asegúrate de que las reglas de seguridad de Firestore permitan escribir en 'artifacts/{appId}/users/{userId}/orders'.");
-                    // Stop execution if Firestore save fails critically
-                    return; 
-                }
-            } else {
-                // Fallback to local storage if user is not logged in
-                orders.push(orderData);
-                localStorage.setItem('orders', JSON.stringify(orders));
-                showToast("Pedido guardado localmente (inicia sesión para sincronizar).");
+            
+            if (!currentUser) {
+                showToast('Debes iniciar sesión para completar la compra.');
+                return;
             }
 
-            // Prepare formData for EmailJS (email template specific fields)
-            const formData = {
-                order_id: new Date().getTime(), // A unique ID for the order
-                nombre_cliente: customerName,
-                email_cliente: customerEmail,
-                productos: cart.map(item => `${item.name} (${item.quantity} x $${item.price.toFixed(2)})`).join('\n'),
-                total: orderData.total.toFixed(2),
-                direccion_envio: shippingAddress,
-                telefono_contacto: customerPhone,
-              	email: "cesar.jarra@gmail.com" // Recipient email for the shop owner
+            // Recoger los datos del formulario (algunos pre-cargados, otros nuevos)
+            const firstName = document.getElementById('firstName').value;
+            const lastName = document.getElementById('lastName').value;
+            const email = document.getElementById('email').value;
+            const address = document.getElementById('address').value;
+            const city = document.getElementById('city').value;
+            const state = document.getElementById('state').value;
+            const zipCode = document.getElementById('zipCode').value;
+            const phone = document.getElementById('phone').value;
+
+            // Validar campos adicionales si son requeridos
+            if (!city || !state || !zipCode) {
+                showToast('Por favor, completa los campos de Ciudad, Provincia y Código Postal.');
+                return;
+            }
+
+            const totalAmount = cart.reduce((total, item) => total + (item.price * item.quantity), 0) + 35.00; // Sumar costo de envío
+
+            const orderDetails = {
+                order_id: `ORD-${Date.now()}`, // Generar un ID de pedido único
+                nombre_cliente: `${firstName} ${lastName}`,
+                email_cliente: email,
+                telefono_cliente: phone,
+                direccion_envio: `${address}, ${city}, ${state}, CP ${zipCode}`,
+                productos: cart.map(item => `${item.name} (Cant: ${item.quantity}) - $${item.price.toFixed(2)} c/u`).join('\n'),
+                subtotal: cart.reduce((total, item) => total + (item.price * item.quantity), 0).toFixed(2),
+                costo_envio: '35.00',
+                total: totalAmount.toFixed(2),
+                fecha_pedido: new Date().toLocaleString('es-ES')
             };
             
             // Enviar email usando EmailJS
-            emailjs.send('service_ynni6mh', 'template_mamyuhg', formData)
+            emailjs.send('service_ynni6mh', 'template_mamyuhg', orderDetails)
                 .then(() => {
-                    showToast('Pedido enviado con éxito por email.');
+                    showToast('Pedido enviado con éxito');
+                    
+                    // Guardar el pedido en el historial del usuario logueado
+                    const newOrder = {
+                        date: orderDetails.order_id,
+                        status: 'Pendiente',
+                        shippingAddress: orderDetails.direccion_envio,
+                        items: cart.map(item => ({
+                            name: item.name,
+                            quantity: item.quantity,
+                            price: item.price
+                        })),
+                        total: totalAmount,
+                        userEmail: currentUser.email // Asociar el pedido al email del usuario
+                    };
+                    orders.push(newOrder);
+                    localStorage.setItem('orders', JSON.stringify(orders)); // Actualizar localStorage
+                    
+                    // Actualizar los pedidos del usuario actual
+                    currentUser.orders = orders.filter(o => o.userEmail === currentUser.email);
+                    localStorage.setItem('currentUser', JSON.stringify(currentUser));
+
+
+                    // Limpiar carrito y volver a la sección de inicio
                     cart = [];
                     updateCart();
                     showSection('homeSection');
+                    showUserSection(); // Refrescar la sección de usuario para mostrar el nuevo pedido
+                    
                 }, (error) => {
-                    console.error('Error al enviar el pedido por email:', error);
-                    showToast('Error al enviar el pedido por email. Por favor intenta nuevamente.');
+                    console.error('Error al enviar el pedido:', error);
+                    showToast('Error al enviar el pedido. Por favor intenta nuevamente.');
                 });
+        }
+
+        // Función para login de usuario
+        function loginUser() {
+            const email = document.getElementById('loginEmail').value;
+            const password = document.getElementById('loginPassword').value;
+            
+            const users = JSON.parse(localStorage.getItem('users')) || [];
+            const user = users.find(u => u.email === email && u.password === password);
+            
+            if (user) {
+                currentUser = {
+                    firstName: user.firstName,
+                    lastName: user.lastName,
+                    email: user.email,
+                    address: user.address,
+                    phone: user.phone,
+                    // Cargar los pedidos del usuario desde el array global 'orders'
+                    orders: orders.filter(o => o.userEmail === user.email)
+                };
+                localStorage.setItem('currentUser', JSON.stringify(currentUser)); // Guardar usuario logueado
+                
+                const loginModal = bootstrap.Modal.getInstance(document.getElementById('loginModal'));
+                loginModal.hide();
+                
+                showUserSection();
+                showToast(`Bienvenido, ${user.firstName}`);
+            } else {
+                showToast('Email o contraseña incorrectos');
+            }
+        }
+
+        // Función para registrar usuario
+        function registerUser() {
+            const firstName = document.getElementById('registerFirstName').value;
+            const lastName = document.getElementById('registerLastName').value;
+            const email = document.getElementById('registerEmail').value;
+            const password = document.getElementById('registerPassword').value;
+            const address = document.getElementById('registerAddress').value;
+            const phone = document.getElementById('registerPhone').value;
+            
+            if (!email || !password || !firstName || !lastName || !address || !phone) {
+                showToast('Por favor completa todos los campos');
+                return;
+            }
+            
+            const users = JSON.parse(localStorage.getItem('users')) || [];
+            
+            if (users.some(u => u.email === email)) {
+                showToast('Este email ya está registrado');
+                return;
+            }
+            
+            users.push({
+                firstName,
+                lastName,
+                email,
+                password,
+                address,
+                phone
+            });
+            
+            localStorage.setItem('users', JSON.stringify(users));
+            
+            const registerModal = bootstrap.Modal.getInstance(document.getElementById('registerModal'));
+            registerModal.hide();
+            
+            showToast('Registro exitoso. Por favor inicia sesión.');
+        }
+
+        // Función para mostrar la sección de usuario
+        function showUserSection() {
+            if (!currentUser) return;
+            
+            document.getElementById('userName').textContent = `${currentUser.firstName} ${currentUser.lastName}`;
+            document.getElementById('userEmail').textContent = currentUser.email;
+            document.getElementById('userAddress').textContent = currentUser.address || 'Dirección no proporcionada';
+            document.getElementById('userPhone').textContent = currentUser.phone || 'Teléfono no proporcionado';
+            
+            const ordersContainer = document.getElementById('userOrders');
+            if (currentUser.orders && currentUser.orders.length > 0) {
+                ordersContainer.innerHTML = '';
+                // Ordenar pedidos del más reciente al más antiguo
+                const sortedOrders = [...currentUser.orders].sort((a, b) => new Date(b.date) - new Date(a.date));
+
+                sortedOrders.forEach(order => {
+                    const orderElement = document.createElement('div');
+                    orderElement.className = 'mb-3 p-3 border rounded';
+                    orderElement.innerHTML = `
+                        <div class="d-flex justify-content-between">
+                            <h6>Pedido #${order.date.split(' ')[0]}</h6> <!-- Mostrar solo la fecha del ID de pedido -->
+                            <span class="badge bg-primary">${order.status}</span>
+                        </div>
+                        <p class="mb-1"><small>${order.shippingAddress}</small></p>
+                        <ul class="mb-2">
+                            ${order.items.map(item => `<li>${item.name} - ${item.quantity} x $${item.price.toFixed(2)}</li>`).join('')}
+                        </ul>
+                        <p class="fw-bold mb-0">Total: $${order.total.toFixed(2)}</p>
+                    `;
+                    ordersContainer.appendChild(orderElement);
+                });
+            } else {
+                ordersContainer.innerHTML = '<p class="text-muted">No hay pedidos registrados</p>';
+            }
+            
+            document.getElementById('loginBtn').innerHTML = `<i class="fas fa-user"></i> ${currentUser.firstName}`;
+            showSection('userSection');
+        }
+
+        // Función para logout de usuario
+        function logoutUser() {
+            currentUser = null;
+            localStorage.removeItem('currentUser'); // Eliminar usuario del localStorage
+            document.getElementById('loginBtn').innerHTML = '<i class="fas fa-user"></i> Iniciar Sesión';
+            showToast('Sesión cerrada');
+            showSection('homeSection');
         }
     </script>
 </body>
