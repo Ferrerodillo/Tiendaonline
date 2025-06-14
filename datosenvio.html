@@ -146,7 +146,7 @@
         <div class="modal-content">
             <i id="authModalClose" class="fas fa-times modal-close-button"></i>
             <h2 id="authModalTitle" class="text-2xl font-bold text-gray-800 text-center mb-6">
-                Iniciar Sesión
+                <!-- Título dinámico -->
             </h2>
             <div class="space-y-4">
                 <!-- Nuevo Label de Información de Registro -->
@@ -182,7 +182,7 @@
                     </button>
                     <button
                         id="showLoginModeButton"
-                        class="px-4 py-2 text-sm font-semibold rounded-md border border-transparent transition duration-200 ease-in-out text-gray-600 hover:text-green-600 hover:border-green-600"
+                        class="px-4 py-2 text-sm font-semibold rounded-md border border-transparent transition duration-200 ease-in-out text-gray-600 hover:text-green-600 hover:border-green-600 hidden"
                     >
                         Quiero Iniciar Sesión
                     </button>
@@ -193,7 +193,7 @@
                     id="modalAuthSubmitButton"
                     class="w-full bg-blue-600 text-white p-3 rounded-lg hover:bg-blue-700 transition duration-200 ease-in-out font-semibold shadow-md mt-4"
                 >
-                    Continuar
+                    <!-- Texto dinámico -->
                 </button>
 
                 <!-- Sección de Recuperar Contraseña en el modal -->
@@ -334,14 +334,14 @@
         // Authentication Modal elements
         const authModal = document.getElementById('authModal');
         const authModalCloseButton = document.getElementById('authModalClose');
-        const authModalTitle = document.getElementById('authModalTitle'); // Nuevo título del modal
+        const authModalTitle = document.getElementById('authModalTitle');
         const registrationInfoLabel = document.getElementById('registrationInfoLabel');
         const modalAuthEmailInput = document.getElementById('modalAuthEmailInput');
         const modalAuthPasswordInput = document.getElementById('modalAuthPasswordInput');
         const modalConfirmPasswordInput = document.getElementById('modalConfirmPasswordInput');
-        const showRegisterModeButton = document.getElementById('showRegisterModeButton'); // Nuevo botón
-        const showLoginModeButton = document.getElementById('showLoginModeButton');     // Nuevo botón
-        const modalAuthSubmitButton = document.getElementById('modalAuthSubmitButton'); // Nuevo botón para submit
+        const showRegisterModeButton = document.getElementById('showRegisterModeButton');
+        const showLoginModeButton = document.getElementById('showLoginModeButton');
+        const modalAuthSubmitButton = document.getElementById('modalAuthSubmitButton');
         const modalResetPasswordEmail = document.getElementById('modalResetPasswordEmail');
         const modalResetPasswordButton = document.getElementById('modalResetPasswordButton');
 
@@ -389,7 +389,7 @@
             }
             // Disable/enable relevant buttons during loading
             userIconButton.disabled = show;
-            modalAuthSubmitButton.disabled = show; // Deshabilita el botón de acción
+            modalAuthSubmitButton.disabled = show;
             modalResetPasswordButton.disabled = show;
             if (logoutButton) logoutButton.disabled = show;
             if (modalSaveProfileButton) modalSaveProfileButton.disabled = show;
@@ -399,7 +399,7 @@
             if (editProfileButton) editProfileButton.disabled = show;
             if (openChangePasswordModalButton) openChangePasswordModalButton.disabled = show;
             
-            // También deshabilita los botones de cambio de modo
+            // Also disable mode switch buttons
             showRegisterModeButton.disabled = show;
             showLoginModeButton.disabled = show;
         }
@@ -425,13 +425,13 @@
             modalElement.classList.remove('hidden');
             // Clear inputs when opening modals
             if (modalElement === authModal) {
-                // Set default mode to login when opening auth modal
-                authModalCurrentMode = 'login'; // Por defecto al abrir
-                updateAuthModalUI(); // Actualizar UI basada en el modo
+                // Always start in login mode when opening the modal
+                authModalCurrentMode = 'login';
+                updateAuthModalUI(); // Update UI based on mode
                 modalAuthEmailInput.value = '';
                 modalAuthPasswordInput.value = '';
                 modalResetPasswordEmail.value = '';
-                modalConfirmPasswordInput.value = ''; // Asegurar que siempre se limpie
+                modalConfirmPasswordInput.value = '';
             } else if (modalElement === changePasswordModal) {
                 modalCurrentPasswordInput.value = '';
                 modalNewPasswordInput.value = '';
@@ -446,16 +446,20 @@
         function updateAuthModalUI() {
             if (authModalCurrentMode === 'register') {
                 authModalTitle.textContent = 'Registrarse';
-                modalConfirmPasswordInput.classList.remove('hidden');
                 registrationInfoLabel.classList.remove('hidden');
+                modalConfirmPasswordInput.classList.remove('hidden');
+                showRegisterModeButton.classList.add('hidden'); // Hide "Quiero Registrarme"
+                showLoginModeButton.classList.remove('hidden'); // Show "Quiero Iniciar Sesión"
                 modalAuthPasswordInput.placeholder = 'Contraseña (mín. 6 caracteres)';
                 modalAuthSubmitButton.textContent = 'Registrarse';
                 modalAuthSubmitButton.classList.remove('bg-green-600', 'hover:bg-green-700');
                 modalAuthSubmitButton.classList.add('bg-blue-600', 'hover:bg-blue-700');
             } else { // 'login' mode
                 authModalTitle.textContent = 'Iniciar Sesión';
-                modalConfirmPasswordInput.classList.add('hidden');
                 registrationInfoLabel.classList.add('hidden');
+                modalConfirmPasswordInput.classList.add('hidden');
+                showRegisterModeButton.classList.remove('hidden'); // Show "Quiero Registrarme"
+                showLoginModeButton.classList.add('hidden'); // Hide "Quiero Iniciar Sesión"
                 modalAuthPasswordInput.placeholder = 'Contraseña';
                 modalAuthSubmitButton.textContent = 'Iniciar Sesión';
                 modalAuthSubmitButton.classList.remove('bg-blue-600', 'hover:bg-blue-700');
@@ -533,7 +537,7 @@
 
         // --- Authentication Button Handlers (within Auth Modal) ---
 
-        // Función que se ejecuta al hacer clic en el botón de acción (Continuar)
+        // Function that executes when the action button (Continuar) is clicked
         async function handleAuthSubmit() {
             if (authModalCurrentMode === 'register') {
                 handleRegisterAction();
@@ -542,7 +546,7 @@
             }
         }
 
-        async function handleRegisterAction() { // Renamed from handleRegister
+        async function handleRegisterAction() {
             const email = modalAuthEmailInput.value;
             const password = modalAuthPasswordInput.value;
             const confirmPassword = modalConfirmPasswordInput.value;
@@ -564,7 +568,6 @@
             try {
                 await createUserWithEmailAndPassword(auth, email, password);
                 showMessage("Usuario registrado y sesión iniciada exitosamente!");
-                // Inputs are cleared by openModal which is called from updateUI indirectly
             } catch (error) {
                 console.error("Error al registrar usuario:", error);
                 let errorMessage = "Error al registrar usuario.";
@@ -587,7 +590,7 @@
             }
         }
 
-        async function handleLoginAction() { // Renamed from handleLogin
+        async function handleLoginAction() {
             const email = modalAuthEmailInput.value;
             const password = modalAuthPasswordInput.value;
 
@@ -630,7 +633,7 @@
             try {
                 await signOut(auth);
                 showMessage("Sesión cerrada correctamente.");
-                nombreInput.value = ''; // Clear data list input
+                nombreInput.value = '';
             } catch (error) {
                 console.error("Error al cerrar sesión:", error);
                 showMessage("Error al cerrar sesión: " + error.message);
@@ -696,7 +699,7 @@
                 await reauthenticateWithCredential(currentUser, credential);
                 await updatePassword(currentUser, newPassword);
                 showMessage("Contraseña cambiada exitosamente!");
-                closeModal(changePasswordModal); // Close modal on success
+                closeModal(changePasswordModal);
             } catch (error) {
                 console.error("Error al cambiar contraseña:", error);
                 let errorMessage = "Error al cambiar contraseña.";
@@ -754,7 +757,7 @@
                 }, { merge: true });
 
                 showMessage("Perfil actualizado correctamente!");
-                closeModal(profileModal); // Close modal on success
+                closeModal(profileModal);
             } catch (e) {
                 console.error("Error al guardar el perfil: ", e);
                 showMessage("Error al guardar el perfil. Asegúrate de tener los permisos correctos en Firestore.");
@@ -914,7 +917,7 @@
             });
 
             // Authentication action button
-            modalAuthSubmitButton.addEventListener('click', handleAuthSubmit); // This button now handles both login/register
+            modalAuthSubmitButton.addEventListener('click', handleAuthSubmit);
 
             // Other authentication actions
             logoutButton.addEventListener('click', handleLogout);
