@@ -75,48 +75,11 @@
 
     <!-- MAIN CONTENT SECTION (Visible solo cuando el usuario está logueado) -->
     <div id="contentSection" class="hidden bg-white p-8 rounded-xl shadow-2xl w-full max-w-lg space-y-6 transform transition-all duration-300">
-        <div class="border border-green-200 bg-green-50 p-4 rounded-lg shadow-sm mb-6">
-            <p class="text-lg font-semibold text-green-700 mb-2">
-                ¡Sesión Iniciada!
-            </p>
-            <p class="text-sm text-gray-700">
-                <span class="font-medium">Email:</span> <span id="currentUserEmail"></span>
-            </p>
-            <p class="text-sm text-gray-700 break-words">
-                <span class="font-medium">UID:</span> <span id="currentUserUid"></span>
-            </p>
-            <button
-                id="logoutButton"
-                class="w-full mt-4 bg-red-600 text-white p-3 rounded-lg hover:bg-red-700 transition duration-200 ease-in-out font-semibold shadow-md"
-            >
-                Cerrar Sesión
-            </button>
-        </div>
-
-        <!-- Sección de Mi Perfil -->
-        <div class="mb-6 p-4 border border-blue-200 bg-blue-50 rounded-lg shadow-sm relative">
-            <h2 class="text-xl font-bold text-blue-800 mb-3">
-                Mi Perfil
-                <button id="editProfileButton" class="absolute top-4 right-4 text-gray-500 hover:text-blue-700 transition duration-200 text-lg">
-                    <i class="fas fa-edit"></i> <!-- Edit icon -->
-                </button>
-            </h2>
-            <div id="currentProfileDisplay" class="p-3 bg-blue-100 border border-blue-300 rounded-md">
-                <p class="font-semibold text-blue-900">Datos de Mi Perfil:</p>
-                <p>Nombre: <span id="displayNombreCompleto"></span></p>
-                <p>Dirección: <span id="displayDireccion"></span></p>
-                <p>Teléfono: <span id="displayTelefono"></span></p>
-                <p>Horario Pedidos: <span id="displayHorarioPedidos"></span></p>
-            </div>
-        </div>
-
-        <hr class="my-6 border-gray-200">
-
-        <!-- Botón para abrir el modal de cambio de contraseña -->
-        <div class="text-center">
-            <button id="openChangePasswordModalButton"
-                    class="bg-orange-600 text-white p-3 rounded-lg hover:bg-orange-700 transition duration-200 ease-in-out font-semibold shadow-md inline-flex items-center">
-                <i class="fas fa-key mr-2"></i> Cambiar Contraseña
+        <!-- Botón "Mi Cuenta" en la interfaz principal -->
+        <div class="text-center mb-6">
+            <button id="myAccountButton"
+                    class="bg-blue-600 text-white p-3 rounded-lg hover:bg-blue-700 transition duration-200 ease-in-out font-semibold shadow-md inline-flex items-center">
+                <i class="fas fa-user mr-2"></i> Mi cuenta
             </button>
         </div>
 
@@ -149,7 +112,7 @@
                 <!-- Título dinámico -->
             </h2>
             <div class="space-y-4">
-                <!-- Nuevo Label de Información de Registro -->
+                <!-- Label de Información de Registro -->
                 <p id="registrationInfoLabel" class="text-sm text-gray-600 mb-2 hidden">
                     Ingresa un correo válido para registrarte y una contraseña de minimo 6 caracteres.
                 </p>
@@ -215,6 +178,62 @@
             </div>
         </div>
     </div>
+
+    <!-- NEW MODAL: MI CUENTA (Muestra datos del usuario, cerrar sesión, acceso a editar perfil y cambiar contraseña) -->
+    <div id="myAccountModal" class="modal-backdrop hidden">
+        <div class="modal-content">
+            <i id="myAccountModalClose" class="fas fa-times modal-close-button"></i>
+            <h2 class="text-2xl font-bold text-gray-800 text-center mb-6">
+                Mi Cuenta
+            </h2>
+            <div class="space-y-4">
+                <div class="border border-green-200 bg-green-50 p-4 rounded-lg shadow-sm">
+                    <p class="text-lg font-semibold text-green-700 mb-2">
+                        Detalles de la Sesión
+                    </p>
+                    <p class="text-sm text-gray-700">
+                        <span class="font-medium">Email:</span> <span id="myAccountEmail"></span>
+                    </p>
+                    <p class="text-sm text-gray-700 break-words">
+                        <span class="font-medium">UID:</span> <span id="myAccountUid"></span>
+                    </p>
+                </div>
+
+                <!-- Sección de Mi Perfil dentro del modal de cuenta -->
+                <div class="p-4 border border-blue-200 bg-blue-50 rounded-lg shadow-sm relative">
+                    <h3 class="text-xl font-bold text-blue-800 mb-3">
+                        Mi Perfil
+                        <button id="editProfileButtonFromAccount" class="absolute top-4 right-4 text-gray-500 hover:text-blue-700 transition duration-200 text-lg">
+                            <i class="fas fa-edit"></i>
+                        </button>
+                    </h3>
+                    <div id="myAccountProfileDisplay" class="p-3 bg-blue-100 border border-blue-300 rounded-md">
+                        <p class="font-semibold text-blue-900">Datos Actuales:</p>
+                        <p>Nombre: <span id="accountDisplayNombreCompleto"></span></p>
+                        <p>Dirección: <span id="accountDisplayDireccion"></span></p>
+                        <p>Teléfono: <span id="accountDisplayTelefono"></span></p>
+                        <p>Horario Pedidos: <span id="accountDisplayHorarioPedidos"></span></p>
+                    </div>
+                </div>
+
+                <!-- Botón para abrir el modal de cambio de contraseña desde el modal de cuenta -->
+                <div class="text-center">
+                    <button id="openChangePasswordModalButtonFromAccount"
+                            class="bg-orange-600 text-white p-3 rounded-lg hover:bg-orange-700 transition duration-200 ease-in-out font-semibold shadow-md inline-flex items-center">
+                        <i class="fas fa-key mr-2"></i> Cambiar Contraseña
+                    </button>
+                </div>
+
+                <button
+                    id="myAccountLogoutButton"
+                    class="w-full mt-6 bg-red-600 text-white p-3 rounded-lg hover:bg-red-700 transition duration-200 ease-in-out font-semibold shadow-md"
+                >
+                    Cerrar Sesión
+                </button>
+            </div>
+        </div>
+    </div>
+
 
     <!-- MODAL DE EDICIÓN DE PERFIL -->
     <div id="profileModal" class="modal-backdrop hidden">
@@ -327,9 +346,21 @@
         const globalLoadingIndicator = document.getElementById('globalLoadingIndicator');
         const userIconButton = document.getElementById('userIconButton');
         const contentSection = document.getElementById('contentSection');
-        const currentUserEmailSpan = document.getElementById('currentUserEmail');
-        const currentUserUidSpan = document.getElementById('currentUserUid');
-        const logoutButton = document.getElementById('logoutButton');
+        
+        // My Account Modal elements
+        const myAccountButton = document.getElementById('myAccountButton'); // New button
+        const myAccountModal = document.getElementById('myAccountModal'); // New modal
+        const myAccountModalClose = document.getElementById('myAccountModalClose'); // New close button for MyAccount modal
+        const myAccountEmailSpan = document.getElementById('myAccountEmail'); // New span for email in MyAccount modal
+        const myAccountUidSpan = document.getElementById('myAccountUid'); // New span for UID in MyAccount modal
+        const myAccountProfileDisplay = document.getElementById('myAccountProfileDisplay'); // Display for profile in MyAccount modal
+        const accountDisplayNombreCompleto = document.getElementById('accountDisplayNombreCompleto');
+        const accountDisplayDireccion = document.getElementById('accountDisplayDireccion');
+        const accountDisplayTelefono = document.getElementById('accountDisplayTelefono');
+        const accountDisplayHorarioPedidos = document.getElementById('accountDisplayHorarioPedidos');
+        const editProfileButtonFromAccount = document.getElementById('editProfileButtonFromAccount'); // Button to open profile edit modal from account modal
+        const openChangePasswordModalButtonFromAccount = document.getElementById('openChangePasswordModalButtonFromAccount'); // Button to open change password modal from account modal
+        const myAccountLogoutButton = document.getElementById('myAccountLogoutButton'); // Logout button in MyAccount modal
 
         // Authentication Modal elements
         const authModal = document.getElementById('authModal');
@@ -346,7 +377,6 @@
         const modalResetPasswordButton = document.getElementById('modalResetPasswordButton');
 
         // Profile Edit Modal elements
-        const editProfileButton = document.getElementById('editProfileButton');
         const profileModal = document.getElementById('profileModal');
         const profileModalCloseButton = document.getElementById('profileModalClose');
         const modalProfileNombreCompleto = document.getElementById('modalProfileNombreCompleto');
@@ -354,14 +384,9 @@
         const modalProfileTelefono = document.getElementById('modalProfileTelefono');
         const modalProfileHorarioPedidos = document.getElementById('modalProfileHorarioPedidos');
         const modalSaveProfileButton = document.getElementById('modalSaveProfileButton');
-        const currentProfileDisplay = document.getElementById('currentProfileDisplay');
-        const displayNombreCompleto = document.getElementById('displayNombreCompleto');
-        const displayDireccion = document.getElementById('displayDireccion');
-        const displayTelefono = document.getElementById('displayTelefono');
-        const displayHorarioPedidos = document.getElementById('displayHorarioPedidos');
+        // No longer using `currentProfileDisplay` for main page. Using `myAccountProfileDisplay` instead.
 
         // Change Password Modal elements
-        const openChangePasswordModalButton = document.getElementById('openChangePasswordModalButton');
         const changePasswordModal = document.getElementById('changePasswordModal');
         const changePasswordModalCloseButton = document.getElementById('changePasswordModalClose');
         const modalCurrentPasswordInput = document.getElementById('modalCurrentPasswordInput');
@@ -391,13 +416,14 @@
             userIconButton.disabled = show;
             modalAuthSubmitButton.disabled = show;
             modalResetPasswordButton.disabled = show;
-            if (logoutButton) logoutButton.disabled = show;
+            if (myAccountButton) myAccountButton.disabled = show; // Disable Mi Cuenta button
+            if (myAccountLogoutButton) myAccountLogoutButton.disabled = show;
             if (modalSaveProfileButton) modalSaveProfileButton.disabled = show;
             if (modalChangePasswordButton) modalChangePasswordButton.disabled = show;
             if (guardarDatosButton) guardarDatosButton.disabled = show;
             if (recargarDatosButton) recargarDatosButton.disabled = show;
-            if (editProfileButton) editProfileButton.disabled = show;
-            if (openChangePasswordModalButton) openChangePasswordModalButton.disabled = show;
+            if (editProfileButtonFromAccount) editProfileButtonFromAccount.disabled = show;
+            if (openChangePasswordModalButtonFromAccount) openChangePasswordModalButtonFromAccount.disabled = show;
             
             // Also disable mode switch buttons
             showRegisterModeButton.disabled = show;
@@ -418,15 +444,12 @@
         });
 
         // --- Modal Control Functions ---
-        // Global state for auth modal mode
         let authModalCurrentMode = 'login'; // 'login' or 'register'
 
         function openModal(modalElement) {
             modalElement.classList.remove('hidden');
-            // Clear inputs when opening modals
             if (modalElement === authModal) {
-                // Always start in login mode when opening the modal
-                authModalCurrentMode = 'login';
+                authModalCurrentMode = 'login'; // Always start in login mode when opening the modal
                 updateAuthModalUI(); // Update UI based on mode
                 modalAuthEmailInput.value = '';
                 modalAuthPasswordInput.value = '';
@@ -435,6 +458,9 @@
             } else if (modalElement === changePasswordModal) {
                 modalCurrentPasswordInput.value = '';
                 modalNewPasswordInput.value = '';
+            } else if (modalElement === profileModal) {
+                // When opening profile modal, ensure inputs are populated with current profile data
+                // This is done by loadUserProfile() automatically updating the modal inputs via onSnapshot
             }
         }
 
@@ -476,8 +502,10 @@
         function updateUI() {
             if (currentUser) {
                 contentSection.classList.remove('hidden');
-                currentUserEmailSpan.textContent = currentUser.email || 'N/A';
-                currentUserUidSpan.textContent = currentUser.uid;
+                // Populate user data in My Account Modal directly
+                myAccountEmailSpan.textContent = currentUser.email || 'N/A';
+                myAccountUidSpan.textContent = currentUser.uid;
+                
                 loadUserProfile(); // Load and listen to user profile
                 leerDatos(); // Load and listen to user's data list
                 closeModal(authModal); // Close auth modal if user logs in successfully
@@ -487,18 +515,22 @@
                 // Unsubscribe from listeners if user logs out
                 profileSnapshotUnsubscribe && profileSnapshotUnsubscribe();
                 dataListSnapshotUnsubscribe && dataListSnapshotUnsubscribe();
-                // Clear profile fields and display
+                // Clear all modal and display fields
                 modalProfileNombreCompleto.value = '';
                 modalProfileDireccion.value = '';
                 modalProfileTelefono.value = '';
                 modalProfileHorarioPedidos.value = '';
-                currentProfileDisplay.classList.add('hidden');
-                // Clear password inputs
+                myAccountProfileDisplay.classList.add('hidden'); // Hide profile display in MyAccount modal
+                accountDisplayNombreCompleto.textContent = 'N/A'; // Clear display spans
+                accountDisplayDireccion.textContent = 'N/A';
+                accountDisplayTelefono.textContent = 'N/A';
+                accountDisplayHorarioPedidos.textContent = 'N/A';
                 modalCurrentPasswordInput.value = '';
                 modalNewPasswordInput.value = '';
                 // Ensure modals are not shown immediately unless user clicks icon
                 closeModal(profileModal);
                 closeModal(changePasswordModal);
+                closeModal(myAccountModal); // Close My Account modal on logout
             }
         }
 
@@ -776,7 +808,7 @@
                 modalProfileDireccion.value = '';
                 modalProfileTelefono.value = '';
                 modalProfileHorarioPedidos.value = '';
-                currentProfileDisplay.classList.add('hidden');
+                myAccountProfileDisplay.classList.add('hidden'); // Hide profile display in MyAccount modal
                 return;
             }
 
@@ -785,29 +817,29 @@
             profileSnapshotUnsubscribe = onSnapshot(userProfileDocRef, (docSnap) => {
                 if (docSnap.exists()) {
                     const data = docSnap.data();
-                    // Populate modal inputs
+                    // Populate modal inputs (profileModal)
                     modalProfileNombreCompleto.value = data.nombreCompleto || '';
                     modalProfileDireccion.value = data.direccion || '';
                     modalProfileTelefono.value = data.telefono || '';
                     modalProfileHorarioPedidos.value = data.horarioPedidos || '';
 
-                    // Display in main content
-                    displayNombreCompleto.textContent = data.nombreCompleto || 'N/A';
-                    displayDireccion.textContent = data.direccion || 'N/A';
-                    displayTelefono.textContent = data.telefono || 'N/A';
-                    displayHorarioPedidos.textContent = data.horarioPedidos || 'N/A';
-                    currentProfileDisplay.classList.remove('hidden');
+                    // Display in My Account Modal
+                    accountDisplayNombreCompleto.textContent = data.nombreCompleto || 'N/A';
+                    accountDisplayDireccion.textContent = data.direccion || 'N/A';
+                    accountDisplayTelefono.textContent = data.telefono || 'N/A';
+                    accountDisplayHorarioPedidos.textContent = data.horarioPedidos || 'N/A';
+                    myAccountProfileDisplay.classList.remove('hidden');
                 } else {
                     // Profile document does not exist
                     modalProfileNombreCompleto.value = '';
                     modalProfileDireccion.value = '';
                     modalProfileTelefono.value = '';
                     modalProfileHorarioPedidos.value = '';
-                    displayNombreCompleto.textContent = 'N/A';
-                    displayDireccion.textContent = 'N/A';
-                    displayTelefono.textContent = 'N/A';
-                    displayHorarioPedidos.textContent = 'N/A';
-                    currentProfileDisplay.classList.add('hidden');
+                    accountDisplayNombreCompleto.textContent = 'N/A';
+                    accountDisplayDireccion.textContent = 'N/A';
+                    accountDisplayTelefono.textContent = 'N/A';
+                    accountDisplayHorarioPedidos.textContent = 'N/A';
+                    myAccountProfileDisplay.classList.add('hidden');
                 }
             }, (error) => {
                 console.error("Error al cargar el perfil en tiempo real: ", error);
@@ -898,13 +930,12 @@
         document.addEventListener('DOMContentLoaded', () => {
             // Main UI interactions
             userIconButton.addEventListener('click', () => {
-                authModalCurrentMode = 'login'; // Default to login mode
-                updateAuthModalUI(); // Update UI for login mode
-                openModal(authModal);
+                openModal(authModal); // Always open Auth Modal from user icon
             });
             authModalCloseButton.addEventListener('click', () => closeModal(authModal));
             profileModalCloseButton.addEventListener('click', () => closeModal(profileModal));
             changePasswordModalCloseButton.addEventListener('click', () => closeModal(changePasswordModal));
+            myAccountModalClose.addEventListener('click', () => closeModal(myAccountModal)); // Close listener for new modal
 
             // Authentication mode switch buttons
             showRegisterModeButton.addEventListener('click', () => {
@@ -919,16 +950,25 @@
             // Authentication action button
             modalAuthSubmitButton.addEventListener('click', handleAuthSubmit);
 
+            // My Account button (main content)
+            myAccountButton.addEventListener('click', () => openModal(myAccountModal)); // Open MyAccount modal
+
             // Other authentication actions
-            logoutButton.addEventListener('click', handleLogout);
+            myAccountLogoutButton.addEventListener('click', handleLogout); // Logout button is now in MyAccount modal
             modalResetPasswordButton.addEventListener('click', handleResetPassword);
 
             // Profile actions
-            editProfileButton.addEventListener('click', () => openModal(profileModal));
+            editProfileButtonFromAccount.addEventListener('click', () => { // From MyAccount modal
+                closeModal(myAccountModal); // Close current modal
+                openModal(profileModal); // Open profile edit modal
+            });
             modalSaveProfileButton.addEventListener('click', saveUserProfile);
 
             // Change Password actions
-            openChangePasswordModalButton.addEventListener('click', () => openModal(changePasswordModal));
+            openChangePasswordModalButtonFromAccount.addEventListener('click', () => { // From MyAccount modal
+                closeModal(myAccountModal); // Close current modal
+                openModal(changePasswordModal); // Open change password modal
+            });
             modalChangePasswordButton.addEventListener('click', handleChangePassword);
 
             // Data list actions
