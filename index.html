@@ -227,7 +227,7 @@
             </div>
         </div>
 
-        <!-- Formulario de Checkout -->
+        <!-- Formulario de Checkout (este formulario ahora se precargará si hay un usuario logueado) -->
         <div id="checkoutSection" class="hidden">
             <div class="row justify-content-center">
                 <div class="col-md-8">
@@ -240,20 +240,20 @@
                                 <div class="row mb-3">
                                     <div class="col-md-6">
                                         <label for="firstName" class="form-label">Nombre</label>
-                                        <input type="text" class="form-control" id="firstName" required>
+                                        <input type="text" class="form-control" id="firstName" required readonly>
                                     </div>
                                     <div class="col-md-6">
                                         <label for="lastName" class="form-label">Apellido</label>
-                                        <input type="text" class="form-control" id="lastName" required>
+                                        <input type="text" class="form-control" id="lastName" required readonly>
                                     </div>
                                 </div>
                                 <div class="mb-3">
                                     <label for="email" class="form-label">Email</label>
-                                    <input type="email" class="form-control" id="email" required>
+                                    <input type="email" class="form-control" id="email" required readonly>
                                 </div>
                                 <div class="mb-3">
                                     <label for="address" class="form-label">Dirección</label>
-                                    <input type="text" class="form-control" id="address" required>
+                                    <input type="text" class="form-control" id="address" required readonly>
                                 </div>
                                 <div class="row mb-3">
                                     <div class="col-md-4">
@@ -271,7 +271,7 @@
                                 </div>
                                 <div class="mb-3">
                                     <label for="phone" class="form-label">Teléfono</label>
-                                    <input type="tel" class="form-control" id="phone" required>
+                                    <input type="tel" class="form-control" id="phone" required readonly>
                                 </div>
                                 <div class="d-grid gap-2">
                                     <button type="submit" class="btn btn-primary">Enviar Pedido</button>
@@ -447,8 +447,14 @@
             // Configurar eventos
             setupEventListeners();
             
-            // Mostrar sección de inicio por defecto
-            showSection('homeSection');
+            // Cargar el usuario actual si existe en localStorage
+            const storedUser = localStorage.getItem('currentUser');
+            if (storedUser) {
+                currentUser = JSON.parse(storedUser);
+                showUserSection(); // Mostrar la sección de usuario si hay un usuario logueado
+            } else {
+                showSection('homeSection'); // Mostrar sección de inicio por defecto
+            }
         });
 
         // Función para cargar productos desde un CSV en GitHub
@@ -535,7 +541,7 @@
                     p.name.toLowerCase().includes(searchTerm) || 
                     p.description.toLowerCase().includes(searchTerm) ||
                     p.category.toLowerCase().includes(searchTerm) ||
-		    p.codigo.toLowerCase().includes(searchTerm) 
+		            p.codigo.toLowerCase().includes(searchTerm) 
                 );
             }
             
@@ -546,12 +552,12 @@
         function loadSampleProducts() {
             console.log("Cargando productos de ejemplo...");
             products = [
-                {id: 1, name: "Producto Ejemplo 1", price: 19.99, category: "Electrónicos", description: "Descripción detallada del producto electrónico de ejemplo", image: "https://via.placeholder.com/150", stock: 5},
-                {id: 2, name: "Producto Ejemplo 2", price: 29.99, category: "Ropa", description: "Descripción detallada del producto de ropa de ejemplo", image: "https://via.placeholder.com/150", stock: 3},
-                {id: 3, name: "Producto Ejemplo 3", price: 39.99, category: "Hogar", description: "Descripción detallada del producto para el hogar de ejemplo", image: "https://via.placeholder.com/150", stock: 0},
-                {id: 4, name: "Producto Ejemplo 4", price: 49.99, category: "Electrónicos", description: "Otro producto electrónico con características avanzadas", image: "https://via.placeholder.com/150", stock: 10},
-                {id: 5, name: "Producto Ejemplo 5", price: 59.99, category: "Ropa", description: "Otra prenda de vestir de alta calidad", image: "https://via.placeholder.com/150", stock: 1},
-                {id: 6, name: "Producto Ejemplo 6", price: 69.99, category: "Hogar", description: "Producto para el hogar con garantía extendida", image: "https://via.placeholder.com/150", stock: 8}
+                {id: 1, name: "Producto Ejemplo 1", price: 19.99, category: "Electrónicos", description: "Descripción detallada del producto electrónico de ejemplo", image: "https://via.placeholder.com/150", stock: 5, codigo: "ELEC001"},
+                {id: 2, name: "Producto Ejemplo 2", price: 29.99, category: "Ropa", description: "Descripción detallada del producto de ropa de ejemplo", image: "https://via.placeholder.com/150", stock: 3, codigo: "ROPA002"},
+                {id: 3, name: "Producto Ejemplo 3", price: 39.99, category: "Hogar", description: "Descripción detallada del producto para el hogar de ejemplo", image: "https://via.placeholder.com/150", stock: 0, codigo: "HOGAR003"},
+                {id: 4, name: "Producto Ejemplo 4", price: 49.99, category: "Electrónicos", description: "Otro producto electrónico con características avanzadas", image: "https://via.placeholder.com/150", stock: 10, codigo: "ELEC004"},
+                {id: 5, name: "Producto Ejemplo 5", price: 59.99, category: "Ropa", description: "Otra prenda de vestir de alta calidad", image: "https://via.placeholder.com/150", stock: 1, codigo: "ROPA005"},
+                {id: 6, name: "Producto Ejemplo 6", price: 69.99, category: "Hogar", description: "Producto para el hogar con garantía extendida", image: "https://via.placeholder.com/150", stock: 8, codigo: "HOGAR006"}
             ];
             
             // Extraer categorías únicas
@@ -589,7 +595,7 @@
                             <h5 class="card-title" style="font-size: 1rem;">${product.name}</h5>
                             <p class="text-muted" style="font-size: 0.8rem;">${product.category}</p>
                             <p class="fw-bold" style="font-size: 0.9rem;">$${product.price.toFixed(2)}</p>
-			    <p class="text-muted" style="font-size: 0.8rem;">${product.codigo}</p>
+			                <p class="text-muted" style="font-size: 0.8rem;">${product.codigo}</p>
                             <p class="stock-info ${stockStatus.class}">${stockStatus.text}</p>
                             <div class="d-flex justify-content-between">
                                 <button class="btn btn-sm btn-outline-primary view-detail" data-id="${product.id}">
@@ -683,7 +689,7 @@
         // Función para agregar producto al carrito desde el modal de detalles
         function setupDetailModalEvents() {
             document.getElementById('increaseDetail').addEventListener('click', function() {
-                if (detailQuantity < currentProductDetail.stock) {
+                if (currentProductDetail && detailQuantity < currentProductDetail.stock) {
                     detailQuantity++;
                     document.getElementById('detailQuantity').textContent = detailQuantity;
                     
@@ -767,7 +773,8 @@
                 cart.forEach(item => {
                     const product = products.find(p => p.id === item.id);
                     const availableStock = product ? product.stock : 0;
-                    const maxAvailable = availableStock + item.quantity;
+                    // Fix: maxAvailable should be based on initial product stock, not current item quantity
+                    const maxAllowedInCart = product.stock; 
                     
                     const itemElement = document.createElement('div');
                     itemElement.className = 'cart-item';
@@ -783,7 +790,7 @@
                                     ${item.quantity <= 1 ? 'disabled' : ''}>-</button>
                                 <span class="mx-2">${item.quantity}</span>
                                 <button class="btn btn-sm btn-outline-secondary increase-quantity" data-id="${item.id}"
-                                    ${item.quantity >= maxAvailable ? 'disabled' : ''}>+</button>
+                                    ${item.quantity >= maxAllowedInCart ? 'disabled' : ''}>+</button>
                                 <span class="ms-3 fw-bold">$${(item.price * item.quantity).toFixed(2)}</span>
                                 <button class="btn btn-sm btn-outline-danger ms-2 remove-item" data-id="${item.id}">
                                     <i class="fas fa-trash"></i>
@@ -836,7 +843,7 @@
             
             const newQuantity = cart[itemIndex].quantity + change;
             
-            // Validar que no se exceda el stock disponible
+            // Validar que no se exceda el stock disponible o sea menor a 0
             if (newQuantity > product.stock) {
                 showToast(`No hay suficiente stock. Solo quedan ${product.stock} unidades disponibles.`);
                 return;
@@ -921,6 +928,13 @@
                     showToast('El carrito está vacío');
                     return;
                 }
+                if (!currentUser) {
+                    showToast('Por favor, inicia sesión para finalizar tu compra.');
+                    const loginModal = new bootstrap.Modal(document.getElementById('loginModal'));
+                    loginModal.show();
+                    return;
+                }
+                populateCheckoutForm(); // Precargar datos del usuario
                 showSection('checkoutSection');
             });
             
@@ -996,44 +1010,103 @@
             const filteredProducts = products.filter(product => 
                 product.name.toLowerCase().includes(searchTerm) || 
                 product.description.toLowerCase().includes(searchTerm) ||
-                product.category.toLowerCase().includes(searchTerm)
+                product.category.toLowerCase().includes(searchTerm) ||
+                product.codigo.toLowerCase().includes(searchTerm) 
             );
             
             showSection('productsSection');
             displayProducts(filteredProducts);
         }
 
+        // Función para precargar el formulario de checkout con los datos del usuario logueado
+        function populateCheckoutForm() {
+            if (currentUser) {
+                document.getElementById('firstName').value = currentUser.firstName || '';
+                document.getElementById('lastName').value = currentUser.lastName || '';
+                document.getElementById('email').value = currentUser.email || '';
+                document.getElementById('address').value = currentUser.address || '';
+                document.getElementById('phone').value = currentUser.phone || '';
+                // 'city', 'state', 'zipCode' no están en el objeto currentUser original, se mantienen editables
+            }
+        }
+
         // Función para enviar el pedido
         function submitOrder() {
-
             if (cart.length === 0) {
                 showToast('El carrito está vacío');
                 return;
             }
-const miemail  = "cesar.jarra@gmail.com";
-            const formData = {
-                order_id: document.getElementById('zipCode').value,
-                nombre_cliente: document.getElementById('lastName').value,
-                orders: document.getElementById('zipCode').value,
-                image_url: document.getElementById('address').value,
-                productos: cart.map(item => `${item.name} (${item.quantity} x $${item.price.toFixed(2)})`).join('\n'),
-                total: cart.reduce((total, item) => total + (item.price * item.quantity), 0).toFixed(2),
-                email_cliente: document.getElementById('email').value,
-              	email: miemail
+            
+            if (!currentUser) {
+                showToast('Debes iniciar sesión para completar la compra.');
+                return;
+            }
+
+            // Recoger los datos del formulario (algunos pre-cargados, otros nuevos)
+            const firstName = document.getElementById('firstName').value;
+            const lastName = document.getElementById('lastName').value;
+            const email = document.getElementById('email').value;
+            const address = document.getElementById('address').value;
+            const city = document.getElementById('city').value;
+            const state = document.getElementById('state').value;
+            const zipCode = document.getElementById('zipCode').value;
+            const phone = document.getElementById('phone').value;
+
+            // Validar campos adicionales si son requeridos
+            if (!city || !state || !zipCode) {
+                showToast('Por favor, completa los campos de Ciudad, Provincia y Código Postal.');
+                return;
+            }
+
+            const totalAmount = cart.reduce((total, item) => total + (item.price * item.quantity), 0) + 35.00; // Sumar costo de envío
+	    const miemail = "cesar.jarra@gmail.com";
+		
+            const orderDetails = {
+                nombre_cliente: `${firstName} ${lastName}`,
+		order_id: `ORD-${Date.now()}`, // Generar un ID de pedido único
+		fecha_pedido: new Date().toLocaleString('es-ES'),
+                email_cliente: email,
+                telefono_cliente: phone,
+                direccion_envio: `${address}, ${city}, ${state}, CP ${zipCode}`,
+                productos: cart.map(item => `${item.name} (Cant: ${item.quantity}) - $${item.price.toFixed(2)} c/u`).join('\n'),
+                subtotal: cart.reduce((total, item) => total + (item.price * item.quantity), 0).toFixed(2),
+                costo_envio: '35.00',
+                total: totalAmount.toFixed(2),
+		email: miemail
             };
             
             // Enviar email usando EmailJS
-            emailjs.send('service_ynni6mh', 'template_mamyuhg', formData)
+            emailjs.send('service_ynni6mh', 'template_mamyuhg', orderDetails)
                 .then(() => {
                     showToast('Pedido enviado con éxito');
+                    
+                    // Guardar el pedido en el historial del usuario logueado
+                    const newOrder = {
+                        date: orderDetails.order_id,
+                        status: 'Pendiente',
+                        shippingAddress: orderDetails.direccion_envio,
+                        items: cart.map(item => ({
+                            name: item.name,
+                            quantity: item.quantity,
+                            price: item.price
+                        })),
+                        total: totalAmount,
+                        userEmail: currentUser.email // Asociar el pedido al email del usuario
+                    };
+                    orders.push(newOrder);
+                    localStorage.setItem('orders', JSON.stringify(orders)); // Actualizar localStorage
+                    
+                    // Actualizar los pedidos del usuario actual
+                    currentUser.orders = orders.filter(o => o.userEmail === currentUser.email);
+                    localStorage.setItem('currentUser', JSON.stringify(currentUser));
+
+
+                    // Limpiar carrito y volver a la sección de inicio
                     cart = [];
                     updateCart();
                     showSection('homeSection');
+                    showUserSection(); // Refrescar la sección de usuario para mostrar el nuevo pedido
                     
-                    if (currentUser) {
-                        currentUser.orders = orders.filter(o => o.userEmail === currentUser.email);
-                        showUserSection();
-                    }
                 }, (error) => {
                     console.error('Error al enviar el pedido:', error);
                     showToast('Error al enviar el pedido. Por favor intenta nuevamente.');
@@ -1055,8 +1128,10 @@ const miemail  = "cesar.jarra@gmail.com";
                     email: user.email,
                     address: user.address,
                     phone: user.phone,
+                    // Cargar los pedidos del usuario desde el array global 'orders'
                     orders: orders.filter(o => o.userEmail === user.email)
                 };
+                localStorage.setItem('currentUser', JSON.stringify(currentUser)); // Guardar usuario logueado
                 
                 const loginModal = bootstrap.Modal.getInstance(document.getElementById('loginModal'));
                 loginModal.hide();
@@ -1077,7 +1152,7 @@ const miemail  = "cesar.jarra@gmail.com";
             const address = document.getElementById('registerAddress').value;
             const phone = document.getElementById('registerPhone').value;
             
-            if (!email || !password || !firstName || !lastName) {
+            if (!email || !password || !firstName || !lastName || !address || !phone) {
                 showToast('Por favor completa todos los campos');
                 return;
             }
@@ -1118,12 +1193,15 @@ const miemail  = "cesar.jarra@gmail.com";
             const ordersContainer = document.getElementById('userOrders');
             if (currentUser.orders && currentUser.orders.length > 0) {
                 ordersContainer.innerHTML = '';
-                currentUser.orders.forEach(order => {
+                // Ordenar pedidos del más reciente al más antiguo
+                const sortedOrders = [...currentUser.orders].sort((a, b) => new Date(b.date) - new Date(a.date));
+
+                sortedOrders.forEach(order => {
                     const orderElement = document.createElement('div');
                     orderElement.className = 'mb-3 p-3 border rounded';
                     orderElement.innerHTML = `
                         <div class="d-flex justify-content-between">
-                            <h6>Pedido #${order.date}</h6>
+                            <h6>Pedido #${order.date.split(' ')[0]}</h6> <!-- Mostrar solo la fecha del ID de pedido -->
                             <span class="badge bg-primary">${order.status}</span>
                         </div>
                         <p class="mb-1"><small>${order.shippingAddress}</small></p>
@@ -1145,6 +1223,7 @@ const miemail  = "cesar.jarra@gmail.com";
         // Función para logout de usuario
         function logoutUser() {
             currentUser = null;
+            localStorage.removeItem('currentUser'); // Eliminar usuario del localStorage
             document.getElementById('loginBtn').innerHTML = '<i class="fas fa-user"></i> Iniciar Sesión';
             showToast('Sesión cerrada');
             showSection('homeSection');
