@@ -551,7 +551,6 @@
             // Intenta obtener la configuración de Firebase del entorno Canvas
             const firebaseConfigRaw = typeof __firebase_config !== 'undefined' ? __firebase_config : '{}';
             let firebaseConfig;
-const firebaseConfig = {
             try {
                 firebaseConfig = JSON.parse(firebaseConfigRaw);
             } catch (e) {
