@@ -3,1344 +3,978 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Ferretería Y Papelería El Rodillo</title>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
-    <script src="https://cdn.jsdelivr.net/npm/emailjs-com@3.2.0/dist/email.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/papaparse@5.3.0/papaparse.min.js"></script>
+    <title>Mi App Personal</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Inter Font -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <!-- Font Awesome for Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
     <style>
-.imagen-redimensionada {
-  width: 400px; /* Ancho de la imagen (puedes usar px, %, etc.) */
-  height: 100px; /* Altura de la imagen (puedes usar px, %, etc.) */
-  object-fit: cover; /* o object-fit: contain */
-}
-        /* Navbar estática con ajustes */
         body {
-            padding-top: 120px; /* Aumenté el padding para dar más espacio */
+            font-family: 'Inter', sans-serif;
         }
-        .navbar {
+        /* Custom animation for message box */
+        @keyframes fade-in-up {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        .animate-fade-in-up {
+            animation: fade-in-up 0.3s ease-out forwards;
+        }
+        /* Modal backdrop */
+        .modal-backdrop {
             position: fixed;
-            top: 0;
-            right: 0;
-            left: 0;
-            z-index: 1030;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            inset: 0;
+            background-color: rgba(0, 0, 0, 0.5);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
         }
-
-        /* Margen adicional para la sección de productos */
-        #productsSection {
-            margin-top: 90px; /* Espacio extra debajo de la navbar */
+        .modal-content {
+            background-color: white;
+            padding: 2rem;
+            border-radius: 0.75rem;
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+            max-width: 90%;
+            width: 400px;
+            max-height: 90vh; /* Limit modal height */
+            overflow-y: auto; /* Enable scrolling for long modals */
+            position: relative;
         }
-
-        /* Resto de estilos... */
-        .card {
-            transition: transform 0.3s;
-            height: 100%;
-            margin-bottom: 20px; /* Espacio entre tarjetas */
-        }
-        .card:hover {
-            transform: scale(1.03);
-        }
-        .card-img-top {
-            height: 150px;
-            object-fit: contain;
-            padding: 10px;
-            background: #f8f9fa;
-        }
-        .cart-item {
-            border-bottom: 1px solid #eee;
-            padding: 10px 0;
-        }
-        .hidden {
-            display: none;
-        }
-        #userOrders {
-            max-height: 300px;
-            overflow-y: auto;
-        }
-        .product-card {
-            height: 100%;
-        }
-        .category-filter {
-            margin-bottom: 20px;
-        }
-        .product-detail-img {
-            max-height: 300px;
-            object-fit: contain;
-        }
-        .stock-info {
-            font-size: 0.8rem;
-            color: #6c757d;
-        }
-        .out-of-stock {
-            color: #dc3545;
-            font-weight: bold;
-        }
-        .low-stock {
-            color: #ffc107;
-            font-weight: bold;
-        }
-        .btn-out-of-stock {
-            opacity: 0.65;
-            cursor: not-allowed;
+        .modal-close-button {
+            position: absolute;
+            top: 1rem;
+            right: 1rem;
+            font-size: 1.5rem;
+            cursor: pointer;
+            color: #6b7280;
         }
     </style>
 </head>
-<body>
-    <!-- Navbar Estática (fixed-top) -->
-    <nav class="navbar navbar-expand-lg navbar-dark bg-danger fixed-top">
-        <div class="container">
-            <a class="navbar-brand" href="#" style="color: yellow; font-size: 40px;"><strong>Ferretería Y Papelería El Rodillo<strong></a>
-            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
-                <span class="navbar-toggler-icon"></span>
-            </button>
-            <div class="collapse navbar-collapse" id="navbarNav">
-                <ul class="navbar-nav me-auto">
-                    <li class="nav-item">
-                        <a class="nav-link active" href="#" style="color: blue; font-size: 20px;" id="homeLink">Inicio</a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="#" style="color: blue; font-size: 20px;" id="productsLink">Productos</a>
-                    </li>
-                </ul>
-                <div class="d-flex">
-                    <input class="form-control me-2" type="search" id="searchInput" placeholder="Buscar productos..." style="font-size: 28px; font-weight: bold;">
-                    <button class="btn btn-outline-light me-2" id="searchBtn">
-                        <i class="fas fa-search"></i>
-                    </button>
-                    <button class="btn btn-outline-light position-relative" id="cartBtn">
-                        <i class="fas fa-shopping-cart"></i>
-                        <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger" id="cartCount">0</span>
-                    </button>
-                    <button class="btn btn-outline-light ms-2" id="loginBtn">
-                        <i class="fas fa-user"></i> Iniciar Sesión
-                    </button>
-                </div>
-            </div>
-        </div>
-    </nav>
+<body class="min-h-screen bg-gray-50 flex flex-col items-center p-4">
 
-    <!-- Contenido Principal -->
-    <div class="container mt-4">
-        <!-- Sección de Inicio -->
-        <div id="homeSection">
-            <div class="jumbotron bg-light p-5 rounded">
-		<img src="https://raw.githubusercontent.com/Ferrerodillo/Tiendaonline/refs/heads/main/logo%20para%20ferreteria%20ilustrator%20-%20copia.png" width="600" height="150" alt="Descripción de la imagen">
-                <h1 class="display-4">Bienvenido a nuestra tienda</h1>
-                <p class="lead">Encuentra los mejores productos al mejor precio.</p>
-                <hr class="my-4">
-                <p>Explora nuestro catálogo y descubre nuestras ofertas especiales.</p>
-                <button class="btn btn-primary btn-lg" id="exploreBtn">Explorar Productos</button>
-            </div>
-        </div>
+    <!-- Header con el ícono de usuario -->
+    <header class="w-full max-w-lg flex justify-end p-4">
+        <button id="userIconButton" class="text-gray-600 hover:text-blue-600 transition duration-200 text-3xl">
+            <i class="fas fa-user-circle"></i>
+        </button>
+    </header>
 
-        <!-- Sección de Productos -->
-        <div id="productsSection" class="hidden">
-            <div class="row mb-4">
-                <div class="col-md-8">
-                    <h2>Nuestros Productos</h2>
-                </div>
-                <div class="col-md-4">
-                    <select class="form-select" id="categoryFilter">
-                        <option value="all">Todas las categorías</option>
-                        <!-- Las opciones de categoría se cargarán dinámicamente -->
-                    </select>
-                </div>
-            </div>
-            
-            <div class="row" id="productsContainer">
-                <!-- Los productos se cargarán aquí desde el CSV -->
-                <div class="col-12 text-center">
-                    <div class="spinner-border text-primary" role="status">
-                        <span class="visually-hidden">Cargando productos...</span>
-                    </div>
-                    <p class="mt-2">Cargando productos desde GitHub...</p>
-                </div>
-            </div>
-        </div>
-
-        <!-- Sección del Carrito -->
-        <div id="cartSection" class="hidden">
-            <div class="row">
-                <div class="col-md-8">
-                    <h2>Tu Carrito</h2>
-                    <div id="cartItems">
-                        <p class="text-muted">Tu carrito está vacío</p>
-                    </div>
-                </div>
-                <div class="col-md-4">
-                    <div class="card">
-                        <div class="card-body">
-                            <h5 class="card-title">Resumen del Pedido</h5>
-                            <div class="d-flex justify-content-between">
-                                <p>Subtotal:</p>
-                                <p id="subtotal">$0.00</p>
-                            </div>
-                            <div class="d-flex justify-content-between">
-                                <p>Envío:</p>
-                                <p id="shippingCost">$35.00</p>
-                            </div>
-                            <hr>
-                            <div class="d-flex justify-content-between fw-bold">
-                                <p>Total:</p>
-                                <p id="totalCost">$0.00</p>
-                            </div>
-                            <button class="btn btn-primary w-100 mt-3" id="checkoutBtn">Finalizar Compra</button>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <!-- Modal de Detalles de Producto -->
-        <div class="modal fade" id="productDetailModal" tabindex="-1" aria-hidden="true">
-            <div class="modal-dialog modal-lg">
-                <div class="modal-content">
-                    <div class="modal-header">
-                        <h5 class="modal-title" id="productDetailTitle">Detalles del Producto</h5>
-                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                    </div>
-                    <div class="modal-body">
-                        <div class="row">
-                            <div class="col-md-6">
-                                <img src="" class="img-fluid product-detail-img" id="productDetailImage" alt="">
-                            </div>
-                            <div class="col-md-6">
-                                <h4 id="productDetailName"></h4>
-                                <p class="text-muted" id="productDetailCategory"></p>
-                                <h5 class="my-3" id="productDetailPrice"></h5>
-                                <p id="productDetailDescription"></p>
-                                <div class="stock-info mb-3" id="productDetailStock"></div>
-                                <div class="d-flex align-items-center mt-4">
-                                    <button class="btn btn-outline-secondary decrease-detail" id="decreaseDetail">-</button>
-                                    <span class="mx-2" id="detailQuantity">1</span>
-                                    <button class="btn btn-outline-secondary increase-detail" id="increaseDetail">+</button>
-                                    <button class="btn btn-primary ms-3" id="addToCartDetail">Agregar al Carrito</button>
-                                </div>
-                                <div class="alert alert-warning mt-3 hidden" id="stockWarning">
-                                    No puedes agregar más unidades de las disponibles en stock
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <!-- Formulario de Checkout (este formulario ahora se precargará si hay un usuario logueado) -->
-        <div id="checkoutSection" class="hidden">
-            <div class="row justify-content-center">
-                <div class="col-md-8">
-                    <div class="card">
-                        <div class="card-header bg-primary text-white">
-                            <h3 class="mb-0">Finalizar Compra</h3>
-                        </div>
-                        <div class="card-body">
-                            <form id="checkoutForm">
-                                <div class="row mb-3">
-                                    <div class="col-md-6">
-                                        <label for="firstName" class="form-label">Nombre</label>
-                                        <input type="text" class="form-control" id="firstName" required readonly>
-                                    </div>
-                                    <div class="col-md-6">
-                                        <label for="lastName" class="form-label">Apellido</label>
-                                        <input type="text" class="form-control" id="lastName" required readonly>
-                                    </div>
-                                </div>
-                                <div class="mb-3">
-                                    <label for="email" class="form-label">Email</label>
-                                    <input type="email" class="form-control" id="email" required readonly>
-                                </div>
-                                <div class="mb-3">
-                                    <label for="address" class="form-label">Dirección</label>
-                                    <input type="text" class="form-control" id="address" required readonly>
-                                </div>
-                                <div class="row mb-3">
-                                    <div class="col-md-4">
-                                        <label for="city" class="form-label">Ciudad</label>
-                                        <input type="text" class="form-control" id="city" required>
-                                    </div>
-                                    <div class="col-md-4">
-                                        <label for="state" class="form-label">Provincia</label>
-                                        <input type="text" class="form-control" id="state" required>
-                                    </div>
-                                    <div class="col-md-4">
-                                        <label for="zipCode" class="form-label">Código Postal</label>
-                                        <input type="text" class="form-control" id="zipCode" required>
-                                    </div>
-                                </div>
-                                <div class="mb-3">
-                                    <label for="phone" class="form-label">Teléfono</label>
-                                    <input type="tel" class="form-control" id="phone" required readonly>
-                                </div>
-                                <div class="d-grid gap-2">
-                                    <button type="submit" class="btn btn-primary">Enviar Pedido</button>
-                                    <button type="button" class="btn btn-outline-secondary" id="backToCartBtn">Volver al Carrito</button>
-                                </div>
-                            </form>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <!-- Modal de Login -->
-        <div class="modal fade" id="loginModal" tabindex="-1" aria-hidden="true">
-            <div class="modal-dialog">
-                <div class="modal-content">
-                    <div class="modal-header">
-                        <h5 class="modal-title">Iniciar Sesión</h5>
-                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                    </div>
-                    <div class="modal-body">
-                        <form id="loginForm">
-                            <div class="mb-3">
-                                <label for="loginEmail" class="form-label">Email</label>
-                                <input type="email" class="form-control" id="loginEmail" required>
-                            </div>
-                            <div class="mb-3">
-                                <label for="loginPassword" class="form-label">Contraseña</label>
-                                <input type="password" class="form-control" id="loginPassword" required>
-                            </div>
-                            <div class="d-grid gap-2">
-                                <button type="submit" class="btn btn-primary">Iniciar Sesión</button>
-                            </div>
-                        </form>
-                        <div class="mt-3 text-center">
-                            <p>¿No tienes cuenta? <a href="#" id="showRegister">Regístrate</a></p>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <!-- Modal de Registro -->
-        <div class="modal fade" id="registerModal" tabindex="-1" aria-hidden="true">
-            <div class="modal-dialog">
-                <div class="modal-content">
-                    <div class="modal-header">
-                        <h5 class="modal-title">Registrarse</h5>
-                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                    </div>
-                    <div class="modal-body">
-                        <form id="registerForm">
-                            <div class="row mb-3">
-                                <div class="col-md-6">
-                                    <label for="registerFirstName" class="form-label">Nombre</label>
-                                    <input type="text" class="form-control" id="registerFirstName" required>
-                                </div>
-                                <div class="col-md-6">
-                                    <label for="registerLastName" class="form-label">Apellido</label>
-                                    <input type="text" class="form-control" id="registerLastName" required>
-                                </div>
-                            </div>
-                            <div class="mb-3">
-                                <label for="registerEmail" class="form-label">Email</label>
-                                <input type="email" class="form-control" id="registerEmail" required>
-                            </div>
-                            <div class="mb-3">
-                                <label for="registerPassword" class="form-label">Contraseña</label>
-                                <input type="password" class="form-control" id="registerPassword" required>
-                            </div>
-                            <div class="mb-3">
-                                <label for="registerAddress" class="form-label">Dirección</label>
-                                <input type="text" class="form-control" id="registerAddress" required>
-                            </div>
-                            <div class="mb-3">
-                                <label for="registerPhone" class="form-label">Teléfono</label>
-                                <input type="tel" class="form-control" id="registerPhone" required>
-                            </div>
-                            <div class="d-grid gap-2">
-                                <button type="submit" class="btn btn-primary">Registrarse</button>
-                            </div>
-                        </form>
-                        <div class="mt-3 text-center">
-                            <p>¿Ya tienes cuenta? <a href="#" id="showLogin">Inicia Sesión</a></p>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <!-- Área de Usuario -->
-        <div id="userSection" class="hidden">
-            <div class="row">
-                <div class="col-md-4">
-                    <div class="card">
-                        <div class="card-header bg-primary text-white">
-                            <h3 class="mb-0">Mi Cuenta</h3>
-                        </div>
-                        <div class="card-body">
-                            <!-- Botón de Editar Perfil -->
-                            <div class="d-flex justify-content-between align-items-center mb-3">
-                                <h5>Detalles Personales</h5>
-                                <button class="btn btn-sm btn-outline-secondary" id="editProfileBtn">
-                                    <i class="fas fa-edit"></i> Editar
-                                </button>
-                            </div>
-                            <p id="userName"></p>
-                            <p id="userEmail"></p>
-                            <p id="userAddress"></p>
-                            <p id="userPhone"></p>
-                            <button class="btn btn-outline-danger w-100 mt-3" id="logoutBtn">Cerrar Sesión</button>
-                        </div>
-                    </div>
-                </div>
-                <div class="col-md-8">
-                    <div class="card">
-                        <div class="card-header bg-primary text-white">
-                            <h3 class="mb-0">Mis Pedidos</h3>
-                        </div>
-                        <div class="card-body" id="userOrders">
-                            <p class="text-muted">No hay pedidos registrados</p>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <!-- Modal de Editar Perfil -->
-        <div class="modal fade" id="editProfileModal" tabindex="-1" aria-hidden="true">
-            <div class="modal-dialog">
-                <div class="modal-content">
-                    <div class="modal-header">
-                        <h5 class="modal-title">Editar Perfil</h5>
-                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                    </div>
-                    <div class="modal-body">
-                        <form id="editProfileForm">
-                            <div class="row mb-3">
-                                <div class="col-md-6">
-                                    <label for="editFirstName" class="form-label">Nombre</label>
-                                    <input type="text" class="form-control" id="editFirstName" required>
-                                </div>
-                                <div class="col-md-6">
-                                    <label for="editLastName" class="form-label">Apellido</label>
-                                    <input type="text" class="form-control" id="editLastName" required>
-                                </div>
-                            </div>
-                            <div class="mb-3">
-                                <label for="editEmail" class="form-label">Email</label>
-                                <input type="email" class="form-control" id="editEmail" required readonly>
-                            </div>
-                            <div class="mb-3">
-                                <label for="editAddress" class="form-label">Dirección</label>
-                                <input type="text" class="form-control" id="editAddress" required>
-                            </div>
-                            <div class="mb-3">
-                                <label for="editPhone" class="form-label">Teléfono</label>
-                                <input type="tel" class="form-control" id="editPhone" required>
-                            </div>
-                            <div class="d-grid gap-2">
-                                <button type="submit" class="btn btn-primary">Guardar Cambios</button>
-                            </div>
-                        </form>
-                    </div>
-                </div>
-            </div>
-        </div>
-
+    <!-- Indicador de carga global -->
+    <div id="globalLoadingIndicator" class="text-center text-blue-600 font-medium animate-pulse hidden">
+        Cargando...
     </div>
 
-    <!-- Footer -->
-    <footer class="bg-warning mt-5 py-4">
-        <div class="container">
-            <div class="row">
-                <div class="col-md-6">
-                    <h5><href="#" style="font-size: 40px;">Ferretería Y Papelería El Rodillo</h5>
-                    <p>La mejor selección de productos al mejor precio.</p>
+    <!-- MAIN CONTENT SECTION (Visible solo cuando el usuario está logueado) -->
+    <div id="contentSection" class="hidden bg-white p-8 rounded-xl shadow-2xl w-full max-w-lg space-y-6 transform transition-all duration-300">
+        <!-- Botón "Mi Cuenta" en la interfaz principal -->
+        <div class="text-center mb-6">
+            <button id="myAccountButton"
+                    class="bg-blue-600 text-white p-3 rounded-lg hover:bg-blue-700 transition duration-200 ease-in-out font-semibold shadow-md inline-flex items-center">
+                <i class="fas fa-user mr-2"></i> Mi cuenta
+            </button>
+        </div>
+
+        <hr class="my-6 border-gray-200">
+
+        <!-- Sección de Mis Datos Guardados (Elementos Múltiples) -->
+        <h2 class="text-xl font-bold text-gray-800 mb-3">Mis Datos Guardados (Elementos Múltiples)</h2>
+        <input type="text" id="nombreInput" placeholder="Nombre de mi dato"
+               class="w-full p-3 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500 transition duration-150 ease-in-out mb-4">
+        <button id="guardarDatosButton"
+                class="w-full bg-indigo-600 text-white p-3 rounded-md hover:bg-indigo-700 transition duration-150 ease-in-out font-semibold shadow-md mb-4">
+            Guardar Nuevo Dato
+        </button>
+        <button id="recargarDatosButton"
+                class="w-full bg-gray-300 text-gray-800 p-3 rounded-md hover:bg-gray-400 transition duration-150 ease-in-out font-semibold shadow-md mb-4">
+            Recargar Todos Mis Datos
+        </button>
+        <div id="datosGuardados" class="space-y-3">
+            <!-- Los datos se mostrarán aquí -->
+            <p class="text-center text-gray-500">Cargando mis datos...</p>
+        </div>
+    </div>
+
+
+    <!-- MODAL DE AUTENTICACIÓN (Registro, Login, Recuperar Contraseña) -->
+    <div id="authModal" class="modal-backdrop hidden">
+        <div class="modal-content">
+            <i id="authModalClose" class="fas fa-times modal-close-button"></i>
+            <h2 id="authModalTitle" class="text-2xl font-bold text-gray-800 text-center mb-6">
+                <!-- Título dinámico -->
+            </h2>
+            <div class="space-y-4">
+                <!-- Label de Información de Registro -->
+                <p id="registrationInfoLabel" class="text-sm text-gray-600 mb-2 hidden">
+                    Ingresa un correo válido para registrarte y una contraseña de minimo 6 caracteres.
+                </p>
+                <input
+                    type="email"
+                    id="modalAuthEmailInput"
+                    placeholder="Email"
+                    class="w-full p-3 border border-gray-300 rounded-lg focus:ring-blue-500 focus:border-blue-500 transition duration-200 ease-in-out"
+                />
+                <input
+                    type="password"
+                    id="modalAuthPasswordInput"
+                    placeholder="Contraseña"
+                    class="w-full p-3 border border-gray-300 rounded-lg focus:ring-blue-500 focus:border-blue-500 transition duration-200 ease-in-out"
+                />
+                <input
+                    type="password"
+                    id="modalConfirmPasswordInput"
+                    placeholder="Confirmar Contraseña"
+                    class="w-full p-3 border border-gray-300 rounded-lg focus:ring-blue-500 focus:border-blue-500 transition duration-200 ease-in-out hidden"
+                />
+                
+                <!-- Botones para CAMBIAR MODO de Registro/Login -->
+                <div class="flex justify-center space-x-3 mb-4">
+                    <button
+                        id="showRegisterModeButton"
+                        class="px-4 py-2 text-sm font-semibold rounded-md border border-transparent transition duration-200 ease-in-out text-gray-600 hover:text-blue-600 hover:border-blue-600"
+                    >
+                        Quiero Registrarme
+                    </button>
+                    <button
+                        id="showLoginModeButton"
+                        class="px-4 py-2 text-sm font-semibold rounded-md border border-transparent transition duration-200 ease-in-out text-gray-600 hover:text-green-600 hover:border-green-600 hidden"
+                    >
+                        Quiero Iniciar Sesión
+                    </button>
                 </div>
-                <div class="col-md-3">
-                    <h5>Enlaces</h5>
-                    <ul class="list-unstyled">
-                        <li><a href="#" class="text-red">Inicio</a></li>
-                        <li><a href="#" class="text-red">Productos</a></li>
-                        <li><a href="#" class="text-red">Contacto</a></li>
-                    </ul>
+
+                <!-- Botón de ACCIÓN (Registrar o Iniciar Sesión) -->
+                <button
+                    id="modalAuthSubmitButton"
+                    class="w-full bg-blue-600 text-white p-3 rounded-lg hover:bg-blue-700 transition duration-200 ease-in-out font-semibold shadow-md mt-4"
+                >
+                    <!-- Texto dinámico -->
+                </button>
+
+                <!-- Sección de Recuperar Contraseña en el modal -->
+                <div class="mt-6 pt-4 border-t border-gray-200">
+                    <h3 class="text-lg font-bold text-gray-800 mb-3 text-center">¿Olvidaste tu contraseña?</h3>
+                    <input
+                        type="email"
+                        id="modalResetPasswordEmail"
+                        placeholder="Email para recuperar"
+                        class="w-full p-3 border border-gray-300 rounded-lg focus:ring-purple-500 focus:border-purple-500 transition duration-200 ease-in-out mb-3"
+                    />
+                    <button
+                        id="modalResetPasswordButton"
+                        class="w-full bg-purple-600 text-white p-3 rounded-lg hover:bg-purple-700 transition duration-200 ease-in-out font-semibold shadow-md"
+                    >
+                        Enviar Correo de Recuperación
+                    </button>
                 </div>
-                <div class="col-md-3">
-                    <h5>Contacto</h5>
-                    <ul class="list-unstyled">
-                        <li><i class="fas fa-map-marker-alt me-2"></i> Alaska 173 Lomas del valle 63066 Tepic, Nayarit</li>
-                        <li><i class="fas fa-phone me-2"></i> 311 2016561</li>
-                        <li><i class="fas fa-envelope me-2"></i> tarradani86.gmail.com</li>
-                    </ul>
-            </div>
-            <hr>
-            <div class="text-center">
-                <p class="mb-0">&copy; 2025 Ferretería Y Papelería El Rodillo. Todos los derechos reservados.</p>
             </div>
         </div>
-    </footer>
+    </div>
 
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-    <script>
+    <!-- NEW MODAL: MI CUENTA (Muestra datos del usuario, cerrar sesión, acceso a editar perfil y cambiar contraseña) -->
+    <div id="myAccountModal" class="modal-backdrop hidden">
+        <div class="modal-content">
+            <i id="myAccountModalClose" class="fas fa-times modal-close-button"></i>
+            <h2 class="text-2xl font-bold text-gray-800 text-center mb-6">
+                Mi Cuenta
+            </h2>
+            <div class="space-y-4">
+                <div class="border border-green-200 bg-green-50 p-4 rounded-lg shadow-sm">
+                    <p class="text-lg font-semibold text-green-700 mb-2">
+                        Detalles de la Sesión
+                    </p>
+                    <p class="text-sm text-gray-700">
+                        <span class="font-medium">Email:</span> <span id="myAccountEmail"></span>
+                    </p>
+                    <p class="text-sm text-gray-700 break-words">
+                        <span class="font-medium">UID:</span> <span id="myAccountUid"></span>
+                    </p>
+                </div>
 
-        // Variables globales
-        let cart = [];
-        let products = [];
-        let categories = [];
+                <!-- Sección de Mi Perfil dentro del modal de cuenta -->
+                <div class="p-4 border border-blue-200 bg-blue-50 rounded-lg shadow-sm relative">
+                    <h3 class="text-xl font-bold text-blue-800 mb-3">
+                        Mi Perfil
+                        <button id="editProfileButtonFromAccount" class="absolute top-4 right-4 text-gray-500 hover:text-blue-700 transition duration-200 text-lg">
+                            <i class="fas fa-edit"></i>
+                        </button>
+                    </h3>
+                    <div id="myAccountProfileDisplay" class="p-3 bg-blue-100 border border-blue-300 rounded-md">
+                        <p class="font-semibold text-blue-900">Datos Actuales:</p>
+                        <p>Nombre: <span id="accountDisplayNombreCompleto"></span></p>
+                        <p>Dirección: <span id="accountDisplayDireccion"></span></p>
+                        <p>Teléfono: <span id="accountDisplayTelefono"></span></p>
+                        <p>Horario Pedidos: <span id="accountDisplayHorarioPedidos"></span></p>
+                    </div>
+                </div>
+
+                <!-- Botón para abrir el modal de cambio de contraseña desde el modal de cuenta -->
+                <div class="text-center">
+                    <button id="openChangePasswordModalButtonFromAccount"
+                            class="bg-orange-600 text-white p-3 rounded-lg hover:bg-orange-700 transition duration-200 ease-in-out font-semibold shadow-md inline-flex items-center">
+                        <i class="fas fa-key mr-2"></i> Cambiar Contraseña
+                    </button>
+                </div>
+
+                <button
+                    id="myAccountLogoutButton"
+                    class="w-full mt-6 bg-red-600 text-white p-3 rounded-lg hover:bg-red-700 transition duration-200 ease-in-out font-semibold shadow-md"
+                >
+                    Cerrar Sesión
+                </button>
+            </div>
+        </div>
+    </div>
+
+
+    <!-- MODAL DE EDICIÓN DE PERFIL -->
+    <div id="profileModal" class="modal-backdrop hidden">
+        <div class="modal-content">
+            <i id="profileModalClose" class="fas fa-times modal-close-button"></i>
+            <h2 class="text-2xl font-bold text-blue-800 text-center mb-6">Editar Mi Perfil</h2>
+            <div class="space-y-4">
+                <input type="text" id="modalProfileNombreCompleto" placeholder="Nombre completo"
+                       class="w-full p-3 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500 transition duration-150 ease-in-out">
+                <input type="text" id="modalProfileDireccion" placeholder="Dirección"
+                       class="w-full p-3 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500 transition duration-150 ease-in-out">
+                <input type="tel" id="modalProfileTelefono" placeholder="Teléfono"
+                       class="w-full p-3 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500 transition duration-150 ease-in-out">
+                <input type="text" id="modalProfileHorarioPedidos" placeholder="Horario para recibir pedidos"
+                       class="w-full p-3 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500 transition duration-150 ease-in-out">
+                <button id="modalSaveProfileButton"
+                        class="w-full bg-blue-600 text-white p-3 rounded-md hover:bg-blue-700 transition duration-150 ease-in-out font-semibold shadow-md mt-4">
+                    Guardar Cambios del Perfil
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- MODAL DE CAMBIAR CONTRASEÑA -->
+    <div id="changePasswordModal" class="modal-backdrop hidden">
+        <div class="modal-content">
+            <i id="changePasswordModalClose" class="fas fa-times modal-close-button"></i>
+            <h2 class="text-2xl font-bold text-orange-800 text-center mb-6">Cambiar Contraseña</h2>
+            <div class="space-y-4">
+                <input type="password" id="modalCurrentPasswordInput" placeholder="Contraseña Actual"
+                       class="w-full p-3 border border-gray-300 rounded-md focus:ring-orange-500 focus:border-orange-500 transition duration-150 ease-in-out">
+                <input type="password" id="modalNewPasswordInput" placeholder="Nueva Contraseña (mín. 6 caracteres)"
+                       class="w-full p-3 border border-gray-300 rounded-md focus:ring-orange-500 focus:border-orange-500 transition duration-150 ease-in-out">
+                <button id="modalChangePasswordButton"
+                        class="w-full bg-orange-600 text-white p-3 rounded-md hover:bg-orange-700 transition duration-150 ease-in-out font-semibold shadow-md mt-4">
+                    Cambiar Contraseña
+                </button>
+            </div>
+        </div>
+    </div>
+
+
+    <!-- Caja de mensajes personalizada -->
+    <div id="messageBox" class="hidden fixed inset-0 flex items-center justify-center bg-black bg-opacity-30 z-50">
+        <div class="bg-white p-6 rounded-lg shadow-xl text-center max-w-sm w-full animate-fade-in-up">
+            <p id="messageText" class="text-lg font-medium text-gray-800"></p>
+            <button id="messageBoxClose" class="mt-4 bg-gray-200 text-gray-700 py-2 px-4 rounded-lg hover:bg-gray-300 transition duration-200">
+                Aceptar
+            </button>
+        </div>
+    </div>
+
+    <!-- Firebase SDKs (módulos) -->
+    <script type="module">
+        // Import Firebase modules
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
+        import {
+            getAuth,
+            createUserWithEmailAndPassword,
+            signInWithEmailAndPassword,
+            signOut,
+            onAuthStateChanged,
+            signInAnonymously,
+            signInWithCustomToken,
+            updatePassword,
+            sendPasswordResetEmail,
+            EmailAuthProvider,
+            reauthenticateWithCredential
+        } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
+        import {
+            getFirestore,
+            collection,
+            addDoc,
+            query,
+            orderBy,
+            getDocs,
+            serverTimestamp,
+            doc,
+            setDoc,
+            onSnapshot
+        } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+
+        // Firebase configuration: Use the one provided by the environment (for Canvas),
+        // otherwise, use your hardcoded project configuration.
+        const firebaseConfig = typeof __firebase_config !== 'undefined'
+            ? JSON.parse(__firebase_config)
+            : {
+                apiKey: "AIzaSyATKAFNmwhe9X0GQ5GxHiSmc3wiOhb7j18",
+                authDomain: "rodillo-2b699.firebaseapp.com",
+                databaseURL: "https://rodillo-2b699-default-rtdb.firebaseio.com",
+                projectId: "rodillo-2b699",
+                storageBucket: "rodillo-2b699.firebasestorage.app",
+                messagingSenderId: "652395478682",
+                appId: "1:652395478682:web:f4447c35fee0599030a923"
+            };
+
+        const initialAuthToken = typeof __initial_auth_token !== 'undefined' ? __initial_auth_token : null;
+        const appId = typeof __app_id !== 'undefined' ? __app_id : 'default-app-id';
+
+        // Initialize Firebase
+        const app = initializeApp(firebaseConfig);
+        const auth = getAuth(app);
+        const db = getFirestore(app);
+
         let currentUser = null;
-        let orders = JSON.parse(localStorage.getItem('orders')) || [];
-        let currentProductDetail = null;
-        let detailQuantity = 1;
+        let profileSnapshotUnsubscribe = null;
+        let dataListSnapshotUnsubscribe = null;
 
-        // Inicializar EmailJS (debes reemplazar con tus credenciales)
-        emailjs.init('-DaNY5iTEaA9aMemL');
+        // --- DOM Elements ---
+        const globalLoadingIndicator = document.getElementById('globalLoadingIndicator');
+        const userIconButton = document.getElementById('userIconButton');
+        const contentSection = document.getElementById('contentSection');
+        
+        // My Account Modal elements
+        const myAccountButton = document.getElementById('myAccountButton'); // New button
+        const myAccountModal = document.getElementById('myAccountModal'); // New modal
+        const myAccountModalClose = document.getElementById('myAccountModalClose'); // New close button for MyAccount modal
+        const myAccountEmailSpan = document.getElementById('myAccountEmail'); // New span for email in MyAccount modal
+        const myAccountUidSpan = document.getElementById('myAccountUid'); // New span for UID in MyAccount modal
+        const myAccountProfileDisplay = document.getElementById('myAccountProfileDisplay'); // Display for profile in MyAccount modal
+        const accountDisplayNombreCompleto = document.getElementById('accountDisplayNombreCompleto');
+        const accountDisplayDireccion = document.getElementById('accountDisplayDireccion');
+        const accountDisplayTelefono = document.getElementById('accountDisplayTelefono');
+        const accountDisplayHorarioPedidos = document.getElementById('accountDisplayHorarioPedidos');
+        const editProfileButtonFromAccount = document.getElementById('editProfileButtonFromAccount'); // Button to open profile edit modal from account modal
+        const openChangePasswordModalButtonFromAccount = document.getElementById('openChangePasswordModalButtonFromAccount'); // Button to open change password modal from account modal
+        const myAccountLogoutButton = document.getElementById('myAccountLogoutButton'); // Logout button in MyAccount modal
 
-        // Esperar a que el DOM esté listo
-        document.addEventListener('DOMContentLoaded', function() {
-            // Cargar productos desde CSV en GitHub
-            loadProductsFromGitHubCSV();
-            
-            // Configurar eventos
-            setupEventListeners();
-            
-            // Cargar el usuario actual si existe en localStorage
-            const storedUser = localStorage.getItem('currentUser');
-            if (storedUser) {
-                currentUser = JSON.parse(storedUser);
-                showUserSection(); // Mostrar la sección de usuario si hay un usuario logueado
+        // Authentication Modal elements
+        const authModal = document.getElementById('authModal');
+        const authModalCloseButton = document.getElementById('authModalClose');
+        const authModalTitle = document.getElementById('authModalTitle');
+        const registrationInfoLabel = document.getElementById('registrationInfoLabel');
+        const modalAuthEmailInput = document.getElementById('modalAuthEmailInput');
+        const modalAuthPasswordInput = document.getElementById('modalAuthPasswordInput');
+        const modalConfirmPasswordInput = document.getElementById('modalConfirmPasswordInput');
+        const showRegisterModeButton = document.getElementById('showRegisterModeButton');
+        const showLoginModeButton = document.getElementById('showLoginModeButton');
+        const modalAuthSubmitButton = document.getElementById('modalAuthSubmitButton');
+        const modalResetPasswordEmail = document.getElementById('modalResetPasswordEmail');
+        const modalResetPasswordButton = document.getElementById('modalResetPasswordButton');
+
+        // Profile Edit Modal elements
+        const profileModal = document.getElementById('profileModal');
+        const profileModalCloseButton = document.getElementById('profileModalClose');
+        const modalProfileNombreCompleto = document.getElementById('modalProfileNombreCompleto');
+        const modalProfileDireccion = document.getElementById('modalProfileDireccion');
+        const modalProfileTelefono = document.getElementById('modalProfileTelefono');
+        const modalProfileHorarioPedidos = document.getElementById('modalProfileHorarioPedidos');
+        const modalSaveProfileButton = document.getElementById('modalSaveProfileButton');
+        // No longer using `currentProfileDisplay` for main page. Using `myAccountProfileDisplay` instead.
+
+        // Change Password Modal elements
+        const changePasswordModal = document.getElementById('changePasswordModal');
+        const changePasswordModalCloseButton = document.getElementById('changePasswordModalClose');
+        const modalCurrentPasswordInput = document.getElementById('modalCurrentPasswordInput');
+        const modalNewPasswordInput = document.getElementById('modalNewPasswordInput');
+        const modalChangePasswordButton = document.getElementById('modalChangePasswordButton');
+
+        // Elements for Data List (previous functionality)
+        const nombreInput = document.getElementById('nombreInput');
+        const guardarDatosButton = document.getElementById('guardarDatosButton');
+        const recargarDatosButton = document.getElementById('recargarDatosButton');
+        const datosGuardadosDiv = document.getElementById('datosGuardados');
+
+        const messageBox = document.getElementById('messageBox');
+        const messageText = document.getElementById('messageText');
+        const messageBoxClose = document.getElementById('messageBoxClose');
+
+        // --- Helper Functions ---
+
+        // Show/hide global loading indicator
+        function showGlobalLoading(show) {
+            if (show) {
+                globalLoadingIndicator.classList.remove('hidden');
             } else {
-                showSection('homeSection'); // Mostrar sección de inicio por defecto
+                globalLoadingIndicator.classList.add('hidden');
+            }
+            // Disable/enable relevant buttons during loading
+            userIconButton.disabled = show;
+            modalAuthSubmitButton.disabled = show;
+            modalResetPasswordButton.disabled = show;
+            if (myAccountButton) myAccountButton.disabled = show; // Disable Mi Cuenta button
+            if (myAccountLogoutButton) myAccountLogoutButton.disabled = show;
+            if (modalSaveProfileButton) modalSaveProfileButton.disabled = show;
+            if (modalChangePasswordButton) modalChangePasswordButton.disabled = show;
+            if (guardarDatosButton) guardarDatosButton.disabled = show;
+            if (recargarDatosButton) recargarDatosButton.disabled = show;
+            if (editProfileButtonFromAccount) editProfileButtonFromAccount.disabled = show;
+            if (openChangePasswordModalButtonFromAccount) openChangePasswordModalButtonFromAccount.disabled = show;
+            
+            // Also disable mode switch buttons
+            showRegisterModeButton.disabled = show;
+            showLoginModeButton.disabled = show;
+        }
+
+        // Show custom message box
+        function showMessage(msg) {
+            messageText.textContent = msg;
+            messageBox.classList.remove('hidden');
+            messageBox.focus();
+        }
+
+        // Close custom message box
+        messageBoxClose.addEventListener('click', () => {
+            messageBox.classList.add('hidden');
+            messageText.textContent = '';
+        });
+
+        // --- Modal Control Functions ---
+        let authModalCurrentMode = 'login'; // 'login' or 'register'
+
+        function openModal(modalElement) {
+            modalElement.classList.remove('hidden');
+            if (modalElement === authModal) {
+                authModalCurrentMode = 'login'; // Always start in login mode when opening the modal
+                updateAuthModalUI(); // Update UI based on mode
+                modalAuthEmailInput.value = '';
+                modalAuthPasswordInput.value = '';
+                modalResetPasswordEmail.value = '';
+                modalConfirmPasswordInput.value = '';
+            } else if (modalElement === changePasswordModal) {
+                modalCurrentPasswordInput.value = '';
+                modalNewPasswordInput.value = '';
+            } else if (modalElement === profileModal) {
+                // When opening profile modal, ensure inputs are populated with current profile data
+                // This is done by loadUserProfile() automatically updating the modal inputs via onSnapshot
+            }
+        }
+
+        function closeModal(modalElement) {
+            modalElement.classList.add('hidden');
+        }
+
+        // Function to update the auth modal UI based on current mode
+        function updateAuthModalUI() {
+            if (authModalCurrentMode === 'register') {
+                authModalTitle.textContent = 'Registrarse';
+                registrationInfoLabel.classList.remove('hidden');
+                modalConfirmPasswordInput.classList.remove('hidden');
+                showRegisterModeButton.classList.add('hidden'); // Hide "Quiero Registrarme"
+                showLoginModeButton.classList.remove('hidden'); // Show "Quiero Iniciar Sesión"
+                modalAuthPasswordInput.placeholder = 'Contraseña (mín. 6 caracteres)';
+                modalAuthSubmitButton.textContent = 'Registrarse';
+                modalAuthSubmitButton.classList.remove('bg-green-600', 'hover:bg-green-700');
+                modalAuthSubmitButton.classList.add('bg-blue-600', 'hover:bg-blue-700');
+            } else { // 'login' mode
+                authModalTitle.textContent = 'Iniciar Sesión';
+                registrationInfoLabel.classList.add('hidden');
+                modalConfirmPasswordInput.classList.add('hidden');
+                showRegisterModeButton.classList.remove('hidden'); // Show "Quiero Registrarme"
+                showLoginModeButton.classList.add('hidden'); // Hide "Quiero Iniciar Sesión"
+                modalAuthPasswordInput.placeholder = 'Contraseña';
+                modalAuthSubmitButton.textContent = 'Iniciar Sesión';
+                modalAuthSubmitButton.classList.remove('bg-blue-600', 'hover:bg-blue-700');
+                modalAuthSubmitButton.classList.add('bg-green-600', 'hover:bg-green-700');
+            }
+            // Always clear password fields on mode switch for a cleaner UX
+            modalAuthPasswordInput.value = '';
+            modalConfirmPasswordInput.value = '';
+        }
+
+        // --- Auth State Management ---
+
+        // Function to update UI based on authentication state
+        function updateUI() {
+            if (currentUser) {
+                contentSection.classList.remove('hidden');
+                // Populate user data in My Account Modal directly
+                myAccountEmailSpan.textContent = currentUser.email || 'N/A';
+                myAccountUidSpan.textContent = currentUser.uid;
+                
+                loadUserProfile(); // Load and listen to user profile
+                leerDatos(); // Load and listen to user's data list
+                closeModal(authModal); // Close auth modal if user logs in successfully
+            } else {
+                contentSection.classList.add('hidden');
+                datosGuardadosDiv.innerHTML = '<p class="text-center text-gray-500">Inicia sesión para ver y guardar tus datos.</p>';
+                // Unsubscribe from listeners if user logs out
+                profileSnapshotUnsubscribe && profileSnapshotUnsubscribe();
+                dataListSnapshotUnsubscribe && dataListSnapshotUnsubscribe();
+                // Clear all modal and display fields
+                modalProfileNombreCompleto.value = '';
+                modalProfileDireccion.value = '';
+                modalProfileTelefono.value = '';
+                modalProfileHorarioPedidos.value = '';
+                myAccountProfileDisplay.classList.add('hidden'); // Hide profile display in MyAccount modal
+                accountDisplayNombreCompleto.textContent = 'N/A'; // Clear display spans
+                accountDisplayDireccion.textContent = 'N/A';
+                accountDisplayTelefono.textContent = 'N/A';
+                accountDisplayHorarioPedidos.textContent = 'N/A';
+                modalCurrentPasswordInput.value = '';
+                modalNewPasswordInput.value = '';
+                // Ensure modals are not shown immediately unless user clicks icon
+                closeModal(profileModal);
+                closeModal(changePasswordModal);
+                closeModal(myAccountModal); // Close My Account modal on logout
+            }
+        }
+
+        // Authentication state change listener
+        onAuthStateChanged(auth, async (user) => {
+            currentUser = user;
+            showGlobalLoading(false); // Hide loading once initial check is done
+            updateUI();
+
+            // If no user and no initial auth token, try anonymous login (for Canvas environment)
+            if (!user && !initialAuthToken) {
+                try {
+                    await signInAnonymously(auth);
+                } catch (error) {
+                    console.error("Error al iniciar sesión anónimamente:", error);
+                }
             }
         });
 
-        // Función para cargar productos desde un CSV en GitHub
-        function loadProductsFromGitHubCSV() {
-            // URL del archivo CSV en GitHub (formato raw)
-            const githubCsvUrl = 'https://raw.githubusercontent.com/Ferrerodillo/Tiendaonline/refs/heads/main/productos.csv';
-            
-            // Configuración para evitar caché (opcional)
-            const nocacheUrl = githubCsvUrl + '?nocache=' + (new Date()).getTime();
-            
-            Papa.parse(nocacheUrl, {
-                download: true,
-                header: true,
-                complete: function(results) {
-                    if (results.data && results.data.length > 0) {
-                        products = results.data.map(product => ({
-                            id: parseInt(product.id) || Math.floor(Math.random() * 10000),
-                            name: product.nombre || product.name || 'Producto sin nombre',
-                            price: parseFloat(product.precio || product.price || 0),
-                            category: product.categoria || product.category || 'Sin categoría',
-                            description: product.descripcion || product.description || 'Descripción no disponible',
-                            image: product.imagen || product.image || 'https://via.placeholder.com/150',
-			    codigo: product.codigo || product.sku || product.barcode || '0', // Cambiado a cadena para evitar errores de toLowerCase
-                            stock: parseInt(product.stock || product.existencia || product.cantidad || 0) // Nuevo campo stock
-                        })); 
-                        
-                        // Extraer categorías únicas
-                        categories = [...new Set(products.map(p => p.category))];
-                        populateCategoryFilter();
-                        
-                        displayProducts(products);
-                    } else {
-                        loadSampleProducts();
-                    }
-                },
-                error: function(error) {
-                    console.error("Error al cargar productos desde GitHub:", error);
-                    loadSampleProducts();
+        // Attempt to sign in with initial token (on DOM load)
+        document.addEventListener('DOMContentLoaded', async () => {
+            if (initialAuthToken) {
+                showGlobalLoading(true);
+                try {
+                    await signInWithCustomToken(auth, initialAuthToken);
+                } catch (error) {
+                    console.error("Error al iniciar sesión con token personalizado:", error);
+                    showMessage("Error con el token de autenticación. Intenta de nuevo.");
+                } finally {
+                    showGlobalLoading(false);
                 }
-            });
-        }
-
-        // Función para poblar el filtro de categorías
-        function populateCategoryFilter() {
-            const filter = document.getElementById('categoryFilter');
-            
-            // Ordenar categorías alfabéticamente
-            categories.sort();
-            
-            // Limpiar opciones existentes (excepto la primera)
-            while (filter.options.length > 1) {
-                filter.remove(1);
+            } else {
+                showGlobalLoading(false);
             }
-            
-            // Agregar categorías
-            categories.forEach(category => {
-                const option = document.createElement('option');
-                option.value = category;
-                option.textContent = category;
-                filter.appendChild(option);
-            });
-            
-            // Evento para filtrar
-            filter.addEventListener('change', function() {
-                filterProducts();
-            });
-        }
+        });
 
-        // Función para filtrar productos por categoría y búsqueda
-        function filterProducts() {
-            const category = document.getElementById('categoryFilter').value;
-            const searchTerm = document.getElementById('searchInput').value.toLowerCase();
-            
-            let filteredProducts = products;
-            
-            // Filtrar por categoría
-            if (category !== 'all') {
-                filteredProducts = filteredProducts.filter(p => p.category === category);
+        // --- Authentication Button Handlers (within Auth Modal) ---
+
+        // Function that executes when the action button (Continuar) is clicked
+        async function handleAuthSubmit() {
+            if (authModalCurrentMode === 'register') {
+                handleRegisterAction();
+            } else {
+                handleLoginAction();
             }
-            
-            // Filtrar por término de búsqueda
-            if (searchTerm) {
-                filteredProducts = filteredProducts.filter(p => 
-                    p.name.toLowerCase().includes(searchTerm) || 
-                    p.description.toLowerCase().includes(searchTerm) ||
-                    p.category.toLowerCase().includes(searchTerm) ||
-		            String(p.codigo).toLowerCase().includes(searchTerm) 
-                );
-            }
-            
-            displayProducts(filteredProducts);
         }
 
-        // Función para cargar productos de ejemplo si falla la carga desde GitHub
-        function loadSampleProducts() {
-            console.log("Cargando productos de ejemplo...");
-            products = [
-                {id: 1, name: "Producto Ejemplo 1", price: 19.99, category: "Electrónicos", description: "Descripción detallada del producto electrónico de ejemplo", image: "https://via.placeholder.com/150", stock: 5, codigo: "ELEC001"},
-                {id: 2, name: "Producto Ejemplo 2", price: 29.99, category: "Ropa", description: "Descripción detallada del producto de ropa de ejemplo", image: "https://via.placeholder.com/150", stock: 3, codigo: "ROPA002"},
-                {id: 3, name: "Producto Ejemplo 3", price: 39.99, category: "Hogar", description: "Descripción detallada del producto para el hogar de ejemplo", image: "https://via.placeholder.com/150", stock: 0, codigo: "HOGAR003"},
-                {id: 4, name: "Producto Ejemplo 4", price: 49.99, category: "Electrónicos", description: "Otro producto electrónico con características avanzadas", image: "https://via.placeholder.com/150", stock: 10, codigo: "ELEC004"},
-                {id: 5, name: "Producto Ejemplo 5", price: 59.99, category: "Ropa", description: "Otra prenda de vestir de alta calidad", image: "https://via.placeholder.com/150", stock: 1, codigo: "ROPA005"},
-                {id: 6, name: "Producto Ejemplo 6", price: 69.99, category: "Hogar", description: "Producto para el hogar con garantía extendida", image: "https://via.placeholder.com/150", stock: 8, codigo: "HOGAR006"}
-            ];
-            
-            // Extraer categorías únicas
-            categories = [...new Set(products.map(p => p.category))];
-            populateCategoryFilter();
-            
-            displayProducts(products);
-            showToast("No se pudo cargar el catálogo completo. Mostrando productos de ejemplo.");
-        }
+        async function handleRegisterAction() {
+            const email = modalAuthEmailInput.value;
+            const password = modalAuthPasswordInput.value;
+            const confirmPassword = modalConfirmPasswordInput.value;
 
-        // Función para mostrar productos
-        function displayProducts(productsToDisplay) {
-            const container = document.getElementById('productsContainer');
-            container.innerHTML = '';
-            
-            if (productsToDisplay.length === 0) {
-                container.innerHTML = '<div class="col-12 text-center"><p>No se encontraron productos</p></div>';
+            if (!email || !password || !confirmPassword) {
+                showMessage("Por favor, ingresa email, contraseña y confirma la contraseña.");
                 return;
             }
-            
-            productsToDisplay.forEach(product => {
-                const productCard = document.createElement('div');
-                productCard.className = 'col-md-3 mb-4';
-                
-                // Determinar el estado del stock
-                const stockStatus = getStockStatus(product);
-                const isOutOfStock = product.stock <= 0;
-                const addButtonDisabled = isOutOfStock ? 'disabled' : '';
-                const outOfStockClass = isOutOfStock ? 'btn-out-of-stock' : '';
-                
-                productCard.innerHTML = `
-                    <div class="card product-card">
-                        <img src="${product.image}" class="card-img-top" alt="${product.name}">
-                        <div class="card-body">
-                            <h5 class="card-title" style="font-size: 1rem;">${product.name}</h5>
-                            <p class="text-muted" style="font-size: 0.8rem;">${product.category}</p>
-                            <p class="fw-bold" style="font-size: 0.9rem;">$${product.price.toFixed(2)}</p>
-			                <p class="text-muted" style="font-size: 0.8rem;">${product.codigo}</p>
-                            <p class="stock-info ${stockStatus.class}">${stockStatus.text}</p>
-                            <div class="d-flex justify-content-between">
-                                <button class="btn btn-sm btn-outline-primary view-detail" data-id="${product.id}">
-                                    <i class="fas fa-eye"></i> Detalles
-                                </button>
-                                <button class="btn btn-sm btn-primary add-to-cart ${outOfStockClass}" 
-                                    data-id="${product.id}" ${addButtonDisabled}>
-                                    <i class="fas fa-cart-plus"></i>
-                                </button>
-                            </div>
-                        </div>
-                    </div>
-                `;
-                container.appendChild(productCard);
-            });
-            
-            // Agregar eventos a los botones "Agregar al carrito"
-            document.querySelectorAll('.add-to-cart').forEach(button => {
-                button.addEventListener('click', function() {
-                    const productId = parseInt(this.getAttribute('data-id'));
-                    addToCart(productId);
-                });
-            });
-            
-            // Agregar eventos a los botones "Ver detalles"
-            document.querySelectorAll('.view-detail').forEach(button => {
-                button.addEventListener('click', function() {
-                    const productId = parseInt(this.getAttribute('data-id'));
-                    showProductDetail(productId);
-                });
-            });
-        }
-
-        // Función para determinar el estado del stock
-        function getStockStatus(product) {
-            if (product.stock <= 0) {
-                return {
-                    text: 'Agotado',
-                    class: 'out-of-stock'
-                };
-            } else if (product.stock <= 3) {
-                return {
-                    text: `Últimas ${product.stock} unidades`,
-                    class: 'low-stock'
-                };
-            } else {
-                return {
-                    text: `${product.stock} disponibles`,
-                    class: ''
-                };
-            }
-        }
-
-        // Función para mostrar detalles del producto en modal
-        function showProductDetail(productId) {
-            const product = products.find(p => p.id === productId);
-            if (!product) return;
-            
-            currentProductDetail = product;
-            detailQuantity = 1;
-            
-            document.getElementById('productDetailTitle').textContent = product.name;
-            document.getElementById('productDetailName').textContent = product.name;
-            document.getElementById('productDetailCategory').textContent = product.category;
-            document.getElementById('productDetailPrice').textContent = `$${product.price.toFixed(2)}`;
-            document.getElementById('productDetailDescription').textContent = product.description;
-            document.getElementById('productDetailImage').src = product.image;
-            document.getElementById('detailQuantity').textContent = detailQuantity;
-            
-            // Mostrar información de stock
-            const stockStatus = getStockStatus(product);
-            document.getElementById('productDetailStock').textContent = stockStatus.text;
-            document.getElementById('productDetailStock').className = `stock-info ${stockStatus.class}`;
-            
-            // Habilitar/deshabilitar botón según stock
-            const addButton = document.getElementById('addToCartDetail');
-            if (product.stock <= 0) {
-                addButton.disabled = true;
-                addButton.classList.add('btn-out-of-stock');
-                document.getElementById('stockWarning').classList.remove('hidden');
-            } else {
-                addButton.disabled = false;
-                addButton.classList.remove('btn-out-of-stock');
-                document.getElementById('stockWarning').classList.add('hidden');
-            }
-            
-            const modal = new bootstrap.Modal(document.getElementById('productDetailModal'));
-            modal.show();
-        }
-
-        // Función para agregar producto al carrito desde el modal de detalles
-        function setupDetailModalEvents() {
-            document.getElementById('increaseDetail').addEventListener('click', function() {
-                if (currentProductDetail && detailQuantity < currentProductDetail.stock) {
-                    detailQuantity++;
-                    document.getElementById('detailQuantity').textContent = detailQuantity;
-                    
-                    // Mostrar advertencia si se alcanza el límite de stock
-                    if (detailQuantity >= currentProductDetail.stock) {
-                        document.getElementById('stockWarning').classList.remove('hidden');
-                    }
-                }
-            });
-            
-            document.getElementById('decreaseDetail').addEventListener('click', function() {
-                if (detailQuantity > 1) {
-                    detailQuantity--;
-                    document.getElementById('detailQuantity').textContent = detailQuantity;
-                    document.getElementById('stockWarning').classList.add('hidden');
-                }
-            });
-            
-            document.getElementById('addToCartDetail').addEventListener('click', function() {
-                if (currentProductDetail) {
-                    addToCart(currentProductDetail.id, detailQuantity);
-                    const modal = bootstrap.Modal.getInstance(document.getElementById('productDetailModal'));
-                    modal.hide();
-                    showToast(`${currentProductDetail.name} (${detailQuantity}) agregado al carrito`);
-                }
-            });
-        }
-
-        // Función para agregar producto al carrito (con cantidad opcional)
-        function addToCart(productId, quantity = 1) {
-            const product = products.find(p => p.id === productId);
-            if (!product || product.stock <= 0) return;
-            
-            // Verificar que no se exceda el stock disponible
-            const cartItem = cart.find(item => item.id === productId);
-            const totalInCart = cartItem ? cartItem.quantity : 0;
-            const availableStock = product.stock - totalInCart;
-            
-            if (quantity > availableStock) {
-                showToast(`No hay suficiente stock. Solo quedan ${availableStock} unidades disponibles.`);
+            if (password.length < 6) {
+                showMessage("La contraseña debe tener al menos 6 caracteres.");
                 return;
             }
-            
-            if (cartItem) {
-                cartItem.quantity += quantity;
-            } else {
-                cart.push({
-                    id: product.id,
-                    name: product.name,
-                    price: product.price,
-                    quantity: quantity,
-                    maxStock: product.stock // Guardamos el stock máximo para validaciones
-                });
-            }
-            
-            // Actualizar la interfaz
-            updateCart();
-            showToast(`${product.name}${quantity > 1 ? ` (${quantity})` : ''} agregado al carrito`);
-            
-            // Si estamos en la sección de productos, actualizar la visualización
-            if (!document.getElementById('productsSection').classList.contains('hidden')) {
-                displayProducts(products);
-            }
-        }
-
-        // Función para actualizar el carrito
-        function updateCart() {
-            const cartCount = document.getElementById('cartCount');
-            const cartItems = document.getElementById('cartItems');
-            const subtotal = document.getElementById('subtotal');
-            const totalCost = document.getElementById('totalCost');
-            
-            // Actualizar contador
-            cartCount.textContent = cart.reduce((total, item) => total + item.quantity, 0);
-            
-            // Actualizar lista de items
-            if (cart.length === 0) {
-                cartItems.innerHTML = '<p class="text-muted">Tu carrito está vacío</p>';
-            } else {
-                cartItems.innerHTML = '';
-                cart.forEach(item => {
-                    const product = products.find(p => p.id === item.id);
-                    const availableStock = product ? product.stock : 0;
-                    // Fix: maxAvailable should be based on initial product stock, not current item quantity
-                    const maxAllowedInCart = product.stock; 
-                    
-                    const itemElement = document.createElement('div');
-                    itemElement.className = 'cart-item';
-                    itemElement.innerHTML = `
-                        <div class="d-flex justify-content-between">
-                            <div>
-                                <h6>${item.name}</h6>
-                                <p class="text-muted">$${item.price.toFixed(2)} c/u</p>
-                                <small class="stock-info">Disponibles: ${availableStock}</small>
-                            </div>
-                            <div class="d-flex align-items-center">
-                                <button class="btn btn-sm btn-outline-secondary decrease-quantity" data-id="${item.id}" 
-                                    ${item.quantity <= 1 ? 'disabled' : ''}>-</button>
-                                <span class="mx-2">${item.quantity}</span>
-                                <button class="btn btn-sm btn-outline-secondary increase-quantity" data-id="${item.id}"
-                                    ${item.quantity >= maxAllowedInCart ? 'disabled' : ''}>+</button>
-                                <span class="ms-3 fw-bold">$${(item.price * item.quantity).toFixed(2)}</span>
-                                <button class="btn btn-sm btn-outline-danger ms-2 remove-item" data-id="${item.id}">
-                                    <i class="fas fa-trash"></i>
-                                </button>
-                            </div>
-                        </div>
-                    `;
-                    cartItems.appendChild(itemElement);
-                });
-            }
-            
-            // Actualizar totales
-            const subtotalValue = cart.reduce((total, item) => total + (item.price * item.quantity), 0);
-            const shippingCost = 35.00; // Costo fijo de envío
-            const totalValue = subtotalValue + shippingCost;
-            
-            subtotal.textContent = `$${subtotalValue.toFixed(2)}`;
-            totalCost.textContent = `$${totalValue.toFixed(2)}`;
-            
-            // Agregar eventos a los botones del carrito
-            document.querySelectorAll('.decrease-quantity').forEach(button => {
-                button.addEventListener('click', function() {
-                    const productId = parseInt(this.getAttribute('data-id'));
-                    updateQuantity(productId, -1);
-                });
-            });
-            
-            document.querySelectorAll('.increase-quantity').forEach(button => {
-                button.addEventListener('click', function() {
-                    const productId = parseInt(this.getAttribute('data-id'));
-                    updateQuantity(productId, 1);
-                });
-            });
-            
-            document.querySelectorAll('.remove-item').forEach(button => {
-                button.addEventListener('click', function() {
-                    const productId = parseInt(this.getAttribute('data-id'));
-                    removeFromCart(productId);
-                });
-            });
-        }
-
-        // Función para actualizar cantidad de un producto en el carrito
-        function updateQuantity(productId, change) {
-            const itemIndex = cart.findIndex(item => item.id === productId);
-            if (itemIndex === -1) return;
-            
-            const product = products.find(p => p.id === productId);
-            if (!product) return;
-            
-            const newQuantity = cart[itemIndex].quantity + change;
-            
-            // Validar que no se exceda el stock disponible o sea menor a 0
-            if (newQuantity > product.stock) {
-                showToast(`No hay suficiente stock. Solo quedan ${product.stock} unidades disponibles.`);
+            if (password !== confirmPassword) {
+                showMessage("Las contraseñas no coinciden. Por favor, inténtalo de nuevo.");
                 return;
             }
-            
-            if (newQuantity <= 0) {
-                cart.splice(itemIndex, 1);
-            } else {
-                cart[itemIndex].quantity = newQuantity;
+
+            showGlobalLoading(true);
+            try {
+                await createUserWithEmailAndPassword(auth, email, password);
+                showMessage("Usuario registrado y sesión iniciada exitosamente!");
+            } catch (error) {
+                console.error("Error al registrar usuario:", error);
+                let errorMessage = "Error al registrar usuario.";
+                switch (error.code) {
+                    case 'auth/email-already-in-use':
+                        errorMessage = 'El email ya está en uso. Intenta iniciar sesión o usa otro email.';
+                        break;
+                    case 'auth/invalid-email':
+                        errorMessage = 'El email no es válido.';
+                        break;
+                    case 'auth/weak-password':
+                        errorMessage = 'La contraseña es muy débil (mínimo 6 caracteres).';
+                        break;
+                    default:
+                        errorMessage = 'Error de registro: ' + error.message;
+                }
+                showMessage(errorMessage);
+            } finally {
+                showGlobalLoading(false);
             }
-            
-            updateCart();
-            
-            // Si estamos en la sección de productos, actualizar la visualización
-            if (!document.getElementById('productsSection').classList.contains('hidden')) {
-                displayProducts(products);
-            }
         }
 
-        // Función para eliminar producto del carrito
-        function removeFromCart(productId) {
-            cart = cart.filter(item => item.id !== productId);
-            updateCart();
-            showToast('Producto eliminado del carrito');
-        }
+        async function handleLoginAction() {
+            const email = modalAuthEmailInput.value;
+            const password = modalAuthPasswordInput.value;
 
-        // Función para mostrar notificación toast
-        function showToast(message) {
-            const toast = document.createElement('div');
-            toast.className = 'position-fixed bottom-0 end-0 p-3';
-            toast.style.zIndex = '11';
-            toast.innerHTML = `
-                <div class="toast show" role="alert" aria-live="assertive" aria-atomic="true">
-                    <div class="toast-header bg-primary text-white">
-                        <strong class="me-auto">Notificación</strong>
-                        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="toast" aria-label="Close"></button>
-                    </div>
-                    <div class="toast-body">
-                        ${message}
-                    </div>
-                </div>
-            `;
-            document.body.appendChild(toast);
-            
-            setTimeout(() => {
-                toast.remove();
-            }, 3000);
-        }
-
-        // Función para mostrar una sección y ocultar las demás
-        function showSection(sectionId) {
-            document.querySelectorAll('#homeSection, #productsSection, #cartSection, #checkoutSection, #userSection').forEach(section => {
-                section.classList.add('hidden');
-            });
-            
-            document.getElementById(sectionId).classList.remove('hidden');
-        }
-
-        // Función para configurar los event listeners
-        function setupEventListeners() {
-            // Navegación
-            document.getElementById('homeLink').addEventListener('click', () => showSection('homeSection'));
-            document.getElementById('productsLink').addEventListener('click', () => {
-                showSection('productsSection');
-                displayProducts(products);
-            });
-            document.getElementById('exploreBtn').addEventListener('click', () => {
-                showSection('productsSection');
-                displayProducts(products);
-            });
-
-   
-            // Carrito
-            document.getElementById('cartBtn').addEventListener('click', () => {
-                showSection('cartSection');
-                updateCart();
-            });
-            
-            // Checkout
-            document.getElementById('checkoutBtn').addEventListener('click', () => {
-                if (cart.length === 0) {
-                    showToast('El carrito está vacío');
-                    return;
-                }
-                if (!currentUser) {
-                    showToast('Por favor, inicia sesión para finalizar tu compra.');
-                    const loginModal = new bootstrap.Modal(document.getElementById('loginModal'));
-                    loginModal.show();
-                    return;
-                }
-                populateCheckoutForm(); // Precargar datos del usuario
-                showSection('checkoutSection');
-            });
-            
-            document.getElementById('backToCartBtn').addEventListener('click', () => {
-                showSection('cartSection');
-            });
-            
-            // Formulario de checkout
-            document.getElementById('checkoutForm').addEventListener('submit', function(e) {
-                e.preventDefault();
-                submitOrder();
-            });
-            
-            // Búsqueda
-            document.getElementById('searchBtn').addEventListener('click', searchProducts);
-            document.getElementById('searchInput').addEventListener('keypress', function(e) {
-                if (e.key === 'Enter') {
-                    searchProducts();
-                }
-            });
-            
-            // Configurar eventos del modal de detalles
-            setupDetailModalEvents();
-
-            // Login/Registro
-            document.getElementById('loginBtn').addEventListener('click', () => {
-                if (currentUser) {
-                    showUserSection();
-                } else {
-                    const loginModal = new bootstrap.Modal(document.getElementById('loginModal'));
-                    loginModal.show();
-                }
-            });
-            
-            document.getElementById('showRegister').addEventListener('click', function(e) {
-                e.preventDefault();
-                const loginModal = bootstrap.Modal.getInstance(document.getElementById('loginModal'));
-                loginModal.hide();
-                const registerModal = new bootstrap.Modal(document.getElementById('registerModal'));
-                registerModal.show();
-            });
-            
-            document.getElementById('showLogin').addEventListener('click', function(e) {
-                e.preventDefault();
-                const registerModal = bootstrap.Modal.getInstance(document.getElementById('registerModal'));
-                registerModal.hide();
-                const loginModal = new bootstrap.Modal(document.getElementById('loginModal'));
-                loginModal.show();
-            });
-            
-            document.getElementById('loginForm').addEventListener('submit', function(e) {
-                e.preventDefault();
-                loginUser();
-            });
-            
-            document.getElementById('registerForm').addEventListener('submit', function(e) {
-                e.preventDefault();
-                registerUser();
-            });
-            
-            document.getElementById('logoutBtn').addEventListener('click', logoutUser);
-
-            // Evento para el botón de editar perfil
-            document.getElementById('editProfileBtn').addEventListener('click', () => {
-                if (currentUser) {
-                    populateEditProfileForm();
-                    const editModal = new bootstrap.Modal(document.getElementById('editProfileModal'));
-                    editModal.show();
-                }
-            });
-
-            // Evento para el formulario de guardar cambios del perfil
-            document.getElementById('editProfileForm').addEventListener('submit', function(e) {
-                e.preventDefault();
-                saveProfileChanges();
-            });
-        }
-
-        // Función para buscar productos
-        function searchProducts() {
-            const searchTerm = document.getElementById('searchInput').value.toLowerCase();
-            
-            if (!searchTerm) {
-                displayProducts(products);
+            if (!email || !password) {
+                showMessage("Por favor, ingresa tu email y contraseña.");
                 return;
             }
-            
-            const filteredProducts = products.filter(product => 
-                product.name.toLowerCase().includes(searchTerm) || 
-                product.description.toLowerCase().includes(searchTerm) ||
-                product.category.toLowerCase().includes(searchTerm) ||
-                String(product.codigo).toLowerCase().includes(searchTerm) 
-            );
-            
-            showSection('productsSection');
-            displayProducts(filteredProducts);
-        }
 
-        // Función para precargar el formulario de checkout con los datos del usuario logueado
-        function populateCheckoutForm() {
-            if (currentUser) {
-                document.getElementById('firstName').value = currentUser.firstName || '';
-                document.getElementById('lastName').value = currentUser.lastName || '';
-                document.getElementById('email').value = currentUser.email || '';
-                document.getElementById('address').value = currentUser.address || '';
-                document.getElementById('phone').value = currentUser.phone || '';
-                // 'city', 'state', 'zipCode' no están en el objeto currentUser original, se mantienen editables
+            showGlobalLoading(true);
+            try {
+                await signInWithEmailAndPassword(auth, email, password);
+                showMessage("Sesión iniciada exitosamente!");
+            } catch (error) {
+                console.error("Error al iniciar sesión:", error);
+                let errorMessage = "Error al iniciar sesión.";
+                switch (error.code) {
+                    case 'auth/invalid-email':
+                        errorMessage = 'El email no es válido.';
+                        break;
+                    case 'auth/user-not-found':
+                        errorMessage = 'Usuario no encontrado. Por favor, regístrate.';
+                        break;
+                    case 'auth/wrong-password':
+                        errorMessage = 'Contraseña incorrecta.';
+                        break;
+                    case 'auth/too-many-requests':
+                        errorMessage = 'Demasiados intentos de inicio de sesión fallidos. Intenta más tarde.';
+                        break;
+                    default:
+                        errorMessage = 'Error de inicio de sesión: ' + error.message;
+                }
+                showMessage(errorMessage);
+            } finally {
+                showGlobalLoading(false);
             }
         }
 
-        // Función para enviar el pedido
-        function submitOrder() {
-            if (cart.length === 0) {
-                showToast('El carrito está vacío');
+        async function handleLogout() {
+            showGlobalLoading(true);
+            try {
+                await signOut(auth);
+                showMessage("Sesión cerrada correctamente.");
+                nombreInput.value = '';
+            } catch (error) {
+                console.error("Error al cerrar sesión:", error);
+                showMessage("Error al cerrar sesión: " + error.message);
+            } finally {
+                showGlobalLoading(false);
+            }
+        }
+
+        // --- Password Recovery Function (within Auth Modal) ---
+        async function handleResetPassword() {
+            const email = modalResetPasswordEmail.value.trim();
+            if (!email) {
+                showMessage("Por favor, ingresa tu email para recuperar la contraseña.");
                 return;
             }
-            
+
+            showGlobalLoading(true);
+            try {
+                await sendPasswordResetEmail(auth, email);
+                showMessage("¡Correo de recuperación enviado! Revisa tu bandeja de entrada.");
+                modalResetPasswordEmail.value = '';
+            } catch (error) {
+                console.error("Error al enviar correo de recuperación:", error);
+                let errorMessage = "Error al enviar el correo de recuperación.";
+                switch (error.code) {
+                    case 'auth/invalid-email':
+                        errorMessage = 'El email ingresado no es válido.';
+                        break;
+                    case 'auth/user-not-found':
+                        errorMessage = 'No hay ningún usuario registrado con ese email.';
+                        break;
+                    default:
+                        errorMessage = 'Error: ' + error.message;
+                }
+                showMessage(errorMessage);
+            } finally {
+                showGlobalLoading(false);
+            }
+        }
+
+        // --- Change Password Function (within Change Password Modal) ---
+        async function handleChangePassword() {
+            const currentPassword = modalCurrentPasswordInput.value;
+            const newPassword = modalNewPasswordInput.value;
+
             if (!currentUser) {
-                showToast('Debes iniciar sesión para completar la compra.');
+                showMessage("Debes iniciar sesión para cambiar tu contraseña.");
+                closeModal(changePasswordModal);
+                return;
+            }
+            if (!currentPassword || !newPassword) {
+                showMessage("Por favor, ingresa tu contraseña actual y la nueva contraseña.");
+                return;
+            }
+            if (newPassword.length < 6) {
+                showMessage("La nueva contraseña debe tener al menos 6 caracteres.");
                 return;
             }
 
-            // Recoger los datos del formulario (algunos pre-cargados, otros nuevos)
-            const firstName = document.getElementById('firstName').value;
-            const lastName = document.getElementById('lastName').value;
-            const email = document.getElementById('email').value;
-            const address = document.getElementById('address').value;
-            const city = document.getElementById('city').value;
-            const state = document.getElementById('state').value;
-            const zipCode = document.getElementById('zipCode').value;
-            const phone = document.getElementById('phone').value;
-
-            // Validar campos adicionales si son requeridos
-            if (!city || !state || !zipCode) {
-                showToast('Por favor, completa los campos de Ciudad, Provincia y Código Postal.');
-                return;
-            }
-
-            const totalAmount = cart.reduce((total, item) => total + (item.price * item.quantity), 0) + 35.00; // Sumar costo de envío
-
-            const orderDetails = {
-                order_id: `ORD-${Date.now()}`, // Generar un ID de pedido único
-                nombre_cliente: `${firstName} ${lastName}`,
-                email_cliente: email,
-                telefono_cliente: phone,
-                direccion_envio: `${address}, ${city}, ${state}, CP ${zipCode}`,
-                productos: cart.map(item => `${item.name} (Cant: ${item.quantity}) - $${item.price.toFixed(2)} c/u`).join('\n'),
-                subtotal: cart.reduce((total, item) => total + (item.price * item.quantity), 0).toFixed(2),
-                costo_envio: '35.00',
-                total: totalAmount.toFixed(2),
-                fecha_pedido: new Date().toLocaleString('es-ES')
-            };
-            
-            // Enviar email usando EmailJS
-            emailjs.send('service_ynni6mh', 'template_mamyuhg', orderDetails)
-                .then(() => {
-                    showToast('Pedido enviado con éxito');
-                    
-                    // Guardar el pedido en el historial del usuario logueado
-                    const newOrder = {
-                        date: orderDetails.order_id,
-                        status: 'Pendiente',
-                        shippingAddress: orderDetails.direccion_envio,
-                        items: cart.map(item => ({
-                            name: item.name,
-                            quantity: item.quantity,
-                            price: item.price
-                        })),
-                        total: totalAmount,
-                        userEmail: currentUser.email // Asociar el pedido al email del usuario
-                    };
-                    orders.push(newOrder);
-                    localStorage.setItem('orders', JSON.stringify(orders)); // Actualizar localStorage
-                    
-                    // Actualizar los pedidos del usuario actual
-                    currentUser.orders = orders.filter(o => o.userEmail === currentUser.email);
-                    localStorage.setItem('currentUser', JSON.stringify(currentUser));
-
-
-                    // Limpiar carrito y volver a la sección de inicio
-                    cart = [];
-                    updateCart();
-                    showSection('homeSection');
-                    showUserSection(); // Refrescar la sección de usuario para mostrar el nuevo pedido
-                    
-                }, (error) => {
-                    console.error('Error al enviar el pedido:', error);
-                    showToast('Error al enviar el pedido. Por favor intenta nuevamente.');
-                });
-        }
-
-        // Función para login de usuario
-        function loginUser() {
-            const email = document.getElementById('loginEmail').value;
-            const password = document.getElementById('loginPassword').value;
-            
-            const users = JSON.parse(localStorage.getItem('users')) || [];
-            const user = users.find(u => u.email === email && u.password === password);
-            
-            if (user) {
-                currentUser = {
-                    firstName: user.firstName,
-                    lastName: user.lastName,
-                    email: user.email,
-                    address: user.address,
-                    phone: user.phone,
-                    // Cargar los pedidos del usuario desde el array global 'orders'
-                    orders: orders.filter(o => o.userEmail === user.email)
-                };
-                localStorage.setItem('currentUser', JSON.stringify(currentUser)); // Guardar usuario logueado
-                
-                const loginModal = bootstrap.Modal.getInstance(document.getElementById('loginModal'));
-                loginModal.hide();
-                
-                showUserSection();
-                showToast(`Bienvenido, ${user.firstName}`);
-            } else {
-                showToast('Email o contraseña incorrectos');
+            showGlobalLoading(true);
+            try {
+                const credential = EmailAuthProvider.credential(currentUser.email, currentPassword);
+                await reauthenticateWithCredential(currentUser, credential);
+                await updatePassword(currentUser, newPassword);
+                showMessage("Contraseña cambiada exitosamente!");
+                closeModal(changePasswordModal);
+            } catch (error) {
+                console.error("Error al cambiar contraseña:", error);
+                let errorMessage = "Error al cambiar contraseña.";
+                switch (error.code) {
+                    case 'auth/wrong-password':
+                        errorMessage = 'La contraseña actual es incorrecta.';
+                        break;
+                    case 'auth/weak-password':
+                        errorMessage = 'La nueva contraseña es muy débil (mínimo 6 caracteres).';
+                        break;
+                    case 'auth/requires-recent-login':
+                        errorMessage = 'Por favor, inicia sesión de nuevo antes de cambiar tu contraseña.';
+                        break;
+                    case 'auth/invalid-credential':
+                        errorMessage = 'Credenciales inválidas. Por favor, verifica tu contraseña actual.';
+                        break;
+                    default:
+                        errorMessage = 'Error: ' + error.message;
+                }
+                showMessage(errorMessage);
+            } finally {
+                showGlobalLoading(false);
             }
         }
 
-        // Función para registrar usuario
-        function registerUser() {
-            const firstName = document.getElementById('registerFirstName').value;
-            const lastName = document.getElementById('registerLastName').value;
-            const email = document.getElementById('registerEmail').value;
-            const password = document.getElementById('registerPassword').value;
-            const address = document.getElementById('registerAddress').value;
-            const phone = document.getElementById('registerPhone').value;
-            
-            if (!email || !password || !firstName || !lastName || !address || !phone) {
-                showToast('Por favor completa todos los campos');
+        // --- Functions for Saving and Loading User Profile (within Profile Modal) ---
+        async function saveUserProfile() {
+            if (!currentUser) {
+                showMessage("Debes iniciar sesión para guardar tu perfil.");
+                closeModal(profileModal);
                 return;
             }
-            
-            const users = JSON.parse(localStorage.getItem('users')) || [];
-            
-            if (users.some(u => u.email === email)) {
-                showToast('Este email ya está registrado');
+
+            const nombreCompleto = modalProfileNombreCompleto.value.trim();
+            const direccion = modalProfileDireccion.value.trim();
+            const telefono = modalProfileTelefono.value.trim();
+            const horarioPedidos = modalProfileHorarioPedidos.value.trim();
+
+            if (!nombreCompleto && !direccion && !telefono && !horarioPedidos) {
+                showMessage("Por favor, rellena al menos un campo para guardar tu perfil.");
                 return;
             }
-            
-            users.push({
-                firstName,
-                lastName,
-                email,
-                password,
-                address,
-                phone
+
+            showGlobalLoading(true);
+            try {
+                const userProfileDocRef = doc(db, 'userProfiles', currentUser.uid);
+
+                await setDoc(userProfileDocRef, {
+                    nombreCompleto: nombreCompleto,
+                    direccion: direccion,
+                    telefono: telefono,
+                    horarioPedidos: horarioPedidos,
+                    emailRegistrado: currentUser.email,
+                    lastUpdated: serverTimestamp()
+                }, { merge: true });
+
+                showMessage("Perfil actualizado correctamente!");
+                closeModal(profileModal);
+            } catch (e) {
+                console.error("Error al guardar el perfil: ", e);
+                showMessage("Error al guardar el perfil. Asegúrate de tener los permisos correctos en Firestore.");
+            } finally {
+                showGlobalLoading(false);
+            }
+        }
+
+        function loadUserProfile() {
+            if (profileSnapshotUnsubscribe) {
+                profileSnapshotUnsubscribe();
+            }
+
+            if (!currentUser) {
+                modalProfileNombreCompleto.value = '';
+                modalProfileDireccion.value = '';
+                modalProfileTelefono.value = '';
+                modalProfileHorarioPedidos.value = '';
+                myAccountProfileDisplay.classList.add('hidden'); // Hide profile display in MyAccount modal
+                return;
+            }
+
+            const userProfileDocRef = doc(db, 'userProfiles', currentUser.uid);
+
+            profileSnapshotUnsubscribe = onSnapshot(userProfileDocRef, (docSnap) => {
+                if (docSnap.exists()) {
+                    const data = docSnap.data();
+                    // Populate modal inputs (profileModal)
+                    modalProfileNombreCompleto.value = data.nombreCompleto || '';
+                    modalProfileDireccion.value = data.direccion || '';
+                    modalProfileTelefono.value = data.telefono || '';
+                    modalProfileHorarioPedidos.value = data.horarioPedidos || '';
+
+                    // Display in My Account Modal
+                    accountDisplayNombreCompleto.textContent = data.nombreCompleto || 'N/A';
+                    accountDisplayDireccion.textContent = data.direccion || 'N/A';
+                    accountDisplayTelefono.textContent = data.telefono || 'N/A';
+                    accountDisplayHorarioPedidos.textContent = data.horarioPedidos || 'N/A';
+                    myAccountProfileDisplay.classList.remove('hidden');
+                } else {
+                    // Profile document does not exist
+                    modalProfileNombreCompleto.value = '';
+                    modalProfileDireccion.value = '';
+                    modalProfileTelefono.value = '';
+                    modalProfileHorarioPedidos.value = '';
+                    accountDisplayNombreCompleto.textContent = 'N/A';
+                    accountDisplayDireccion.textContent = 'N/A';
+                    accountDisplayTelefono.textContent = 'N/A';
+                    accountDisplayHorarioPedidos.textContent = 'N/A';
+                    myAccountProfileDisplay.classList.add('hidden');
+                }
+            }, (error) => {
+                console.error("Error al cargar el perfil en tiempo real: ", error);
+                showMessage("Error al cargar tu perfil. Asegúrate de tener los permisos correctos.");
             });
-            
-            localStorage.setItem('users', JSON.stringify(users));
-            
-            const registerModal = bootstrap.Modal.getInstance(document.getElementById('registerModal'));
-            registerModal.hide();
-            
-            showToast('Registro exitoso. Por favor inicia sesión.');
         }
 
-        // Función para mostrar la sección de usuario
-        function showUserSection() {
-            if (!currentUser) return;
-            
-            document.getElementById('userName').textContent = `${currentUser.firstName} ${currentUser.lastName}`;
-            document.getElementById('userEmail').textContent = currentUser.email;
-            document.getElementById('userAddress').textContent = currentUser.address || 'Dirección no proporcionada';
-            document.getElementById('userPhone').textContent = currentUser.phone || 'Teléfono no proporcionado';
-            
-            const ordersContainer = document.getElementById('userOrders');
-            if (currentUser.orders && currentUser.orders.length > 0) {
-                ordersContainer.innerHTML = '';
-                // Ordenar pedidos del más reciente al más antiguo
-                const sortedOrders = [...currentUser.orders].sort((a, b) => new Date(b.date) - new Date(a.date));
 
-                sortedOrders.forEach(order => {
-                    const orderElement = document.createElement('div');
-                    orderElement.className = 'mb-3 p-3 border rounded';
-                    orderElement.innerHTML = `
-                        <div class="d-flex justify-content-between">
-                            <h6>Pedido #${order.date.split(' ')[0]}</h6> <!-- Mostrar solo la fecha del ID de pedido -->
-                            <span class="badge bg-primary">${order.status}</span>
-                        </div>
-                        <p class="mb-1"><small>${order.shippingAddress}</small></p>
-                        <ul class="mb-2">
-                            ${order.items.map(item => `<li>${item.name} - ${item.quantity} x $${item.price.toFixed(2)}</li>`).join('')}
-                        </ul>
-                        <p class="fw-bold mb-0">Total: $${order.total.toFixed(2)}</p>
-                    `;
-                    ordersContainer.appendChild(orderElement);
-                });
-            } else {
-                ordersContainer.innerHTML = '<p class="text-muted">No hay pedidos registrados</p>';
-            }
-            
-            document.getElementById('loginBtn').innerHTML = `<i class="fas fa-user"></i> ${currentUser.firstName}`;
-            showSection('userSection');
-        }
+        // --- Functions for Saving and Reading Data (Multiple items per user) ---
 
-        // Función para logout de usuario
-        function logoutUser() {
-            currentUser = null;
-            localStorage.removeItem('currentUser'); // Eliminar usuario del localStorage
-            document.getElementById('loginBtn').innerHTML = '<i class="fas fa-user"></i> Iniciar Sesión';
-            showToast('Sesión cerrada');
-            showSection('homeSection');
-        }
-
-        // Función para precargar el formulario de edición de perfil con los datos del usuario actual
-        function populateEditProfileForm() {
-            if (currentUser) {
-                document.getElementById('editFirstName').value = currentUser.firstName || '';
-                document.getElementById('editLastName').value = currentUser.lastName || '';
-                document.getElementById('editEmail').value = currentUser.email || ''; // Email readonly
-                document.getElementById('editAddress').value = currentUser.address || '';
-                document.getElementById('editPhone').value = currentUser.phone || '';
-            }
-        }
-
-        // Función para guardar los cambios del perfil
-        function saveProfileChanges() {
-            const editFirstName = document.getElementById('editFirstName').value;
-            const editLastName = document.getElementById('editLastName').value;
-            const editEmail = document.getElementById('editEmail').value; // No se edita, pero se usa para buscar
-            const editAddress = document.getElementById('editAddress').value;
-            const editPhone = document.getElementById('editPhone').value;
-
-            if (!editFirstName || !editLastName || !editAddress || !editPhone) {
-                showToast('Por favor, completa todos los campos para actualizar tu perfil.');
+        async function guardarDatos() {
+            if (!currentUser) {
+                showMessage("Debes iniciar sesión para guardar tus datos.");
                 return;
             }
 
-            let users = JSON.parse(localStorage.getItem('users')) || [];
-            const userIndex = users.findIndex(u => u.email === editEmail);
+            const nombreDelDato = nombreInput.value.trim();
 
-            if (userIndex !== -1) {
-                // Actualizar el usuario en la lista de usuarios
-                users[userIndex].firstName = editFirstName;
-                users[userIndex].lastName = editLastName;
-                users[userIndex].address = editAddress;
-                users[userIndex].phone = editPhone;
-                localStorage.setItem('users', JSON.stringify(users));
-
-                // Actualizar el currentUser en sesión
-                currentUser.firstName = editFirstName;
-                currentUser.lastName = editLastName;
-                currentUser.address = editAddress;
-                currentUser.phone = editPhone;
-                localStorage.setItem('currentUser', JSON.stringify(currentUser));
-
-                const editModal = bootstrap.Modal.getInstance(document.getElementById('editProfileModal'));
-                editModal.hide();
-                showToast('Perfil actualizado con éxito.');
-                showUserSection(); // Refrescar la sección de usuario para mostrar los cambios
+            if (nombreDelDato) {
+                showGlobalLoading(true);
+                try {
+                    const userSpecificCollectionPath = `usuarios/${currentUser.uid}/misDatos`;
+                    const docRef = await addDoc(collection(db, userSpecificCollectionPath), {
+                        nombre: nombreDelDato,
+                        fechaGuardado: serverTimestamp(),
+                    });
+                    console.log("Documento escrito con ID: ", docRef.id);
+                    showMessage("Dato guardado correctamente!");
+                    nombreInput.value = '';
+                } catch (e) {
+                    console.error("Error al agregar documento a misDatos: ", e);
+                    showMessage("Error al guardar el dato. Asegúrate de tener los permisos correctos en Firestore.");
+                } finally {
+                    showGlobalLoading(false);
+                }
             } else {
-                showToast('Error: Usuario no encontrado para actualizar.');
+                showMessage("Por favor, ingresa un nombre para tu dato.");
             }
         }
+
+        function leerDatos() {
+            datosGuardadosDiv.innerHTML = '<p class="text-center text-gray-500">Cargando mis datos...</p>';
+
+            if (!currentUser) {
+                datosGuardadosDiv.innerHTML = '<p class="text-center text-gray-500">Inicia sesión para ver tus datos.</p>';
+                return;
+            }
+
+            if (dataListSnapshotUnsubscribe) {
+                dataListSnapshotUnsubscribe();
+            }
+
+            try {
+                const userSpecificCollectionPath = `usuarios/${currentUser.uid}/misDatos`;
+                const q = query(collection(db, userSpecificCollectionPath), orderBy("fechaGuardado", "desc"));
+
+                dataListSnapshotUnsubscribe = onSnapshot(q, (querySnapshot) => {
+                    if (querySnapshot.empty) {
+                        datosGuardadosDiv.innerHTML = '<p class="text-center text-gray-500">No tienes datos guardados aún.</p>';
+                        return;
+                    }
+
+                    datosGuardadosDiv.innerHTML = '';
+                    querySnapshot.forEach((doc) => {
+                        const data = doc.data();
+                        const divItem = document.createElement('div');
+                        divItem.classList.add('dato-item', 'bg-gray-50', 'p-3', 'rounded-md', 'border', 'border-gray-200', 'mb-2');
+                        divItem.innerHTML = `
+                            <p class="font-semibold text-gray-800">Nombre: ${data.nombre}</p>
+                            <p class="text-xs text-gray-500">Fecha: ${data.fechaGuardado ? new Date(data.fechaGuardado.toDate()).toLocaleString() : 'N/A'}</p>
+                        `;
+                        datosGuardadosDiv.appendChild(divItem);
+                    });
+                }, (error) => {
+                    console.error("Error al leer documentos de misDatos: ", error);
+                    showMessage("Error al cargar tus datos. Asegúrate de tener los permisos correctos.");
+                    datosGuardadosDiv.innerHTML = '<p class="text-center text-red-500">Error al cargar tus datos.</p>';
+                });
+            } catch (e) {
+                console.error("Error al configurar listener de misDatos: ", e);
+                showMessage("Error al configurar la carga de tus datos.");
+                datosGuardadosDiv.innerHTML = '<p class="text-center text-red-500">Error al cargar tus datos.</p>';
+            }
+        }
+
+
+        // --- Event Listeners ---
+        document.addEventListener('DOMContentLoaded', () => {
+            // Main UI interactions
+            userIconButton.addEventListener('click', () => {
+                openModal(authModal); // Always open Auth Modal from user icon
+            });
+            authModalCloseButton.addEventListener('click', () => closeModal(authModal));
+            profileModalCloseButton.addEventListener('click', () => closeModal(profileModal));
+            changePasswordModalCloseButton.addEventListener('click', () => closeModal(changePasswordModal));
+            myAccountModalClose.addEventListener('click', () => closeModal(myAccountModal)); // Close listener for new modal
+
+            // Authentication mode switch buttons
+            showRegisterModeButton.addEventListener('click', () => {
+                authModalCurrentMode = 'register';
+                updateAuthModalUI();
+            });
+            showLoginModeButton.addEventListener('click', () => {
+                authModalCurrentMode = 'login';
+                updateAuthModalUI();
+            });
+
+            // Authentication action button
+            modalAuthSubmitButton.addEventListener('click', handleAuthSubmit);
+
+            // My Account button (main content)
+            myAccountButton.addEventListener('click', () => openModal(myAccountModal)); // Open MyAccount modal
+
+            // Other authentication actions
+            myAccountLogoutButton.addEventListener('click', handleLogout); // Logout button is now in MyAccount modal
+            modalResetPasswordButton.addEventListener('click', handleResetPassword);
+
+            // Profile actions
+            editProfileButtonFromAccount.addEventListener('click', () => { // From MyAccount modal
+                closeModal(myAccountModal); // Close current modal
+                openModal(profileModal); // Open profile edit modal
+            });
+            modalSaveProfileButton.addEventListener('click', saveUserProfile);
+
+            // Change Password actions
+            openChangePasswordModalButtonFromAccount.addEventListener('click', () => { // From MyAccount modal
+                closeModal(myAccountModal); // Close current modal
+                openModal(changePasswordModal); // Open change password modal
+            });
+            modalChangePasswordButton.addEventListener('click', handleChangePassword);
+
+            // Data list actions
+            guardarDatosButton.addEventListener('click', guardarDatos);
+            recargarDatosButton.addEventListener('click', leerDatos);
+        });
     </script>
 </body>
 </html>
