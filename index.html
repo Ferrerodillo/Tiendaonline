@@ -400,8 +400,8 @@
                             <p id="userColonia"></p> 
                             <p id="userZipCode"></p> 
                             <p id="userPhone"></p>
-                            <p id="userHorario"></p> 
-                            <p id="userInstructions"></p> 
+                            <p id="userHorario"></p> <!-- Nuevo campo para Horario -->
+                            <p id="userInstructions"></p> <!-- Nuevo campo para Instrucciones -->
                             <button class="btn btn-outline-danger w-100 mt-3" id="logoutBtn">Cerrar Sesión</button>
                         </div>
                     </div>
@@ -509,38 +509,30 @@
         </div>
     </footer>
 
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     <script type="module">
         // Importar módulos de Firebase
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.0/firebase-app.js";
-        import { 
-            getAuth, 
-            signInAnonymously, 
-            onAuthStateChanged,
-            createUserWithEmailAndPassword, // Para registro de usuarios
-            signInWithEmailAndPassword,     // Para inicio de sesión
-            signOut                         // Para cierre de sesión
-        } from "https://www.gstatic.com/firebasejs/10.7.0/firebase-auth.js";
-        import { 
-            getFirestore, 
-            doc, 
-            getDoc, 
-            setDoc, 
-            updateDoc 
-        } from "https://www.gstatic.com/firebasejs/10.7.0/firebase-firestore.js";
+        import { getAuth, signInAnonymously, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.7.0/firebase-auth.js";
+        import { getFirestore, doc, getDoc, setDoc, updateDoc } from "https://www.gstatic.com/firebasejs/10.7.0/firebase-firestore.js";
+
+        // Hacer las funciones de Firebase accesibles globalmente si es necesario para el resto del script no modular
+        // Aunque el resto del script no está en un módulo, usaremos las variables globales directamente
+        // dentro de este bloque de script module para interactuar con Firebase.
 
         // Variables globales
         let cart = [];
         let products = [];
         let categories = [];
-        let currentUser = null; // Objeto de usuario (perfil) que se cargará desde Firestore
-        let orders = JSON.parse(localStorage.getItem('orders')) || []; // Los pedidos se mantienen en localStorage por ahora
+        let currentUser = null;
+        let orders = JSON.parse(localStorage.getItem('orders')) || [];
         let currentProductDetail = null;
         let detailQuantity = 1;
 
-        // Firebase instances
+        // Firebase Global variables
         let db;
         let auth;
-        let currentFirebaseUserUid = null; // UID del usuario de Firebase Auth
+        let currentFirebaseUserId = null; // Almacena el UID de Firebase Auth para el carrito
 
         // Inicializar EmailJS (debes reemplazar con tus credenciales)
         emailjs.init('-DaNY5iTEaA9aMemL');
@@ -548,61 +540,58 @@
         // Esperar a que el DOM esté listo
         document.addEventListener('DOMContentLoaded', async function() {
             // --- Inicialización de Firebase ---
-            // Intenta obtener la configuración de Firebase del entorno Canvas
-            const firebaseConfigRaw = typeof __firebase_config !== 'undefined' ? __firebase_config : '{}';
-            let firebaseConfig;
-            try {
-                firebaseConfig = JSON.parse(firebaseConfigRaw);
-            } catch (e) {
-                console.error("Error parsing __firebase_config:", e);
-                firebaseConfig = {};
-            }
-            
+const firebaseConfig = {
+  apiKey: "AIzaSyATKAFNmwhe9X0GQ5GxHiSmc3wiOhb7j18",
+  authDomain: "rodillo-2b699.firebaseapp.com",
+  databaseURL: "https://rodillo-2b699-default-rtdb.firebaseio.com",
+  projectId: "rodillo-2b699",
+  storageBucket: "rodillo-2b699.firebasestorage.app",
+  messagingSenderId: "652395478682",
+  appId: "1:652395478682:web:f4447c35fee0599030a923"
+};
+ 
             if (Object.keys(firebaseConfig).length > 0) {
                 const app = initializeApp(firebaseConfig);
                 db = getFirestore(app);
                 auth = getAuth(app);
 
+                // Escuchar cambios en el estado de autenticación de Firebase
                 onAuthStateChanged(auth, async (user) => {
                     if (user) {
-                        currentFirebaseUserUid = user.uid;
-                        // Si el usuario tiene email (no es anónimo), intenta cargar su perfil de Firestore
-                        if (user.email) {
-                            await loadUserProfile(user.uid);
-                        } else {
-                            // Usuario anónimo, resetear currentUser o dejarlo null si no hay perfil asociado
-                            currentUser = null;
-                            localStorage.removeItem('currentUser'); // Limpiar cualquier perfil local previo
-                        }
-                        await loadCartFromFirestore(currentFirebaseUserUid); // Cargar el carrito para el UID actual
-                        updateLoginButton(); // Actualizar el botón de login/perfil
-                        showSection(currentUser ? 'userSection' : 'homeSection'); // Mostrar sección adecuada
+                        currentFirebaseUserId = user.uid;
+                        await loadCartFromFirestore(currentFirebaseUserId);
                     } else {
-                        // No hay usuario Firebase logueado, intentar iniciar sesión anónimamente
+                        // Si no hay usuario de Firebase logueado, intentar iniciar sesión anónimamente
                         try {
                             const anonymousUserCredential = await signInAnonymously(auth);
-                            currentFirebaseUserUid = anonymousUserCredential.user.uid;
-                            currentUser = null; // No hay perfil de usuario registrado para un anónimo
-                            localStorage.removeItem('currentUser');
-                            await loadCartFromFirestore(currentFirebaseUserUid);
-                            updateLoginButton();
-                            showSection('homeSection');
+                            currentFirebaseUserId = anonymousUserCredential.user.uid;
+                            await loadCartFromFirestore(currentFirebaseUserId); // Cargar el carrito del usuario anónimo
                         } catch (error) {
                             console.error("Error al iniciar sesión anónimamente:", error);
-                            showToast("Error al cargar la sesión de invitado. Recarga la página.");
-                            currentFirebaseUserUid = null;
-                            currentUser = null;
-                            localStorage.removeItem('currentUser');
+                            showToast("Error al cargar la sesión. Intenta recargar la página.");
                         }
+                    }
+                    // Una vez que Firebase Auth esté listo y currentFirebaseUserId esté establecido,
+                    // proceder con la lógica del usuario de localStorage
+                    const storedUser = localStorage.getItem('currentUser');
+                    if (storedUser) {
+                        currentUser = JSON.parse(storedUser);
+                        showUserSection();
+                    } else {
+                        showSection('homeSection'); 
                     }
                 });
             } else {
-                console.warn("Configuración de Firebase no encontrada. El carrito y perfiles no se guardarán en la nube.");
-                showToast("Configuración de Firebase no encontrada. El carrito y perfiles no se guardarán en la nube.");
-                // Si Firebase no está configurado, la aplicación funcionará solo con persistencia de localStorage (pedidos)
-                // y el carrito no se guardará.
-                updateLoginButton();
-                showSection('homeSection');
+                console.warn("Configuración de Firebase no encontrada. El carrito no se guardará en la nube.");
+                showToast("Configuración de Firebase no encontrada. El carrito no se guardará en la nube.");
+                // Continuar con la lógica solo de localStorage si Firebase no está configurado
+                const storedUser = localStorage.getItem('currentUser');
+                if (storedUser) {
+                    currentUser = JSON.parse(storedUser);
+                    showUserSection();
+                } else {
+                    showSection('homeSection');
+                }
             }
 
             // Cargar productos desde CSV en GitHub
@@ -612,48 +601,6 @@
             setupEventListeners();
         });
 
-        // --- Funciones de Firebase (Carrito y Perfil de Usuario) ---
-
-        // Función para cargar el perfil de usuario desde Firestore
-        async function loadUserProfile(uid) {
-            if (!db) {
-                console.warn("Firestore no disponible para cargar el perfil.");
-                return;
-            }
-            try {
-                const userDocRef = doc(db, 'users', uid);
-                const userDocSnap = await getDoc(userDocRef);
-                if (userDocSnap.exists()) {
-                    currentUser = { uid: uid, ...userDocSnap.data() };
-                    localStorage.setItem('currentUser', JSON.stringify(currentUser)); // Sincronizar con localStorage
-                    console.log("Perfil de usuario cargado de Firestore:", currentUser);
-                } else {
-                    console.log("No hay perfil de usuario en Firestore para UID:", uid);
-                    currentUser = null; // Asegurarse de que no haya un currentUser si no hay perfil en Firestore
-                    localStorage.removeItem('currentUser');
-                }
-            } catch (error) {
-                console.error("Error cargando el perfil de usuario de Firestore:", error);
-                showToast("Error al cargar tu perfil. Intenta nuevamente.");
-            }
-        }
-
-        // Función para guardar el perfil de usuario en Firestore
-        async function saveUserProfile(uid, profileData) {
-            if (!db) {
-                console.warn("Firestore no disponible para guardar el perfil.");
-                return;
-            }
-            try {
-                const userDocRef = doc(db, 'users', uid);
-                await setDoc(userDocRef, profileData, { merge: true }); // Usar merge para no sobrescribir todo el documento
-                console.log("Perfil de usuario guardado/actualizado en Firestore para:", uid);
-            } catch (error) {
-                console.error("Error guardando el perfil de usuario en Firestore:", error);
-                showToast("Error al guardar tu perfil en la nube.");
-            }
-        }
-
         // Función para guardar el carrito en Firestore
         async function saveCartToFirestore(userId) {
             if (!db || !userId) {
@@ -662,7 +609,7 @@
             }
             try {
                 const cartRef = doc(db, 'carts', userId);
-                await setDoc(cartRef, { items: cart }); 
+                await setDoc(cartRef, { items: cart }); // Sobrescribe el documento del carrito completo
                 console.log("Carrito guardado en Firestore para:", userId);
             } catch (error) {
                 console.error("Error guardando el carrito en Firestore:", error);
@@ -683,20 +630,26 @@
                     cart = cartSnap.data().items || [];
                     console.log("Carrito cargado de Firestore para:", userId);
                 } else {
-                    console.log("No hay carrito en Firestore para:", userId + ". Iniciando con carrito vacío.");
+                    console.log("No hay carrito en Firestore para:", userId + ". Iniciando con carrito vacío o local.");
+                    // Aquí podrías decidir si fusionar con un carrito existente en localStorage si es la primera carga para este UID
+                    // Por ahora, simplemente inicia con un carrito vacío de Firestore si no existe.
+                    // Si el usuario tenía algo en localStorage ANTES de Firebase, se perdería a menos que se haga una migración explícita aquí.
                     cart = []; 
                 }
-                updateCart(); 
+                updateCart(); // Actualizar la interfaz después de cargar el carrito
             } catch (error) {
                 console.error("Error cargando el carrito de Firestore:", error);
                 showToast("Error al cargar el carrito desde la nube.");
             }
         }
 
-        // --- Funciones existentes, adaptadas a Firebase Auth/Firestore ---
 
+        // Función para cargar productos desde un CSV en GitHub
         function loadProductsFromGitHubCSV() {
+            // URL del archivo CSV en GitHub (formato raw)
             const githubCsvUrl = 'https://raw.githubusercontent.com/Ferrerodillo/Tiendaonline/refs/heads/main/productos.csv';
+            
+            // Configuración para evitar caché (opcional)
             const nocacheUrl = githubCsvUrl + '?nocache=' + (new Date()).getTime();
             
             Papa.parse(nocacheUrl, {
@@ -715,6 +668,7 @@
                             stock: parseInt(product.stock || product.existencia || product.cantidad || 0) 
                         })); 
                         
+                        // Extraer categorías únicas
                         categories = [...new Set(products.map(p => p.category))];
                         populateCategoryFilter();
                         
@@ -731,33 +685,45 @@
             });
         }
 
+        // Función para poblar el filtro de categorías
         function populateCategoryFilter() {
             const filter = document.getElementById('categoryFilter');
+            
+            // Ordenar categorías alfabéticamente
             categories.sort();
+            
+            // Limpiar opciones existentes (excepto la primera)
             while (filter.options.length > 1) {
                 filter.remove(1);
             }
+            
+            // Agregar categorías
             categories.forEach(category => {
                 const option = document.createElement('option');
                 option.value = category;
                 option.textContent = category;
                 filter.appendChild(option);
             });
+            
+            // Evento para filtrar
             filter.addEventListener('change', function() {
                 filterProducts();
             });
         }
 
+        // Función para filtrar productos por categoría y búsqueda
         function filterProducts() {
             const category = document.getElementById('categoryFilter').value;
             const searchTerm = document.getElementById('searchInput').value.toLowerCase();
             
             let filteredProducts = products;
             
+            // Filtrar por categoría
             if (category !== 'all') {
                 filteredProducts = filteredProducts.filter(p => p.category === category);
             }
             
+            // Filtrar por término de búsqueda
             if (searchTerm) {
                 filteredProducts = filteredProducts.filter(p => 
                     p.name.toLowerCase().includes(searchTerm) || 
@@ -766,9 +732,11 @@
 		            String(p.codigo).toLowerCase().includes(searchTerm) 
                 );
             }
+            
             displayProducts(filteredProducts);
         }
 
+        // Función para cargar productos de ejemplo si falla la carga desde GitHub
         function loadSampleProducts() {
             console.log("Cargando productos de ejemplo...");
             products = [
@@ -779,11 +747,15 @@
                 {id: 5, name: "Producto Ejemplo 5", price: 59.99, category: "Ropa", description: "Otra prenda de vestir de alta calidad", image: "https://via.placeholder.com/150", stock: 1, codigo: "ROPA005"},
                 {id: 6, name: "Producto Ejemplo 6", price: 69.99, category: "Hogar", description: "Producto para el hogar con garantía extendida", image: "https://via.placeholder.com/150", stock: 8, codigo: "HOGAR006"}
             ];
+            
+            // Extraer categorías únicas
             categories = [...new Set(products.map(p => p.category))];
             populateCategoryFilter();
+            
             displayProducts(products);
         }
 
+        // Función para mostrar productos
         function displayProducts(productsToDisplay) {
             const container = document.getElementById('productsContainer');
             container.innerHTML = '';
@@ -797,6 +769,7 @@
                 const productCard = document.createElement('div');
                 productCard.className = 'col-md-3 mb-4';
                 
+                // Determinar el estado del stock
                 const stockStatus = getStockStatus(product);
                 const isOutOfStock = product.stock <= 0;
                 const addButtonDisabled = isOutOfStock ? 'disabled' : '';
@@ -826,6 +799,7 @@
                 container.appendChild(productCard);
             });
             
+            // Agregar eventos a los botones "Agregar al carrito"
             document.querySelectorAll('.add-to-cart').forEach(button => {
                 button.addEventListener('click', function() {
                     const productId = parseInt(this.getAttribute('data-id'));
@@ -833,6 +807,7 @@
                 });
             });
             
+            // Agregar eventos a los botones "Ver detalles"
             document.querySelectorAll('.view-detail').forEach(button => {
                 button.addEventListener('click', function() {
                     const productId = parseInt(this.getAttribute('data-id'));
@@ -841,6 +816,7 @@
             });
         }
 
+        // Función para determinar el estado del stock
         function getStockStatus(product) {
             if (product.stock <= 0) {
                 return {
@@ -860,6 +836,7 @@
             }
         }
 
+        // Función para mostrar detalles del producto en modal
         function showProductDetail(productId) {
             const product = products.find(p => p.id === productId);
             if (!product) return;
@@ -875,10 +852,12 @@
             document.getElementById('productDetailImage').src = product.image;
             document.getElementById('detailQuantity').textContent = detailQuantity;
             
+            // Mostrar información de stock
             const stockStatus = getStockStatus(product);
             document.getElementById('productDetailStock').textContent = stockStatus.text;
             document.getElementById('productDetailStock').className = `stock-info ${stockStatus.class}`;
             
+            // Habilitar/deshabilitar botón según stock
             const addButton = document.getElementById('addToCartDetail');
             if (product.stock <= 0) {
                 addButton.disabled = true;
@@ -894,12 +873,14 @@
             modal.show();
         }
 
+        // Función para agregar producto al carrito desde el modal de detalles
         function setupDetailModalEvents() {
             document.getElementById('increaseDetail').addEventListener('click', function() {
                 if (currentProductDetail && detailQuantity < currentProductDetail.stock) {
                     detailQuantity++;
                     document.getElementById('detailQuantity').textContent = detailQuantity;
                     
+                    // Mostrar advertencia si se alcanza el límite de stock
                     if (detailQuantity >= currentProductDetail.stock) {
                         document.getElementById('stockWarning').classList.remove('hidden');
                     }
@@ -924,10 +905,12 @@
             });
         }
 
+        // Función para agregar producto al carrito (con cantidad opcional)
         function addToCart(productId, quantity = 1) {
             const product = products.find(p => p.id === productId);
             if (!product || product.stock <= 0) return;
             
+            // Verificar que no se exceda el stock disponible
             const cartItem = cart.find(item => item.id === productId);
             const totalInCart = cartItem ? cartItem.quantity : 0;
             const availableStock = product.stock - totalInCart;
@@ -945,31 +928,37 @@
                     name: product.name,
                     price: product.price,
                     quantity: quantity,
-                    maxStock: product.stock 
+                    maxStock: product.stock // Guardamos el stock máximo para validaciones
                 });
             }
             
+            // Actualizar la interfaz
             updateCart();
-            if (currentFirebaseUserUid) {
-                saveCartToFirestore(currentFirebaseUserUid);
+            // Guardar el carrito en Firestore
+            if (currentFirebaseUserId) {
+                saveCartToFirestore(currentFirebaseUserId);
             } else {
                 console.warn("No hay ID de usuario de Firebase para guardar el carrito.");
             }
             showToast(`${product.name}${quantity > 1 ? ` (${quantity})` : ''} agregado al carrito`);
             
+            // Si estamos en la sección de productos, actualizar la visualización
             if (!document.getElementById('productsSection').classList.contains('hidden')) {
                 displayProducts(products);
             }
         }
 
+        // Función para actualizar el carrito
         function updateCart() {
             const cartCount = document.getElementById('cartCount');
             const cartItems = document.getElementById('cartItems');
             const subtotal = document.getElementById('subtotal');
             const totalCost = document.getElementById('totalCost');
             
+            // Actualizar contador
             cartCount.textContent = cart.reduce((total, item) => total + item.quantity, 0);
             
+            // Actualizar lista de items
             if (cart.length === 0) {
                 cartItems.innerHTML = '<p class="text-muted">Tu carrito está vacío</p>';
             } else {
@@ -977,6 +966,7 @@
                 cart.forEach(item => {
                     const product = products.find(p => p.id === item.id);
                     const availableStock = product ? product.stock : 0;
+                    // Fix: maxAvailable should be based on initial product stock, not current item quantity
                     const maxAllowedInCart = product.stock; 
                     
                     const itemElement = document.createElement('div');
@@ -1005,13 +995,15 @@
                 });
             }
             
+            // Actualizar totales
             const subtotalValue = cart.reduce((total, item) => total + (item.price * item.quantity), 0);
-            const shippingCost = 35.00; 
+            const shippingCost = 35.00; // Costo fijo de envío
             const totalValue = subtotalValue + shippingCost;
             
             subtotal.textContent = `$${subtotalValue.toFixed(2)}`;
             totalCost.textContent = `$${totalValue.toFixed(2)}`;
             
+            // Agregar eventos a los botones del carrito
             document.querySelectorAll('.decrease-quantity').forEach(button => {
                 button.addEventListener('click', function() {
                     const productId = parseInt(this.getAttribute('data-id'));
@@ -1034,6 +1026,7 @@
             });
         }
 
+        // Función para actualizar cantidad de un producto en el carrito
         function updateQuantity(productId, change) {
             const itemIndex = cart.findIndex(item => item.id === productId);
             if (itemIndex === -1) return;
@@ -1043,6 +1036,7 @@
             
             const newQuantity = cart[itemIndex].quantity + change;
             
+            // Validar que no se exceda el stock disponible o sea menor a 0
             if (newQuantity > product.stock) {
                 showToast(`No hay suficiente stock. Solo quedan ${product.stock} unidades disponibles.`);
                 return;
@@ -1055,28 +1049,33 @@
             }
             
             updateCart();
-            if (currentFirebaseUserUid) {
-                saveCartToFirestore(currentFirebaseUserUid);
+            // Guardar el carrito en Firestore
+            if (currentFirebaseUserId) {
+                saveCartToFirestore(currentFirebaseUserId);
             } else {
                 console.warn("No hay ID de usuario de Firebase para guardar el carrito.");
             }
             
+            // Si estamos en la sección de productos, actualizar la visualización
             if (!document.getElementById('productsSection').classList.contains('hidden')) {
                 displayProducts(products);
             }
         }
 
+        // Función para eliminar producto del carrito
         function removeFromCart(productId) {
             cart = cart.filter(item => item.id !== productId);
             updateCart();
-            if (currentFirebaseUserUid) {
-                saveCartToFirestore(currentFirebaseUserUid);
+            // Guardar el carrito en Firestore
+            if (currentFirebaseUserId) {
+                saveCartToFirestore(currentFirebaseUserId);
             } else {
                 console.warn("No hay ID de usuario de Firebase para guardar el carrito.");
             }
             showToast('Producto eliminado del carrito');
         }
 
+        // Función para mostrar notificación toast
         function showToast(message) {
             const toast = document.createElement('div');
             toast.className = 'position-fixed bottom-0 end-0 p-3';
@@ -1099,14 +1098,18 @@
             }, 3000);
         }
 
+        // Función para mostrar una sección y ocultar las demás
         function showSection(sectionId) {
             document.querySelectorAll('#homeSection, #productsSection, #cartSection, #checkoutSection, #userSection').forEach(section => {
                 section.classList.add('hidden');
             });
+            
             document.getElementById(sectionId).classList.remove('hidden');
         }
 
+        // Función para configurar los event listeners
         function setupEventListeners() {
+            // Navegación
             document.getElementById('homeLink').addEventListener('click', () => showSection('homeSection'));
             document.getElementById('productsLink').addEventListener('click', () => {
                 showSection('productsSection');
@@ -1117,23 +1120,26 @@
                 displayProducts(products);
             });
 
+   
+            // Carrito
             document.getElementById('cartBtn').addEventListener('click', () => {
                 showSection('cartSection');
                 updateCart();
             });
             
+            // Checkout
             document.getElementById('checkoutBtn').addEventListener('click', () => {
                 if (cart.length === 0) {
                     showToast('El carrito está vacío');
                     return;
                 }
-                if (!currentUser) { // Si no hay un usuario registrado (con perfil en Firestore)
+                if (!currentUser) {
                     showToast('Por favor, inicia sesión para finalizar tu compra.');
                     const loginModal = new bootstrap.Modal(document.getElementById('loginModal'));
                     loginModal.show();
                     return;
                 }
-                populateCheckoutForm(); 
+                populateCheckoutForm(); // Precargar datos del usuario
                 showSection('checkoutSection');
             });
             
@@ -1141,11 +1147,13 @@
                 showSection('cartSection');
             });
             
+            // Formulario de checkout
             document.getElementById('checkoutForm').addEventListener('submit', function(e) {
                 e.preventDefault();
                 submitOrder();
             });
             
+            // Búsqueda
             document.getElementById('searchBtn').addEventListener('click', searchProducts);
             document.getElementById('searchInput').addEventListener('keypress', function(e) {
                 if (e.key === 'Enter') {
@@ -1153,13 +1161,14 @@
                 }
             });
             
+            // Configurar eventos del modal de detalles
             setupDetailModalEvents();
 
-            // Botón de login/perfil
+            // Login/Registro
             document.getElementById('loginBtn').addEventListener('click', () => {
-                if (currentUser && currentUser.email) { // Si hay un usuario registrado
+                if (currentUser) {
                     showUserSection();
-                } else { // Si no hay usuario registrado (puede ser anónimo de Firebase Auth)
+                } else {
                     const loginModal = new bootstrap.Modal(document.getElementById('loginModal'));
                     loginModal.show();
                 }
@@ -1181,20 +1190,19 @@
                 loginModal.show();
             });
             
-            document.getElementById('loginForm').addEventListener('submit', async function(e) {
+            document.getElementById('loginForm').addEventListener('submit', function(e) {
                 e.preventDefault();
-                await loginUser(); // Ahora es asíncrono
+                loginUser();
             });
             
-            document.getElementById('registerForm').addEventListener('submit', async function(e) {
+            document.getElementById('registerForm').addEventListener('submit', function(e) {
                 e.preventDefault();
-                await registerUser(); // Ahora es asíncrono
+                registerUser();
             });
             
-            document.getElementById('logoutBtn').addEventListener('click', async () => { // Ahora es asíncrono
-                await logoutUser();
-            });
+            document.getElementById('logoutBtn').addEventListener('click', logoutUser);
 
+            // Evento para el botón de editar perfil
             document.getElementById('editProfileBtn').addEventListener('click', () => {
                 if (currentUser) {
                     populateEditProfileForm();
@@ -1203,12 +1211,14 @@
                 }
             });
 
-            document.getElementById('editProfileForm').addEventListener('submit', async function(e) { // Ahora es asíncrono
+            // Evento para el formulario de guardar cambios del perfil
+            document.getElementById('editProfileForm').addEventListener('submit', function(e) {
                 e.preventDefault();
-                await saveProfileChanges();
+                saveProfileChanges();
             });
         }
 
+        // Función para buscar productos
         function searchProducts() {
             const searchTerm = document.getElementById('searchInput').value.toLowerCase();
             
@@ -1223,10 +1233,12 @@
                 product.category.toLowerCase().includes(searchTerm) ||
                 String(product.codigo).toLowerCase().includes(searchTerm) 
             );
+            
             showSection('productsSection');
             displayProducts(filteredProducts);
         }
 
+        // Función para precargar el formulario de checkout con los datos del usuario logueado
         function populateCheckoutForm() {
             if (currentUser) {
                 document.getElementById('firstName').value = currentUser.firstName || '';
@@ -1240,7 +1252,8 @@
             }
         }
 
-        async function submitOrder() { 
+        // Función para enviar el pedido
+        async function submitOrder() { // Marcado como async para poder usar await
             if (cart.length === 0) {
                 showToast('El carrito está vacío');
                 return;
@@ -1251,27 +1264,28 @@
                 return;
             }
 
+            // Recoger los datos del formulario (algunos pre-cargados, otros nuevos)
             const firstName = document.getElementById('firstName').value;
             const lastName = document.getElementById('lastName').value;
             const email = document.getElementById('email').value;
-            const address = document.getElementById('address').value; 
+            const address = document.getElementById('address').value; // Calle y Número
             const city = document.getElementById('city').value;
             const state = document.getElementById('state').value;
             const zipCode = document.getElementById('zipCode').value;
             const phone = document.getElementById('phone').value;
 
+            // Datos de usuario adicionales que se guardan en el perfil
             const colonia = currentUser.colonia || ''; 
             const horario = currentUser.horario || ''; 
             const instrucciones = currentUser.instrucciones || ''; 
 
+            // Validar campos adicionales si son requeridos
             if (!city || !state || !zipCode || !address) { 
                 showToast('Por favor, completa todos los campos de dirección (Calle y Número, Ciudad, Provincia y Código Postal).');
                 return;
             }
 
-            const subtotalCalculated = cart.reduce((total, item) => total + (item.price * item.quantity), 0);
-            const shippingCost = 35.00;
-            const totalAmount = subtotalCalculated + shippingCost;
+            const totalAmount = cart.reduce((total, item) => total + (item.price * item.quantity), 0) + 35.00; 
 
             const orderDetails = {
                 order_id: `ORD-${Date.now()}`, 
@@ -1282,78 +1296,100 @@
                 horario_preferido: horario, 
                 instrucciones_repartidor: instrucciones, 
                 productos: cart.map(item => `${item.name} (Cant: ${item.quantity}) - $${item.price.toFixed(2)} c/u`).join('\n'),
-                subtotal: subtotalCalculated.toFixed(2),
-                costo_envio: shippingCost.toFixed(2),
+                subtotal: totalAmount > 35 ? (totalAmount - 35).toFixed(2) : '0.00', // Calcular subtotal correctamente
+                costo_envio: '35.00',
                 total: totalAmount.toFixed(2),
                 fecha_pedido: new Date().toLocaleString('es-ES')
             };
             
-            try {
-                await emailjs.send('service_ynni6mh', 'template_mamyuhg', orderDetails);
-                showToast('Pedido enviado con éxito');
-                
-                const newOrder = {
-                    date: orderDetails.order_id,
-                    status: 'Pendiente',
-                    shippingAddress: orderDetails.direccion_envio, 
-                    items: cart.map(item => ({
-                        name: item.name,
-                        quantity: item.quantity,
-                        price: item.price
-                    })),
-                    total: totalAmount,
-                    userEmail: currentUser.email 
-                };
-                orders.push(newOrder);
-                localStorage.setItem('orders', JSON.stringify(orders)); 
-                
-                // Actualizar los pedidos del usuario actual en localStorage
-                // Aunque los perfiles se manejan en Firestore, orders sigue siendo localStorage para la lista de pedidos.
-                // Esto podría ser un punto a considerar para mover también orders a Firestore si se desea un historial de pedidos global.
-                const updatedCurrentUser = { ...currentUser, orders: orders.filter(o => o.userEmail === currentUser.email) };
-                localStorage.setItem('currentUser', JSON.stringify(updatedCurrentUser));
+            // Enviar email usando EmailJS
+            emailjs.send('service_ynni6mh', 'template_mamyuhg', orderDetails)
+                .then(async () => { // Hacer esta función async
+                    showToast('Pedido enviado con éxito');
+                    
+                    const newOrder = {
+                        date: orderDetails.order_id,
+                        status: 'Pendiente',
+                        shippingAddress: orderDetails.direccion_envio, 
+                        items: cart.map(item => ({
+                            name: item.name,
+                            quantity: item.quantity,
+                            price: item.price
+                        })),
+                        total: totalAmount,
+                        userEmail: currentUser.email 
+                    };
+                    orders.push(newOrder);
+                    localStorage.setItem('orders', JSON.stringify(orders)); 
+                    
+                    currentUser.orders = orders.filter(o => o.userEmail === currentUser.email);
+                    localStorage.setItem('currentUser', JSON.stringify(currentUser));
 
-                if (db && currentFirebaseUserUid) {
-                    await updateDoc(doc(db, 'carts', currentFirebaseUserUid), { items: [] });
-                    console.log("Carrito vaciado en Firestore para:", currentFirebaseUserUid);
-                }
+                    // Limpiar carrito en Firestore después de una compra exitosa
+                    if (db && currentFirebaseUserId) {
+                        try {
+                            const cartRef = doc(db, 'carts', currentFirebaseUserId);
+                            await updateDoc(cartRef, { items: [] }); // Vaciar el array de items
+                            console.log("Carrito vaciado en Firestore para:", currentFirebaseUserId);
+                        } catch (firestoreError) {
+                            console.error("Error vaciando el carrito en Firestore:", firestoreError);
+                            showToast("Error al vaciar el carrito en la nube.");
+                        }
+                    }
 
-                cart = []; 
-                updateCart(); 
-                showSection('homeSection');
-                showUserSection(); 
-                
-            } catch (error) {
-                console.error('Error al enviar el pedido o vaciar carrito:', error);
-                showToast('Error al enviar el pedido. Por favor intenta nuevamente.');
-            }
+                    cart = []; // Limpiar el carrito local
+                    updateCart(); 
+                    showSection('homeSection');
+                    showUserSection(); 
+                    
+                }, (error) => {
+                    console.error('Error al enviar el pedido:', error);
+                    showToast('Error al enviar el pedido. Por favor intenta nuevamente.');
+                });
         }
 
-        async function loginUser() { 
+        // Función para login de usuario
+        async function loginUser() { // Marcado como async
             const email = document.getElementById('loginEmail').value;
             const password = document.getElementById('loginPassword').value;
             
-            try {
-                const userCredential = await signInWithEmailAndPassword(auth, email, password);
-                const user = userCredential.user;
-                // Firebase Auth ya maneja la sesión
-                showToast(`Bienvenido, ${user.email}`);
-                // onAuthStateChanged se encargará de cargar el perfil y el carrito
+            const users = JSON.parse(localStorage.getItem('users')) || [];
+            const user = users.find(u => u.email === email && u.password === password);
+            
+            if (user) {
+                currentUser = {
+                    firstName: user.firstName,
+                    lastName: user.lastName,
+                    email: user.email,
+                    address: user.address,
+                    colonia: user.colonia,    
+                    zipCode: user.zipCode,    
+                    phone: user.phone,
+                    horario: user.horario || '', 
+                    instrucciones: user.instrucciones || '', 
+                    city: user.city || '',    
+                    state: user.state || '',  
+                    orders: orders.filter(o => o.userEmail === user.email)
+                };
+                localStorage.setItem('currentUser', JSON.stringify(currentUser)); 
+                
                 const loginModal = bootstrap.Modal.getInstance(document.getElementById('loginModal'));
                 loginModal.hide();
-            } catch (error) {
-                console.error("Error al iniciar sesión:", error);
-                let errorMessage = 'Error al iniciar sesión.';
-                if (error.code === 'auth/invalid-email' || error.code === 'auth/invalid-credential') {
-                    errorMessage = 'Email o contraseña incorrectos.';
-                } else if (error.code === 'auth/user-disabled') {
-                    errorMessage = 'Tu cuenta ha sido deshabilitada.';
+                
+                showUserSection();
+                showToast(`Bienvenido, ${user.firstName}`);
+
+                // Después de cargar el usuario de localStorage, asegurar que el carrito de Firestore se cargue para su UID
+                if (currentFirebaseUserId) {
+                    await loadCartFromFirestore(currentFirebaseUserId);
                 }
-                showToast(errorMessage);
+            } else {
+                showToast('Email o contraseña incorrectos');
             }
         }
 
-        async function registerUser() { 
+        // Función para registrar usuario
+        async function registerUser() { // Marcado como async
             const firstName = document.getElementById('registerFirstName').value;
             const lastName = document.getElementById('registerLastName').value;
             const email = document.getElementById('registerEmail').value;
@@ -1370,45 +1406,45 @@
                 return;
             }
             
-            try {
-                const userCredential = await createUserWithEmailAndPassword(auth, email, password);
-                const user = userCredential.user;
-                
-                const userProfileData = {
-                    firstName,
-                    lastName,
-                    email,
-                    address,   
-                    colonia,   
-                    zipCode,   
-                    phone,
-                    horario,      
-                    instrucciones, 
-                };
-                
-                await saveUserProfile(user.uid, userProfileData);
-                
-                showToast('Registro exitoso. ¡Bienvenido!');
-                const registerModal = bootstrap.Modal.getInstance(document.getElementById('registerModal'));
-                registerModal.hide();
-                // onAuthStateChanged se encargará de cargar el perfil y el carrito
-            } catch (error) {
-                console.error("Error al registrar usuario:", error);
-                let errorMessage = 'Error al registrar usuario.';
-                if (error.code === 'auth/email-already-in-use') {
-                    errorMessage = 'Este email ya está registrado.';
-                } else if (error.code === 'auth/weak-password') {
-                    errorMessage = 'La contraseña es demasiado débil (mínimo 6 caracteres).';
-                }
-                showToast(errorMessage);
+            const users = JSON.parse(localStorage.getItem('users')) || [];
+            
+            if (users.some(u => u.email === email)) {
+                showToast('Este email ya está registrado');
+                return;
             }
+            
+            users.push({
+                firstName,
+                lastName,
+                email,
+                password,
+                address,   
+                colonia,   
+                zipCode,   
+                phone,
+                horario,      
+                instrucciones, 
+                city: '',  
+                state: ''  
+            });
+            
+            localStorage.setItem('users', JSON.stringify(users));
+            
+            const registerModal = bootstrap.Modal.getInstance(document.getElementById('registerModal'));
+            registerModal.hide();
+            
+            showToast('Registro exitoso. Por favor inicia sesión.');
+
+            // Opcional: Si quieres persistir los datos del usuario registrado en Firestore, aquí deberías hacerlo.
+            // Actualmente, solo el carrito se maneja con Firestore.
         }
 
+        // Función para mostrar la sección de usuario
         function showUserSection() {
             if (!currentUser) return;
             
-            document.getElementById('userName').textContent = `${currentUser.firstName || ''} ${currentUser.lastName || ''}`;
-            document.getElementById('userEmail').textContent = currentUser.email || '';
+            document.getElementById('userName').textContent = `${currentUser.firstName} ${currentUser.lastName}`;
+            document.getElementById('userEmail').textContent = currentUser.email;
             document.getElementById('userAddress').textContent = currentUser.address || 'Calle y Número no proporcionados';
             document.getElementById('userColonia').textContent = currentUser.colonia || 'Colonia no proporcionada'; 
             document.getElementById('userZipCode').textContent = currentUser.zipCode || 'Código Postal no proporcionado'; 
@@ -1417,11 +1453,10 @@
             document.getElementById('userInstructions').textContent = `Instrucciones: ${currentUser.instrucciones || 'Ninguna'}`; 
             
             const ordersContainer = document.getElementById('userOrders');
-            // Aquí se sigue usando orders de localStorage, ya que no se ha migrado a Firestore.
-            if (orders && orders.length > 0) { // No usar currentUser.orders directamente, porque orders[] es el global
+            if (currentUser.orders && currentUser.orders.length > 0) {
                 ordersContainer.innerHTML = '';
-                const userSpecificOrders = orders.filter(o => o.userEmail === currentUser.email);
-                const sortedOrders = [...userSpecificOrders].sort((a, b) => new Date(b.date) - new Date(a.date));
+                // Ordenar pedidos del más reciente al más antiguo
+                const sortedOrders = [...currentUser.orders].sort((a, b) => new Date(b.date) - new Date(a.date));
 
                 sortedOrders.forEach(order => {
                     const orderElement = document.createElement('div');
@@ -1443,32 +1478,24 @@
                 ordersContainer.innerHTML = '<p class="text-muted">No hay pedidos registrados</p>';
             }
             
-            updateLoginButton(); // Asegurarse de que el botón de login muestre el nombre del usuario
+            document.getElementById('loginBtn').innerHTML = `<i class="fas fa-user"></i> ${currentUser.firstName}`;
             showSection('userSection');
         }
 
-        async function logoutUser() {
-            try {
-                await signOut(auth); // Cierra la sesión de Firebase Auth
-                currentUser = null;
-                localStorage.removeItem('currentUser'); 
-                showToast('Sesión cerrada');
-                // onAuthStateChanged se activará y manejará la transición a anónimo y carga de carrito
-            } catch (error) {
-                console.error("Error al cerrar sesión:", error);
-                showToast("Error al cerrar sesión. Intenta nuevamente.");
-            }
+        // Función para logout de usuario
+        function logoutUser() {
+            currentUser = null;
+            localStorage.removeItem('currentUser'); 
+            document.getElementById('loginBtn').innerHTML = '<i class="fas fa-user"></i> Iniciar Sesión';
+            showToast('Sesión cerrada');
+            showSection('homeSection');
+
+            // Opcional: Si se desea que el carrito anónimo se vacíe al cerrar sesión,
+            // se podría llamar a saveCartToFirestore(currentFirebaseUserId, { items: [] }) aquí.
+            // Por ahora, el carrito anónimo persistirá en Firestore hasta que el usuario borre sus datos o use otro navegador.
         }
 
-        function updateLoginButton() {
-            const loginBtn = document.getElementById('loginBtn');
-            if (currentUser && currentUser.email) {
-                loginBtn.innerHTML = `<i class="fas fa-user"></i> ${currentUser.firstName || currentUser.email}`;
-            } else {
-                loginBtn.innerHTML = '<i class="fas fa-user"></i> Iniciar Sesión';
-            }
-        }
-
+        // Función para precargar el formulario de edición de perfil con los datos del usuario actual
         function populateEditProfileForm() {
             if (currentUser) {
                 document.getElementById('editFirstName').value = currentUser.firstName || '';
@@ -1483,10 +1510,11 @@
             }
         }
 
-        async function saveProfileChanges() {
+        // Función para guardar los cambios del perfil
+        function saveProfileChanges() {
             const editFirstName = document.getElementById('editFirstName').value;
             const editLastName = document.getElementById('editLastName').value;
-            const editEmail = document.getElementById('editEmail').value; // Usado para referencia
+            const editEmail = document.getElementById('editEmail').value; 
             const editAddress = document.getElementById('editAddress').value; 
             const editColonia = document.getElementById('editColonia').value; 
             const editZipCode = document.getElementById('editZipCode').value; 
@@ -1499,38 +1527,38 @@
                 return;
             }
 
-            if (!currentUser || !currentUser.uid) {
-                showToast('Error: No se pudo identificar al usuario para actualizar el perfil.');
-                return;
-            }
+            let users = JSON.parse(localStorage.getItem('users')) || [];
+            const userIndex = users.findIndex(u => u.email === editEmail);
 
-            const updatedProfileData = {
-                firstName: editFirstName,
-                lastName: editLastName,
-                address: editAddress,
-                colonia: editColonia,    
-                zipCode: editZipCode,    
-                phone: editPhone,
-                horario: editHorario, 
-                instrucciones: editInstructions, 
-                email: editEmail // El email no se edita, pero se guarda para consistencia
-            };
+            if (userIndex !== -1) {
+                // Actualizar el usuario en la lista de usuarios de localStorage
+                users[userIndex].firstName = editFirstName;
+                users[userIndex].lastName = editLastName;
+                users[userIndex].address = editAddress;
+                users[userIndex].colonia = editColonia;    
+                users[userIndex].zipCode = editZipCode;    
+                users[userIndex].phone = editPhone;
+                users[userIndex].horario = editHorario; 
+                users[userIndex].instrucciones = editInstructions; 
+                localStorage.setItem('users', JSON.stringify(users));
 
-            try {
-                await saveUserProfile(currentUser.uid, updatedProfileData);
-                
-                // Actualizar currentUser localmente para reflejar los cambios inmediatamente
-                currentUser = { ...currentUser, ...updatedProfileData };
+                // Actualizar el currentUser en sesión
+                currentUser.firstName = editFirstName;
+                currentUser.lastName = editLastName;
+                currentUser.address = editAddress;
+                currentUser.colonia = editColonia;    
+                currentUser.zipCode = editZipCode;    
+                currentUser.phone = editPhone;
+                currentUser.horario = editHorario; 
+                currentUser.instrucciones = editInstructions; 
                 localStorage.setItem('currentUser', JSON.stringify(currentUser));
 
                 const editModal = bootstrap.Modal.getInstance(document.getElementById('editProfileModal'));
                 editModal.hide();
                 showToast('Perfil actualizado con éxito.');
-                showUserSection(); // Refrescar la sección de usuario
-                updateLoginButton(); // Actualizar el nombre en el botón de login
-            } catch (error) {
-                console.error("Error al guardar los cambios del perfil:", error);
-                showToast('Error al actualizar el perfil. Intenta nuevamente.');
+                showUserSection(); 
+            } else {
+                showToast('Error: Usuario no encontrado para actualizar.');
             }
         }
     </script>
