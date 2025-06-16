@@ -3,978 +3,151 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Mi App Personal</title>
-    <!-- Tailwind CSS CDN -->
-    <script src="https://cdn.tailwindcss.com"></script>
-    <!-- Inter Font -->
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
-    <!-- Font Awesome for Icons -->
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <title>Firestore Ejemplo</title>
+    <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-firestore-compat.js"></script>
+
     <style>
         body {
-            font-family: 'Inter', sans-serif;
+            font-family: Arial, sans-serif;
+            margin: 20px;
+            background-color: #f4f4f4;
         }
-        /* Custom animation for message box */
-        @keyframes fade-in-up {
-            from {
-                opacity: 0;
-                transform: translateY(20px);
-            }
-            to {
-                opacity: 1;
-                transform: translateY(0);
-            }
+        .container {
+            background-color: #fff;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            max-width: 600px;
+            margin: auto;
         }
-        .animate-fade-in-up {
-            animation: fade-in-up 0.3s ease-out forwards;
+        input[type="text"], textarea {
+            width: calc(100% - 22px);
+            padding: 10px;
+            margin-bottom: 10px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
         }
-        /* Modal backdrop */
-        .modal-backdrop {
-            position: fixed;
-            inset: 0;
-            background-color: rgba(0, 0, 0, 0.5);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            z-index: 1000;
-        }
-        .modal-content {
-            background-color: white;
-            padding: 2rem;
-            border-radius: 0.75rem;
-            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
-            max-width: 90%;
-            width: 400px;
-            max-height: 90vh; /* Limit modal height */
-            overflow-y: auto; /* Enable scrolling for long modals */
-            position: relative;
-        }
-        .modal-close-button {
-            position: absolute;
-            top: 1rem;
-            right: 1rem;
-            font-size: 1.5rem;
+        button {
+            background-color: #007bff;
+            color: white;
+            padding: 10px 15px;
+            border: none;
+            border-radius: 4px;
             cursor: pointer;
-            color: #6b7280;
+            font-size: 16px;
+        }
+        button:hover {
+            background-color: #0056b3;
+        }
+        #datosGuardados {
+            margin-top: 20px;
+            border-top: 1px solid #eee;
+            padding-top: 15px;
+        }
+        .dato-item {
+            background-color: #e9ecef;
+            padding: 10px;
+            margin-bottom: 8px;
+            border-radius: 4px;
         }
     </style>
 </head>
-<body class="min-h-screen bg-gray-50 flex flex-col items-center p-4">
+<body>
+    <div class="container">
+        <h1>Guardar y Leer Datos con Firestore</h1>
 
-    <!-- Header con el ícono de usuario -->
-    <header class="w-full max-w-lg flex justify-end p-4">
-        <button id="userIconButton" class="text-gray-600 hover:text-blue-600 transition duration-200 text-3xl">
-            <i class="fas fa-user-circle"></i>
-        </button>
-    </header>
+        <h2>Guardar Datos</h2>
+        <input type="text" id="nombreInput" placeholder="Nombre">
+        <input type="text" id="emailInput" placeholder="Email">
+        <button onclick="guardarDatos()">Guardar</button>
 
-    <!-- Indicador de carga global -->
-    <div id="globalLoadingIndicator" class="text-center text-blue-600 font-medium animate-pulse hidden">
-        Cargando...
-    </div>
-
-    <!-- MAIN CONTENT SECTION (Visible solo cuando el usuario está logueado) -->
-    <div id="contentSection" class="hidden bg-white p-8 rounded-xl shadow-2xl w-full max-w-lg space-y-6 transform transition-all duration-300">
-        <!-- Botón "Mi Cuenta" en la interfaz principal -->
-        <div class="text-center mb-6">
-            <button id="myAccountButton"
-                    class="bg-blue-600 text-white p-3 rounded-lg hover:bg-blue-700 transition duration-200 ease-in-out font-semibold shadow-md inline-flex items-center">
-                <i class="fas fa-user mr-2"></i> Mi cuenta
-            </button>
-        </div>
-
-        <hr class="my-6 border-gray-200">
-
-        <!-- Sección de Mis Datos Guardados (Elementos Múltiples) -->
-        <h2 class="text-xl font-bold text-gray-800 mb-3">Mis Datos Guardados (Elementos Múltiples)</h2>
-        <input type="text" id="nombreInput" placeholder="Nombre de mi dato"
-               class="w-full p-3 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500 transition duration-150 ease-in-out mb-4">
-        <button id="guardarDatosButton"
-                class="w-full bg-indigo-600 text-white p-3 rounded-md hover:bg-indigo-700 transition duration-150 ease-in-out font-semibold shadow-md mb-4">
-            Guardar Nuevo Dato
-        </button>
-        <button id="recargarDatosButton"
-                class="w-full bg-gray-300 text-gray-800 p-3 rounded-md hover:bg-gray-400 transition duration-150 ease-in-out font-semibold shadow-md mb-4">
-            Recargar Todos Mis Datos
-        </button>
-        <div id="datosGuardados" class="space-y-3">
-            <!-- Los datos se mostrarán aquí -->
-            <p class="text-center text-gray-500">Cargando mis datos...</p>
-        </div>
-    </div>
-
-
-    <!-- MODAL DE AUTENTICACIÓN (Registro, Login, Recuperar Contraseña) -->
-    <div id="authModal" class="modal-backdrop hidden">
-        <div class="modal-content">
-            <i id="authModalClose" class="fas fa-times modal-close-button"></i>
-            <h2 id="authModalTitle" class="text-2xl font-bold text-gray-800 text-center mb-6">
-                <!-- Título dinámico -->
-            </h2>
-            <div class="space-y-4">
-                <!-- Label de Información de Registro -->
-                <p id="registrationInfoLabel" class="text-sm text-gray-600 mb-2 hidden">
-                    Ingresa un correo válido para registrarte y una contraseña de minimo 6 caracteres.
-                </p>
-                <input
-                    type="email"
-                    id="modalAuthEmailInput"
-                    placeholder="Email"
-                    class="w-full p-3 border border-gray-300 rounded-lg focus:ring-blue-500 focus:border-blue-500 transition duration-200 ease-in-out"
-                />
-                <input
-                    type="password"
-                    id="modalAuthPasswordInput"
-                    placeholder="Contraseña"
-                    class="w-full p-3 border border-gray-300 rounded-lg focus:ring-blue-500 focus:border-blue-500 transition duration-200 ease-in-out"
-                />
-                <input
-                    type="password"
-                    id="modalConfirmPasswordInput"
-                    placeholder="Confirmar Contraseña"
-                    class="w-full p-3 border border-gray-300 rounded-lg focus:ring-blue-500 focus:border-blue-500 transition duration-200 ease-in-out hidden"
-                />
-                
-                <!-- Botones para CAMBIAR MODO de Registro/Login -->
-                <div class="flex justify-center space-x-3 mb-4">
-                    <button
-                        id="showRegisterModeButton"
-                        class="px-4 py-2 text-sm font-semibold rounded-md border border-transparent transition duration-200 ease-in-out text-gray-600 hover:text-blue-600 hover:border-blue-600"
-                    >
-                        Quiero Registrarme
-                    </button>
-                    <button
-                        id="showLoginModeButton"
-                        class="px-4 py-2 text-sm font-semibold rounded-md border border-transparent transition duration-200 ease-in-out text-gray-600 hover:text-green-600 hover:border-green-600 hidden"
-                    >
-                        Quiero Iniciar Sesión
-                    </button>
-                </div>
-
-                <!-- Botón de ACCIÓN (Registrar o Iniciar Sesión) -->
-                <button
-                    id="modalAuthSubmitButton"
-                    class="w-full bg-blue-600 text-white p-3 rounded-lg hover:bg-blue-700 transition duration-200 ease-in-out font-semibold shadow-md mt-4"
-                >
-                    <!-- Texto dinámico -->
-                </button>
-
-                <!-- Sección de Recuperar Contraseña en el modal -->
-                <div class="mt-6 pt-4 border-t border-gray-200">
-                    <h3 class="text-lg font-bold text-gray-800 mb-3 text-center">¿Olvidaste tu contraseña?</h3>
-                    <input
-                        type="email"
-                        id="modalResetPasswordEmail"
-                        placeholder="Email para recuperar"
-                        class="w-full p-3 border border-gray-300 rounded-lg focus:ring-purple-500 focus:border-purple-500 transition duration-200 ease-in-out mb-3"
-                    />
-                    <button
-                        id="modalResetPasswordButton"
-                        class="w-full bg-purple-600 text-white p-3 rounded-lg hover:bg-purple-700 transition duration-200 ease-in-out font-semibold shadow-md"
-                    >
-                        Enviar Correo de Recuperación
-                    </button>
-                </div>
+        <h2>Datos Guardados</h2>
+        <button onclick="leerDatos()">Recargar Datos</button>
+        <div id="datosGuardados">
             </div>
-        </div>
     </div>
 
-    <!-- NEW MODAL: MI CUENTA (Muestra datos del usuario, cerrar sesión, acceso a editar perfil y cambiar contraseña) -->
-    <div id="myAccountModal" class="modal-backdrop hidden">
-        <div class="modal-content">
-            <i id="myAccountModalClose" class="fas fa-times modal-close-button"></i>
-            <h2 class="text-2xl font-bold text-gray-800 text-center mb-6">
-                Mi Cuenta
-            </h2>
-            <div class="space-y-4">
-                <div class="border border-green-200 bg-green-50 p-4 rounded-lg shadow-sm">
-                    <p class="text-lg font-semibold text-green-700 mb-2">
-                        Detalles de la Sesión
-                    </p>
-                    <p class="text-sm text-gray-700">
-                        <span class="font-medium">Email:</span> <span id="myAccountEmail"></span>
-                    </p>
-                    <p class="text-sm text-gray-700 break-words">
-                        <span class="font-medium">UID:</span> <span id="myAccountUid"></span>
-                    </p>
-                </div>
+    <script>
+        // 1. Configuración de Firebase
+        // DEBES REEMPLAZAR ESTO CON LA CONFIGURACIÓN REAL DE TU PROYECTO FIREBASE
+        const firebaseConfig = {
+const firebaseConfig = {
+  apiKey: "AIzaSyATKAFNmwhe9X0GQ5GxHiSmc3wiOhb7j18",
+  authDomain: "rodillo-2b699.firebaseapp.com",
+  projectId: "rodillo-2b699",
+  storageBucket: "rodillo-2b699.firebasestorage.app",
+  messagingSenderId: "652395478682",
+  appId: "1:652395478682:web:f4447c35fee0599030a923"
+};
+        };
 
-                <!-- Sección de Mi Perfil dentro del modal de cuenta -->
-                <div class="p-4 border border-blue-200 bg-blue-50 rounded-lg shadow-sm relative">
-                    <h3 class="text-xl font-bold text-blue-800 mb-3">
-                        Mi Perfil
-                        <button id="editProfileButtonFromAccount" class="absolute top-4 right-4 text-gray-500 hover:text-blue-700 transition duration-200 text-lg">
-                            <i class="fas fa-edit"></i>
-                        </button>
-                    </h3>
-                    <div id="myAccountProfileDisplay" class="p-3 bg-blue-100 border border-blue-300 rounded-md">
-                        <p class="font-semibold text-blue-900">Datos Actuales:</p>
-                        <p>Nombre: <span id="accountDisplayNombreCompleto"></span></p>
-                        <p>Dirección: <span id="accountDisplayDireccion"></span></p>
-                        <p>Teléfono: <span id="accountDisplayTelefono"></span></p>
-                        <p>Horario Pedidos: <span id="accountDisplayHorarioPedidos"></span></p>
-                    </div>
-                </div>
+        // Inicializa Firebase
+        firebase.initializeApp(firebaseConfig);
 
-                <!-- Botón para abrir el modal de cambio de contraseña desde el modal de cuenta -->
-                <div class="text-center">
-                    <button id="openChangePasswordModalButtonFromAccount"
-                            class="bg-orange-600 text-white p-3 rounded-lg hover:bg-orange-700 transition duration-200 ease-in-out font-semibold shadow-md inline-flex items-center">
-                        <i class="fas fa-key mr-2"></i> Cambiar Contraseña
-                    </button>
-                </div>
+        // Obtén una referencia a Firestore
+        const db = firebase.firestore();
 
-                <button
-                    id="myAccountLogoutButton"
-                    class="w-full mt-6 bg-red-600 text-white p-3 rounded-lg hover:bg-red-700 transition duration-200 ease-in-out font-semibold shadow-md"
-                >
-                    Cerrar Sesión
-                </button>
-            </div>
-        </div>
-    </div>
-
-
-    <!-- MODAL DE EDICIÓN DE PERFIL -->
-    <div id="profileModal" class="modal-backdrop hidden">
-        <div class="modal-content">
-            <i id="profileModalClose" class="fas fa-times modal-close-button"></i>
-            <h2 class="text-2xl font-bold text-blue-800 text-center mb-6">Editar Mi Perfil</h2>
-            <div class="space-y-4">
-                <input type="text" id="modalProfileNombreCompleto" placeholder="Nombre completo"
-                       class="w-full p-3 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500 transition duration-150 ease-in-out">
-                <input type="text" id="modalProfileDireccion" placeholder="Dirección"
-                       class="w-full p-3 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500 transition duration-150 ease-in-out">
-                <input type="tel" id="modalProfileTelefono" placeholder="Teléfono"
-                       class="w-full p-3 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500 transition duration-150 ease-in-out">
-                <input type="text" id="modalProfileHorarioPedidos" placeholder="Horario para recibir pedidos"
-                       class="w-full p-3 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500 transition duration-150 ease-in-out">
-                <button id="modalSaveProfileButton"
-                        class="w-full bg-blue-600 text-white p-3 rounded-md hover:bg-blue-700 transition duration-150 ease-in-out font-semibold shadow-md mt-4">
-                    Guardar Cambios del Perfil
-                </button>
-            </div>
-        </div>
-    </div>
-
-    <!-- MODAL DE CAMBIAR CONTRASEÑA -->
-    <div id="changePasswordModal" class="modal-backdrop hidden">
-        <div class="modal-content">
-            <i id="changePasswordModalClose" class="fas fa-times modal-close-button"></i>
-            <h2 class="text-2xl font-bold text-orange-800 text-center mb-6">Cambiar Contraseña</h2>
-            <div class="space-y-4">
-                <input type="password" id="modalCurrentPasswordInput" placeholder="Contraseña Actual"
-                       class="w-full p-3 border border-gray-300 rounded-md focus:ring-orange-500 focus:border-orange-500 transition duration-150 ease-in-out">
-                <input type="password" id="modalNewPasswordInput" placeholder="Nueva Contraseña (mín. 6 caracteres)"
-                       class="w-full p-3 border border-gray-300 rounded-md focus:ring-orange-500 focus:border-orange-500 transition duration-150 ease-in-out">
-                <button id="modalChangePasswordButton"
-                        class="w-full bg-orange-600 text-white p-3 rounded-md hover:bg-orange-700 transition duration-150 ease-in-out font-semibold shadow-md mt-4">
-                    Cambiar Contraseña
-                </button>
-            </div>
-        </div>
-    </div>
-
-
-    <!-- Caja de mensajes personalizada -->
-    <div id="messageBox" class="hidden fixed inset-0 flex items-center justify-center bg-black bg-opacity-30 z-50">
-        <div class="bg-white p-6 rounded-lg shadow-xl text-center max-w-sm w-full animate-fade-in-up">
-            <p id="messageText" class="text-lg font-medium text-gray-800"></p>
-            <button id="messageBoxClose" class="mt-4 bg-gray-200 text-gray-700 py-2 px-4 rounded-lg hover:bg-gray-300 transition duration-200">
-                Aceptar
-            </button>
-        </div>
-    </div>
-
-    <!-- Firebase SDKs (módulos) -->
-    <script type="module">
-        // Import Firebase modules
-        import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
-        import {
-            getAuth,
-            createUserWithEmailAndPassword,
-            signInWithEmailAndPassword,
-            signOut,
-            onAuthStateChanged,
-            signInAnonymously,
-            signInWithCustomToken,
-            updatePassword,
-            sendPasswordResetEmail,
-            EmailAuthProvider,
-            reauthenticateWithCredential
-        } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
-        import {
-            getFirestore,
-            collection,
-            addDoc,
-            query,
-            orderBy,
-            getDocs,
-            serverTimestamp,
-            doc,
-            setDoc,
-            onSnapshot
-        } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
-
-        // Firebase configuration: Use the one provided by the environment (for Canvas),
-        // otherwise, use your hardcoded project configuration.
-        const firebaseConfig = typeof __firebase_config !== 'undefined'
-            ? JSON.parse(__firebase_config)
-            : {
-                apiKey: "AIzaSyATKAFNmwhe9X0GQ5GxHiSmc3wiOhb7j18",
-                authDomain: "rodillo-2b699.firebaseapp.com",
-                databaseURL: "https://rodillo-2b699-default-rtdb.firebaseio.com",
-                projectId: "rodillo-2b699",
-                storageBucket: "rodillo-2b699.firebasestorage.app",
-                messagingSenderId: "652395478682",
-                appId: "1:652395478682:web:f4447c35fee0599030a923"
-            };
-
-        const initialAuthToken = typeof __initial_auth_token !== 'undefined' ? __initial_auth_token : null;
-        const appId = typeof __app_id !== 'undefined' ? __app_id : 'default-app-id';
-
-        // Initialize Firebase
-        const app = initializeApp(firebaseConfig);
-        const auth = getAuth(app);
-        const db = getFirestore(app);
-
-        let currentUser = null;
-        let profileSnapshotUnsubscribe = null;
-        let dataListSnapshotUnsubscribe = null;
-
-        // --- DOM Elements ---
-        const globalLoadingIndicator = document.getElementById('globalLoadingIndicator');
-        const userIconButton = document.getElementById('userIconButton');
-        const contentSection = document.getElementById('contentSection');
-        
-        // My Account Modal elements
-        const myAccountButton = document.getElementById('myAccountButton'); // New button
-        const myAccountModal = document.getElementById('myAccountModal'); // New modal
-        const myAccountModalClose = document.getElementById('myAccountModalClose'); // New close button for MyAccount modal
-        const myAccountEmailSpan = document.getElementById('myAccountEmail'); // New span for email in MyAccount modal
-        const myAccountUidSpan = document.getElementById('myAccountUid'); // New span for UID in MyAccount modal
-        const myAccountProfileDisplay = document.getElementById('myAccountProfileDisplay'); // Display for profile in MyAccount modal
-        const accountDisplayNombreCompleto = document.getElementById('accountDisplayNombreCompleto');
-        const accountDisplayDireccion = document.getElementById('accountDisplayDireccion');
-        const accountDisplayTelefono = document.getElementById('accountDisplayTelefono');
-        const accountDisplayHorarioPedidos = document.getElementById('accountDisplayHorarioPedidos');
-        const editProfileButtonFromAccount = document.getElementById('editProfileButtonFromAccount'); // Button to open profile edit modal from account modal
-        const openChangePasswordModalButtonFromAccount = document.getElementById('openChangePasswordModalButtonFromAccount'); // Button to open change password modal from account modal
-        const myAccountLogoutButton = document.getElementById('myAccountLogoutButton'); // Logout button in MyAccount modal
-
-        // Authentication Modal elements
-        const authModal = document.getElementById('authModal');
-        const authModalCloseButton = document.getElementById('authModalClose');
-        const authModalTitle = document.getElementById('authModalTitle');
-        const registrationInfoLabel = document.getElementById('registrationInfoLabel');
-        const modalAuthEmailInput = document.getElementById('modalAuthEmailInput');
-        const modalAuthPasswordInput = document.getElementById('modalAuthPasswordInput');
-        const modalConfirmPasswordInput = document.getElementById('modalConfirmPasswordInput');
-        const showRegisterModeButton = document.getElementById('showRegisterModeButton');
-        const showLoginModeButton = document.getElementById('showLoginModeButton');
-        const modalAuthSubmitButton = document.getElementById('modalAuthSubmitButton');
-        const modalResetPasswordEmail = document.getElementById('modalResetPasswordEmail');
-        const modalResetPasswordButton = document.getElementById('modalResetPasswordButton');
-
-        // Profile Edit Modal elements
-        const profileModal = document.getElementById('profileModal');
-        const profileModalCloseButton = document.getElementById('profileModalClose');
-        const modalProfileNombreCompleto = document.getElementById('modalProfileNombreCompleto');
-        const modalProfileDireccion = document.getElementById('modalProfileDireccion');
-        const modalProfileTelefono = document.getElementById('modalProfileTelefono');
-        const modalProfileHorarioPedidos = document.getElementById('modalProfileHorarioPedidos');
-        const modalSaveProfileButton = document.getElementById('modalSaveProfileButton');
-        // No longer using `currentProfileDisplay` for main page. Using `myAccountProfileDisplay` instead.
-
-        // Change Password Modal elements
-        const changePasswordModal = document.getElementById('changePasswordModal');
-        const changePasswordModalCloseButton = document.getElementById('changePasswordModalClose');
-        const modalCurrentPasswordInput = document.getElementById('modalCurrentPasswordInput');
-        const modalNewPasswordInput = document.getElementById('modalNewPasswordInput');
-        const modalChangePasswordButton = document.getElementById('modalChangePasswordButton');
-
-        // Elements for Data List (previous functionality)
-        const nombreInput = document.getElementById('nombreInput');
-        const guardarDatosButton = document.getElementById('guardarDatosButton');
-        const recargarDatosButton = document.getElementById('recargarDatosButton');
-        const datosGuardadosDiv = document.getElementById('datosGuardados');
-
-        const messageBox = document.getElementById('messageBox');
-        const messageText = document.getElementById('messageText');
-        const messageBoxClose = document.getElementById('messageBoxClose');
-
-        // --- Helper Functions ---
-
-        // Show/hide global loading indicator
-        function showGlobalLoading(show) {
-            if (show) {
-                globalLoadingIndicator.classList.remove('hidden');
-            } else {
-                globalLoadingIndicator.classList.add('hidden');
-            }
-            // Disable/enable relevant buttons during loading
-            userIconButton.disabled = show;
-            modalAuthSubmitButton.disabled = show;
-            modalResetPasswordButton.disabled = show;
-            if (myAccountButton) myAccountButton.disabled = show; // Disable Mi Cuenta button
-            if (myAccountLogoutButton) myAccountLogoutButton.disabled = show;
-            if (modalSaveProfileButton) modalSaveProfileButton.disabled = show;
-            if (modalChangePasswordButton) modalChangePasswordButton.disabled = show;
-            if (guardarDatosButton) guardarDatosButton.disabled = show;
-            if (recargarDatosButton) recargarDatosButton.disabled = show;
-            if (editProfileButtonFromAccount) editProfileButtonFromAccount.disabled = show;
-            if (openChangePasswordModalButtonFromAccount) openChangePasswordModalButtonFromAccount.disabled = show;
-            
-            // Also disable mode switch buttons
-            showRegisterModeButton.disabled = show;
-            showLoginModeButton.disabled = show;
-        }
-
-        // Show custom message box
-        function showMessage(msg) {
-            messageText.textContent = msg;
-            messageBox.classList.remove('hidden');
-            messageBox.focus();
-        }
-
-        // Close custom message box
-        messageBoxClose.addEventListener('click', () => {
-            messageBox.classList.add('hidden');
-            messageText.textContent = '';
-        });
-
-        // --- Modal Control Functions ---
-        let authModalCurrentMode = 'login'; // 'login' or 'register'
-
-        function openModal(modalElement) {
-            modalElement.classList.remove('hidden');
-            if (modalElement === authModal) {
-                authModalCurrentMode = 'login'; // Always start in login mode when opening the modal
-                updateAuthModalUI(); // Update UI based on mode
-                modalAuthEmailInput.value = '';
-                modalAuthPasswordInput.value = '';
-                modalResetPasswordEmail.value = '';
-                modalConfirmPasswordInput.value = '';
-            } else if (modalElement === changePasswordModal) {
-                modalCurrentPasswordInput.value = '';
-                modalNewPasswordInput.value = '';
-            } else if (modalElement === profileModal) {
-                // When opening profile modal, ensure inputs are populated with current profile data
-                // This is done by loadUserProfile() automatically updating the modal inputs via onSnapshot
-            }
-        }
-
-        function closeModal(modalElement) {
-            modalElement.classList.add('hidden');
-        }
-
-        // Function to update the auth modal UI based on current mode
-        function updateAuthModalUI() {
-            if (authModalCurrentMode === 'register') {
-                authModalTitle.textContent = 'Registrarse';
-                registrationInfoLabel.classList.remove('hidden');
-                modalConfirmPasswordInput.classList.remove('hidden');
-                showRegisterModeButton.classList.add('hidden'); // Hide "Quiero Registrarme"
-                showLoginModeButton.classList.remove('hidden'); // Show "Quiero Iniciar Sesión"
-                modalAuthPasswordInput.placeholder = 'Contraseña (mín. 6 caracteres)';
-                modalAuthSubmitButton.textContent = 'Registrarse';
-                modalAuthSubmitButton.classList.remove('bg-green-600', 'hover:bg-green-700');
-                modalAuthSubmitButton.classList.add('bg-blue-600', 'hover:bg-blue-700');
-            } else { // 'login' mode
-                authModalTitle.textContent = 'Iniciar Sesión';
-                registrationInfoLabel.classList.add('hidden');
-                modalConfirmPasswordInput.classList.add('hidden');
-                showRegisterModeButton.classList.remove('hidden'); // Show "Quiero Registrarme"
-                showLoginModeButton.classList.add('hidden'); // Hide "Quiero Iniciar Sesión"
-                modalAuthPasswordInput.placeholder = 'Contraseña';
-                modalAuthSubmitButton.textContent = 'Iniciar Sesión';
-                modalAuthSubmitButton.classList.remove('bg-blue-600', 'hover:bg-blue-700');
-                modalAuthSubmitButton.classList.add('bg-green-600', 'hover:bg-green-700');
-            }
-            // Always clear password fields on mode switch for a cleaner UX
-            modalAuthPasswordInput.value = '';
-            modalConfirmPasswordInput.value = '';
-        }
-
-        // --- Auth State Management ---
-
-        // Function to update UI based on authentication state
-        function updateUI() {
-            if (currentUser) {
-                contentSection.classList.remove('hidden');
-                // Populate user data in My Account Modal directly
-                myAccountEmailSpan.textContent = currentUser.email || 'N/A';
-                myAccountUidSpan.textContent = currentUser.uid;
-                
-                loadUserProfile(); // Load and listen to user profile
-                leerDatos(); // Load and listen to user's data list
-                closeModal(authModal); // Close auth modal if user logs in successfully
-            } else {
-                contentSection.classList.add('hidden');
-                datosGuardadosDiv.innerHTML = '<p class="text-center text-gray-500">Inicia sesión para ver y guardar tus datos.</p>';
-                // Unsubscribe from listeners if user logs out
-                profileSnapshotUnsubscribe && profileSnapshotUnsubscribe();
-                dataListSnapshotUnsubscribe && dataListSnapshotUnsubscribe();
-                // Clear all modal and display fields
-                modalProfileNombreCompleto.value = '';
-                modalProfileDireccion.value = '';
-                modalProfileTelefono.value = '';
-                modalProfileHorarioPedidos.value = '';
-                myAccountProfileDisplay.classList.add('hidden'); // Hide profile display in MyAccount modal
-                accountDisplayNombreCompleto.textContent = 'N/A'; // Clear display spans
-                accountDisplayDireccion.textContent = 'N/A';
-                accountDisplayTelefono.textContent = 'N/A';
-                accountDisplayHorarioPedidos.textContent = 'N/A';
-                modalCurrentPasswordInput.value = '';
-                modalNewPasswordInput.value = '';
-                // Ensure modals are not shown immediately unless user clicks icon
-                closeModal(profileModal);
-                closeModal(changePasswordModal);
-                closeModal(myAccountModal); // Close My Account modal on logout
-            }
-        }
-
-        // Authentication state change listener
-        onAuthStateChanged(auth, async (user) => {
-            currentUser = user;
-            showGlobalLoading(false); // Hide loading once initial check is done
-            updateUI();
-
-            // If no user and no initial auth token, try anonymous login (for Canvas environment)
-            if (!user && !initialAuthToken) {
-                try {
-                    await signInAnonymously(auth);
-                } catch (error) {
-                    console.error("Error al iniciar sesión anónimamente:", error);
-                }
-            }
-        });
-
-        // Attempt to sign in with initial token (on DOM load)
-        document.addEventListener('DOMContentLoaded', async () => {
-            if (initialAuthToken) {
-                showGlobalLoading(true);
-                try {
-                    await signInWithCustomToken(auth, initialAuthToken);
-                } catch (error) {
-                    console.error("Error al iniciar sesión con token personalizado:", error);
-                    showMessage("Error con el token de autenticación. Intenta de nuevo.");
-                } finally {
-                    showGlobalLoading(false);
-                }
-            } else {
-                showGlobalLoading(false);
-            }
-        });
-
-        // --- Authentication Button Handlers (within Auth Modal) ---
-
-        // Function that executes when the action button (Continuar) is clicked
-        async function handleAuthSubmit() {
-            if (authModalCurrentMode === 'register') {
-                handleRegisterAction();
-            } else {
-                handleLoginAction();
-            }
-        }
-
-        async function handleRegisterAction() {
-            const email = modalAuthEmailInput.value;
-            const password = modalAuthPasswordInput.value;
-            const confirmPassword = modalConfirmPasswordInput.value;
-
-            if (!email || !password || !confirmPassword) {
-                showMessage("Por favor, ingresa email, contraseña y confirma la contraseña.");
-                return;
-            }
-            if (password.length < 6) {
-                showMessage("La contraseña debe tener al menos 6 caracteres.");
-                return;
-            }
-            if (password !== confirmPassword) {
-                showMessage("Las contraseñas no coinciden. Por favor, inténtalo de nuevo.");
-                return;
-            }
-
-            showGlobalLoading(true);
-            try {
-                await createUserWithEmailAndPassword(auth, email, password);
-                showMessage("Usuario registrado y sesión iniciada exitosamente!");
-            } catch (error) {
-                console.error("Error al registrar usuario:", error);
-                let errorMessage = "Error al registrar usuario.";
-                switch (error.code) {
-                    case 'auth/email-already-in-use':
-                        errorMessage = 'El email ya está en uso. Intenta iniciar sesión o usa otro email.';
-                        break;
-                    case 'auth/invalid-email':
-                        errorMessage = 'El email no es válido.';
-                        break;
-                    case 'auth/weak-password':
-                        errorMessage = 'La contraseña es muy débil (mínimo 6 caracteres).';
-                        break;
-                    default:
-                        errorMessage = 'Error de registro: ' + error.message;
-                }
-                showMessage(errorMessage);
-            } finally {
-                showGlobalLoading(false);
-            }
-        }
-
-        async function handleLoginAction() {
-            const email = modalAuthEmailInput.value;
-            const password = modalAuthPasswordInput.value;
-
-            if (!email || !password) {
-                showMessage("Por favor, ingresa tu email y contraseña.");
-                return;
-            }
-
-            showGlobalLoading(true);
-            try {
-                await signInWithEmailAndPassword(auth, email, password);
-                showMessage("Sesión iniciada exitosamente!");
-            } catch (error) {
-                console.error("Error al iniciar sesión:", error);
-                let errorMessage = "Error al iniciar sesión.";
-                switch (error.code) {
-                    case 'auth/invalid-email':
-                        errorMessage = 'El email no es válido.';
-                        break;
-                    case 'auth/user-not-found':
-                        errorMessage = 'Usuario no encontrado. Por favor, regístrate.';
-                        break;
-                    case 'auth/wrong-password':
-                        errorMessage = 'Contraseña incorrecta.';
-                        break;
-                    case 'auth/too-many-requests':
-                        errorMessage = 'Demasiados intentos de inicio de sesión fallidos. Intenta más tarde.';
-                        break;
-                    default:
-                        errorMessage = 'Error de inicio de sesión: ' + error.message;
-                }
-                showMessage(errorMessage);
-            } finally {
-                showGlobalLoading(false);
-            }
-        }
-
-        async function handleLogout() {
-            showGlobalLoading(true);
-            try {
-                await signOut(auth);
-                showMessage("Sesión cerrada correctamente.");
-                nombreInput.value = '';
-            } catch (error) {
-                console.error("Error al cerrar sesión:", error);
-                showMessage("Error al cerrar sesión: " + error.message);
-            } finally {
-                showGlobalLoading(false);
-            }
-        }
-
-        // --- Password Recovery Function (within Auth Modal) ---
-        async function handleResetPassword() {
-            const email = modalResetPasswordEmail.value.trim();
-            if (!email) {
-                showMessage("Por favor, ingresa tu email para recuperar la contraseña.");
-                return;
-            }
-
-            showGlobalLoading(true);
-            try {
-                await sendPasswordResetEmail(auth, email);
-                showMessage("¡Correo de recuperación enviado! Revisa tu bandeja de entrada.");
-                modalResetPasswordEmail.value = '';
-            } catch (error) {
-                console.error("Error al enviar correo de recuperación:", error);
-                let errorMessage = "Error al enviar el correo de recuperación.";
-                switch (error.code) {
-                    case 'auth/invalid-email':
-                        errorMessage = 'El email ingresado no es válido.';
-                        break;
-                    case 'auth/user-not-found':
-                        errorMessage = 'No hay ningún usuario registrado con ese email.';
-                        break;
-                    default:
-                        errorMessage = 'Error: ' + error.message;
-                }
-                showMessage(errorMessage);
-            } finally {
-                showGlobalLoading(false);
-            }
-        }
-
-        // --- Change Password Function (within Change Password Modal) ---
-        async function handleChangePassword() {
-            const currentPassword = modalCurrentPasswordInput.value;
-            const newPassword = modalNewPasswordInput.value;
-
-            if (!currentUser) {
-                showMessage("Debes iniciar sesión para cambiar tu contraseña.");
-                closeModal(changePasswordModal);
-                return;
-            }
-            if (!currentPassword || !newPassword) {
-                showMessage("Por favor, ingresa tu contraseña actual y la nueva contraseña.");
-                return;
-            }
-            if (newPassword.length < 6) {
-                showMessage("La nueva contraseña debe tener al menos 6 caracteres.");
-                return;
-            }
-
-            showGlobalLoading(true);
-            try {
-                const credential = EmailAuthProvider.credential(currentUser.email, currentPassword);
-                await reauthenticateWithCredential(currentUser, credential);
-                await updatePassword(currentUser, newPassword);
-                showMessage("Contraseña cambiada exitosamente!");
-                closeModal(changePasswordModal);
-            } catch (error) {
-                console.error("Error al cambiar contraseña:", error);
-                let errorMessage = "Error al cambiar contraseña.";
-                switch (error.code) {
-                    case 'auth/wrong-password':
-                        errorMessage = 'La contraseña actual es incorrecta.';
-                        break;
-                    case 'auth/weak-password':
-                        errorMessage = 'La nueva contraseña es muy débil (mínimo 6 caracteres).';
-                        break;
-                    case 'auth/requires-recent-login':
-                        errorMessage = 'Por favor, inicia sesión de nuevo antes de cambiar tu contraseña.';
-                        break;
-                    case 'auth/invalid-credential':
-                        errorMessage = 'Credenciales inválidas. Por favor, verifica tu contraseña actual.';
-                        break;
-                    default:
-                        errorMessage = 'Error: ' + error.message;
-                }
-                showMessage(errorMessage);
-            } finally {
-                showGlobalLoading(false);
-            }
-        }
-
-        // --- Functions for Saving and Loading User Profile (within Profile Modal) ---
-        async function saveUserProfile() {
-            if (!currentUser) {
-                showMessage("Debes iniciar sesión para guardar tu perfil.");
-                closeModal(profileModal);
-                return;
-            }
-
-            const nombreCompleto = modalProfileNombreCompleto.value.trim();
-            const direccion = modalProfileDireccion.value.trim();
-            const telefono = modalProfileTelefono.value.trim();
-            const horarioPedidos = modalProfileHorarioPedidos.value.trim();
-
-            if (!nombreCompleto && !direccion && !telefono && !horarioPedidos) {
-                showMessage("Por favor, rellena al menos un campo para guardar tu perfil.");
-                return;
-            }
-
-            showGlobalLoading(true);
-            try {
-                const userProfileDocRef = doc(db, 'userProfiles', currentUser.uid);
-
-                await setDoc(userProfileDocRef, {
-                    nombreCompleto: nombreCompleto,
-                    direccion: direccion,
-                    telefono: telefono,
-                    horarioPedidos: horarioPedidos,
-                    emailRegistrado: currentUser.email,
-                    lastUpdated: serverTimestamp()
-                }, { merge: true });
-
-                showMessage("Perfil actualizado correctamente!");
-                closeModal(profileModal);
-            } catch (e) {
-                console.error("Error al guardar el perfil: ", e);
-                showMessage("Error al guardar el perfil. Asegúrate de tener los permisos correctos en Firestore.");
-            } finally {
-                showGlobalLoading(false);
-            }
-        }
-
-        function loadUserProfile() {
-            if (profileSnapshotUnsubscribe) {
-                profileSnapshotUnsubscribe();
-            }
-
-            if (!currentUser) {
-                modalProfileNombreCompleto.value = '';
-                modalProfileDireccion.value = '';
-                modalProfileTelefono.value = '';
-                modalProfileHorarioPedidos.value = '';
-                myAccountProfileDisplay.classList.add('hidden'); // Hide profile display in MyAccount modal
-                return;
-            }
-
-            const userProfileDocRef = doc(db, 'userProfiles', currentUser.uid);
-
-            profileSnapshotUnsubscribe = onSnapshot(userProfileDocRef, (docSnap) => {
-                if (docSnap.exists()) {
-                    const data = docSnap.data();
-                    // Populate modal inputs (profileModal)
-                    modalProfileNombreCompleto.value = data.nombreCompleto || '';
-                    modalProfileDireccion.value = data.direccion || '';
-                    modalProfileTelefono.value = data.telefono || '';
-                    modalProfileHorarioPedidos.value = data.horarioPedidos || '';
-
-                    // Display in My Account Modal
-                    accountDisplayNombreCompleto.textContent = data.nombreCompleto || 'N/A';
-                    accountDisplayDireccion.textContent = data.direccion || 'N/A';
-                    accountDisplayTelefono.textContent = data.telefono || 'N/A';
-                    accountDisplayHorarioPedidos.textContent = data.horarioPedidos || 'N/A';
-                    myAccountProfileDisplay.classList.remove('hidden');
-                } else {
-                    // Profile document does not exist
-                    modalProfileNombreCompleto.value = '';
-                    modalProfileDireccion.value = '';
-                    modalProfileTelefono.value = '';
-                    modalProfileHorarioPedidos.value = '';
-                    accountDisplayNombreCompleto.textContent = 'N/A';
-                    accountDisplayDireccion.textContent = 'N/A';
-                    accountDisplayTelefono.textContent = 'N/A';
-                    accountDisplayHorarioPedidos.textContent = 'N/A';
-                    myAccountProfileDisplay.classList.add('hidden');
-                }
-            }, (error) => {
-                console.error("Error al cargar el perfil en tiempo real: ", error);
-                showMessage("Error al cargar tu perfil. Asegúrate de tener los permisos correctos.");
-            });
-        }
-
-
-        // --- Functions for Saving and Reading Data (Multiple items per user) ---
-
+        // 2. Función para guardar datos
         async function guardarDatos() {
-            if (!currentUser) {
-                showMessage("Debes iniciar sesión para guardar tus datos.");
-                return;
-            }
+            const nombre = document.getElementById('nombreInput').value;
+            const email = document.getElementById('emailInput').value;
 
-            const nombreDelDato = nombreInput.value.trim();
-
-            if (nombreDelDato) {
-                showGlobalLoading(true);
+            if (nombre && email) {
                 try {
-                    const userSpecificCollectionPath = `usuarios/${currentUser.uid}/misDatos`;
-                    const docRef = await addDoc(collection(db, userSpecificCollectionPath), {
-                        nombre: nombreDelDato,
-                        fechaGuardado: serverTimestamp(),
+                    // Agrega un nuevo documento a la colección "usuarios"
+                    const docRef = await db.collection("usuarios").add({
+                        nombre: nombre,
+                        email: email,
+                        fechaGuardado: firebase.firestore.FieldValue.serverTimestamp() // Para guardar la fecha actual del servidor
                     });
                     console.log("Documento escrito con ID: ", docRef.id);
-                    showMessage("Dato guardado correctamente!");
-                    nombreInput.value = '';
+                    alert("Datos guardados correctamente!");
+                    document.getElementById('nombreInput').value = '';
+                    document.getElementById('emailInput').value = '';
+                    leerDatos(); // Refrescar los datos después de guardar
                 } catch (e) {
-                    console.error("Error al agregar documento a misDatos: ", e);
-                    showMessage("Error al guardar el dato. Asegúrate de tener los permisos correctos en Firestore.");
-                } finally {
-                    showGlobalLoading(false);
+                    console.error("Error al agregar documento: ", e);
+                    alert("Error al guardar datos.");
                 }
             } else {
-                showMessage("Por favor, ingresa un nombre para tu dato.");
+                alert("Por favor, ingresa nombre y email.");
             }
         }
 
-        function leerDatos() {
-            datosGuardadosDiv.innerHTML = '<p class="text-center text-gray-500">Cargando mis datos...</p>';
-
-            if (!currentUser) {
-                datosGuardadosDiv.innerHTML = '<p class="text-center text-gray-500">Inicia sesión para ver tus datos.</p>';
-                return;
-            }
-
-            if (dataListSnapshotUnsubscribe) {
-                dataListSnapshotUnsubscribe();
-            }
+        // 3. Función para leer datos
+        async function leerDatos() {
+            const datosGuardadosDiv = document.getElementById('datosGuardados');
+            datosGuardadosDiv.innerHTML = ''; // Limpiar el contenido anterior
 
             try {
-                const userSpecificCollectionPath = `usuarios/${currentUser.uid}/misDatos`;
-                const q = query(collection(db, userSpecificCollectionPath), orderBy("fechaGuardado", "desc"));
+                // Obtén todos los documentos de la colección "usuarios"
+                const querySnapshot = await db.collection("usuarios").orderBy("fechaGuardado", "desc").get();
 
-                dataListSnapshotUnsubscribe = onSnapshot(q, (querySnapshot) => {
-                    if (querySnapshot.empty) {
-                        datosGuardadosDiv.innerHTML = '<p class="text-center text-gray-500">No tienes datos guardados aún.</p>';
-                        return;
-                    }
+                if (querySnapshot.empty) {
+                    datosGuardadosDiv.innerHTML = '<p>No hay datos guardados aún.</p>';
+                    return;
+                }
 
-                    datosGuardadosDiv.innerHTML = '';
-                    querySnapshot.forEach((doc) => {
-                        const data = doc.data();
-                        const divItem = document.createElement('div');
-                        divItem.classList.add('dato-item', 'bg-gray-50', 'p-3', 'rounded-md', 'border', 'border-gray-200', 'mb-2');
-                        divItem.innerHTML = `
-                            <p class="font-semibold text-gray-800">Nombre: ${data.nombre}</p>
-                            <p class="text-xs text-gray-500">Fecha: ${data.fechaGuardado ? new Date(data.fechaGuardado.toDate()).toLocaleString() : 'N/A'}</p>
-                        `;
-                        datosGuardadosDiv.appendChild(divItem);
-                    });
-                }, (error) => {
-                    console.error("Error al leer documentos de misDatos: ", error);
-                    showMessage("Error al cargar tus datos. Asegúrate de tener los permisos correctos.");
-                    datosGuardadosDiv.innerHTML = '<p class="text-center text-red-500">Error al cargar tus datos.</p>';
+                querySnapshot.forEach((doc) => {
+                    // doc.data() es el contenido del documento
+                    const data = doc.data();
+                    const p = document.createElement('div');
+                    p.classList.add('dato-item');
+                    p.innerHTML = `<strong>ID:</strong> ${doc.id}<br>
+                                   <strong>Nombre:</strong> ${data.nombre}<br>
+                                   <strong>Email:</strong> ${data.email}<br>
+                                   <strong>Fecha:</strong> ${data.fechaGuardado ? new Date(data.fechaGuardado.toDate()).toLocaleString() : 'N/A'}`;
+                    datosGuardadosDiv.appendChild(p);
                 });
             } catch (e) {
-                console.error("Error al configurar listener de misDatos: ", e);
-                showMessage("Error al configurar la carga de tus datos.");
-                datosGuardadosDiv.innerHTML = '<p class="text-center text-red-500">Error al cargar tus datos.</p>';
+                console.error("Error al leer documentos: ", e);
+                datosGuardadosDiv.innerHTML = '<p>Error al cargar los datos.</p>';
             }
         }
 
-
-        // --- Event Listeners ---
-        document.addEventListener('DOMContentLoaded', () => {
-            // Main UI interactions
-            userIconButton.addEventListener('click', () => {
-                openModal(authModal); // Always open Auth Modal from user icon
-            });
-            authModalCloseButton.addEventListener('click', () => closeModal(authModal));
-            profileModalCloseButton.addEventListener('click', () => closeModal(profileModal));
-            changePasswordModalCloseButton.addEventListener('click', () => closeModal(changePasswordModal));
-            myAccountModalClose.addEventListener('click', () => closeModal(myAccountModal)); // Close listener for new modal
-
-            // Authentication mode switch buttons
-            showRegisterModeButton.addEventListener('click', () => {
-                authModalCurrentMode = 'register';
-                updateAuthModalUI();
-            });
-            showLoginModeButton.addEventListener('click', () => {
-                authModalCurrentMode = 'login';
-                updateAuthModalUI();
-            });
-
-            // Authentication action button
-            modalAuthSubmitButton.addEventListener('click', handleAuthSubmit);
-
-            // My Account button (main content)
-            myAccountButton.addEventListener('click', () => openModal(myAccountModal)); // Open MyAccount modal
-
-            // Other authentication actions
-            myAccountLogoutButton.addEventListener('click', handleLogout); // Logout button is now in MyAccount modal
-            modalResetPasswordButton.addEventListener('click', handleResetPassword);
-
-            // Profile actions
-            editProfileButtonFromAccount.addEventListener('click', () => { // From MyAccount modal
-                closeModal(myAccountModal); // Close current modal
-                openModal(profileModal); // Open profile edit modal
-            });
-            modalSaveProfileButton.addEventListener('click', saveUserProfile);
-
-            // Change Password actions
-            openChangePasswordModalButtonFromAccount.addEventListener('click', () => { // From MyAccount modal
-                closeModal(myAccountModal); // Close current modal
-                openModal(changePasswordModal); // Open change password modal
-            });
-            modalChangePasswordButton.addEventListener('click', handleChangePassword);
-
-            // Data list actions
-            guardarDatosButton.addEventListener('click', guardarDatos);
-            recargarDatosButton.addEventListener('click', leerDatos);
-        });
+        // Cargar los datos al cargar la página
+        document.addEventListener('DOMContentLoaded', leerDatos);
     </script>
 </body>
 </html>
