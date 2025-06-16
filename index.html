@@ -343,28 +343,12 @@
                                 <input type="password" class="form-control" id="registerPassword" required>
                             </div>
                             <div class="mb-3">
-                                <label for="registerAddress" class="form-label">Calle y Número</label>
+                                <label for="registerAddress" class="form-label">Dirección</label>
                                 <input type="text" class="form-control" id="registerAddress" required>
-                            </div>
-                            <div class="mb-3">
-                                <label for="registerColonia" class="form-label">Colonia</label>
-                                <input type="text" class="form-control" id="registerColonia" required>
-                            </div>
-                            <div class="mb-3">
-                                <label for="registerZipCode" class="form-label">Código Postal</label>
-                                <input type="text" class="form-control" id="registerZipCode" required>
                             </div>
                             <div class="mb-3">
                                 <label for="registerPhone" class="form-label">Teléfono</label>
                                 <input type="tel" class="form-control" id="registerPhone" required>
-                            </div>
-                            <div class="mb-3">
-                                <label for="registerHorario" class="form-label">Horario Preferido para Recibir</label>
-                                <input type="text" class="form-control" id="registerHorario" placeholder="Ej: L-V 9:00-18:00">
-                            </div>
-                            <div class="mb-3">
-                                <label for="registerInstructions" class="form-label">Instrucciones Especiales para el Repartidor</label>
-                                <textarea class="form-control" id="registerInstructions" rows="3" placeholder="Ej: Dejar con el vecino, tocar dos veces, etc."></textarea>
                             </div>
                             <div class="d-grid gap-2">
                                 <button type="submit" class="btn btn-primary">Registrarse</button>
@@ -387,21 +371,10 @@
                             <h3 class="mb-0">Mi Cuenta</h3>
                         </div>
                         <div class="card-body">
-                            <!-- Botón de Editar Perfil -->
-                            <div class="d-flex justify-content-between align-items-center mb-3">
-                                <h5>Detalles Personales</h5>
-                                <button class="btn btn-sm btn-outline-secondary" id="editProfileBtn">
-                                    <i class="fas fa-edit"></i> Editar
-                                </button>
-                            </div>
-                            <p id="userName"></p>
+                            <h5 id="userName"></h5>
                             <p id="userEmail"></p>
                             <p id="userAddress"></p>
-                            <p id="userColonia"></p> 
-                            <p id="userZipCode"></p> 
                             <p id="userPhone"></p>
-                            <p id="userHorario"></p> <!-- Nuevo campo para Horario -->
-                            <p id="userInstructions"></p> <!-- Nuevo campo para Instrucciones -->
                             <button class="btn btn-outline-danger w-100 mt-3" id="logoutBtn">Cerrar Sesión</button>
                         </div>
                     </div>
@@ -418,64 +391,6 @@
                 </div>
             </div>
         </div>
-
-        <!-- Modal de Editar Perfil -->
-        <div class="modal fade" id="editProfileModal" tabindex="-1" aria-hidden="true">
-            <div class="modal-dialog">
-                <div class="modal-content">
-                    <div class="modal-header">
-                        <h5 class="modal-title">Editar Perfil</h5>
-                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                    </div>
-                    <div class="modal-body">
-                        <form id="editProfileForm">
-                            <div class="row mb-3">
-                                <div class="col-md-6">
-                                    <label for="editFirstName" class="form-label">Nombre</label>
-                                    <input type="text" class="form-control" id="editFirstName" required>
-                                </div>
-                                <div class="col-md-6">
-                                    <label for="editLastName" class="form-label">Apellido</label>
-                                    <input type="text" class="form-control" id="editLastName" required>
-                                </div>
-                            </div>
-                            <div class="mb-3">
-                                <label for="editEmail" class="form-label">Email</label>
-                                <input type="email" class="form-control" id="editEmail" required readonly>
-                            </div>
-                            <div class="mb-3">
-                                <label for="editAddress" class="form-label">Calle y Número</label>
-                                <input type="text" class="form-control" id="editAddress" required>
-                            </div>
-                            <div class="mb-3">
-                                <label for="editColonia" class="form-label">Colonia</label>
-                                <input type="text" class="form-control" id="editColonia" required>
-                            </div>
-                            <div class="mb-3">
-                                <label for="editZipCode" class="form-label">Código Postal</label>
-                                <input type="text" class="form-control" id="editZipCode" required>
-                            </div>
-                            <div class="mb-3">
-                                <label for="editPhone" class="form-label">Teléfono</label>
-                                <input type="tel" class="form-control" id="editPhone" required>
-                            </div>
-                            <div class="mb-3">
-                                <label for="editHorario" class="form-label">Horario Preferido para Recibir</label>
-                                <input type="text" class="form-control" id="editHorario">
-                            </div>
-                            <div class="mb-3">
-                                <label for="editInstructions" class="form-label">Instrucciones Especiales para el Repartidor</label>
-                                <textarea class="form-control" id="editInstructions" rows="3"></textarea>
-                            </div>
-                            <div class="d-grid gap-2">
-                                <button type="submit" class="btn btn-primary">Guardar Cambios</button>
-                            </div>
-                        </form>
-                    </div>
-                </div>
-            </div>
-        </div>
-
     </div>
 
     <!-- Footer -->
@@ -483,7 +398,7 @@
         <div class="container">
             <div class="row">
                 <div class="col-md-6">
-                    <h5><a href="#" style="font-size: 40px;">Ferretería Y Papelería El Rodillo</a></h5>
+                    <h5><href="#" style="font-size: 40px;">Ferretería Y Papelería El Rodillo</h5>
                     <p>La mejor selección de productos al mejor precio.</p>
                 </div>
                 <div class="col-md-3">
@@ -510,15 +425,7 @@
     </footer>
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-    <script type="module">
-        // Importar módulos de Firebase
-        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.0/firebase-app.js";
-        import { getAuth, signInAnonymously, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.7.0/firebase-auth.js";
-        import { getFirestore, doc, getDoc, setDoc, updateDoc } from "https://www.gstatic.com/firebasejs/10.7.0/firebase-firestore.js";
-
-        // Hacer las funciones de Firebase accesibles globalmente si es necesario para el resto del script no modular
-        // Aunque el resto del script no está en un módulo, usaremos las variables globales directamente
-        // dentro de este bloque de script module para interactuar con Firebase.
+    <script>
 
         // Variables globales
         let cart = [];
@@ -529,119 +436,26 @@
         let currentProductDetail = null;
         let detailQuantity = 1;
 
-        // Firebase Global variables
-        let db;
-        let auth;
-        let currentFirebaseUserId = null; // Almacena el UID de Firebase Auth para el carrito
-
         // Inicializar EmailJS (debes reemplazar con tus credenciales)
         emailjs.init('-DaNY5iTEaA9aMemL');
 
         // Esperar a que el DOM esté listo
-        document.addEventListener('DOMContentLoaded', async function() {
-            // --- Inicialización de Firebase ---
-const firebaseConfig = {
-  apiKey: "AIzaSyATKAFNmwhe9X0GQ5GxHiSmc3wiOhb7j18",
-  authDomain: "rodillo-2b699.firebaseapp.com",
-  databaseURL: "https://rodillo-2b699-default-rtdb.firebaseio.com",
-  projectId: "rodillo-2b699",
-  storageBucket: "rodillo-2b699.firebasestorage.app",
-  messagingSenderId: "652395478682",
-  appId: "1:652395478682:web:f4447c35fee0599030a923"
-};
-            if (Object.keys(firebaseConfig).length > 0) {
-                const app = initializeApp(firebaseConfig);
-                db = getFirestore(app);
-                auth = getAuth(app);
-
-                // Escuchar cambios en el estado de autenticación de Firebase
-                onAuthStateChanged(auth, async (user) => {
-                    if (user) {
-                        currentFirebaseUserId = user.uid;
-                        await loadCartFromFirestore(currentFirebaseUserId);
-                    } else {
-                        // Si no hay usuario de Firebase logueado, intentar iniciar sesión anónimamente
-                        try {
-                            const anonymousUserCredential = await signInAnonymously(auth);
-                            currentFirebaseUserId = anonymousUserCredential.user.uid;
-                            await loadCartFromFirestore(currentFirebaseUserId); // Cargar el carrito del usuario anónimo
-                        } catch (error) {
-                            console.error("Error al iniciar sesión anónimamente:", error);
-                            showToast("Error al cargar la sesión. Intenta recargar la página.");
-                        }
-                    }
-                    // Una vez que Firebase Auth esté listo y currentFirebaseUserId esté establecido,
-                    // proceder con la lógica del usuario de localStorage
-                    const storedUser = localStorage.getItem('currentUser');
-                    if (storedUser) {
-                        currentUser = JSON.parse(storedUser);
-                        showUserSection();
-                    } else {
-                        showSection('homeSection'); 
-                    }
-                });
-            } else {
-                console.warn("Configuración de Firebase no encontrada. El carrito no se guardará en la nube.");
-                showToast("Configuración de Firebase no encontrada. El carrito no se guardará en la nube.");
-                // Continuar con la lógica solo de localStorage si Firebase no está configurado
-                const storedUser = localStorage.getItem('currentUser');
-                if (storedUser) {
-                    currentUser = JSON.parse(storedUser);
-                    showUserSection();
-                } else {
-                    showSection('homeSection');
-                }
-            }
-
+        document.addEventListener('DOMContentLoaded', function() {
             // Cargar productos desde CSV en GitHub
             loadProductsFromGitHubCSV();
             
             // Configurar eventos
             setupEventListeners();
+            
+            // Cargar el usuario actual si existe en localStorage
+            const storedUser = localStorage.getItem('currentUser');
+            if (storedUser) {
+                currentUser = JSON.parse(storedUser);
+                showUserSection(); // Mostrar la sección de usuario si hay un usuario logueado
+            } else {
+                showSection('homeSection'); // Mostrar sección de inicio por defecto
+            }
         });
-
-        // Función para guardar el carrito en Firestore
-        async function saveCartToFirestore(userId) {
-            if (!db || !userId) {
-                console.warn("Firestore o userId no disponibles para guardar el carrito.");
-                return;
-            }
-            try {
-                const cartRef = doc(db, 'carts', userId);
-                await setDoc(cartRef, { items: cart }); // Sobrescribe el documento del carrito completo
-                console.log("Carrito guardado en Firestore para:", userId);
-            } catch (error) {
-                console.error("Error guardando el carrito en Firestore:", error);
-                showToast("Error al guardar el carrito en la nube.");
-            }
-        }
-
-        // Función para cargar el carrito desde Firestore
-        async function loadCartFromFirestore(userId) {
-            if (!db || !userId) {
-                console.warn("Firestore o userId no disponibles para cargar el carrito.");
-                return;
-            }
-            try {
-                const cartRef = doc(db, 'carts', userId);
-                const cartSnap = await getDoc(cartRef);
-                if (cartSnap.exists()) {
-                    cart = cartSnap.data().items || [];
-                    console.log("Carrito cargado de Firestore para:", userId);
-                } else {
-                    console.log("No hay carrito en Firestore para:", userId + ". Iniciando con carrito vacío o local.");
-                    // Aquí podrías decidir si fusionar con un carrito existente en localStorage si es la primera carga para este UID
-                    // Por ahora, simplemente inicia con un carrito vacío de Firestore si no existe.
-                    // Si el usuario tenía algo en localStorage ANTES de Firebase, se perdería a menos que se haga una migración explícita aquí.
-                    cart = []; 
-                }
-                updateCart(); // Actualizar la interfaz después de cargar el carrito
-            } catch (error) {
-                console.error("Error cargando el carrito de Firestore:", error);
-                showToast("Error al cargar el carrito desde la nube.");
-            }
-        }
-
 
         // Función para cargar productos desde un CSV en GitHub
         function loadProductsFromGitHubCSV() {
@@ -663,8 +477,8 @@ const firebaseConfig = {
                             category: product.categoria || product.category || 'Sin categoría',
                             description: product.descripcion || product.description || 'Descripción no disponible',
                             image: product.imagen || product.image || 'https://via.placeholder.com/150',
-			    codigo: product.codigo || product.sku || product.barcode || '0', 
-                            stock: parseInt(product.stock || product.existencia || product.cantidad || 0) 
+			    codigo: product.codigo || product.sku || product.barcode || '0', // Cambiado a cadena para evitar errores de toLowerCase
+                            stock: parseInt(product.stock || product.existencia || product.cantidad || 0) // Nuevo campo stock
                         })); 
                         
                         // Extraer categorías únicas
@@ -678,7 +492,6 @@ const firebaseConfig = {
                 },
                 error: function(error) {
                     console.error("Error al cargar productos desde GitHub:", error);
-                    showToast("Error al cargar productos del catálogo. Cargando ejemplos.");
                     loadSampleProducts();
                 }
             });
@@ -728,7 +541,7 @@ const firebaseConfig = {
                     p.name.toLowerCase().includes(searchTerm) || 
                     p.description.toLowerCase().includes(searchTerm) ||
                     p.category.toLowerCase().includes(searchTerm) ||
-		            String(p.codigo).toLowerCase().includes(searchTerm) 
+		            String(p.codigo).toLowerCase().includes(searchTerm) // <<-- CAMBIO APLICADO AQUÍ
                 );
             }
             
@@ -752,6 +565,7 @@ const firebaseConfig = {
             populateCategoryFilter();
             
             displayProducts(products);
+            showToast("No se pudo cargar el catálogo completo. Mostrando productos de ejemplo.");
         }
 
         // Función para mostrar productos
@@ -933,12 +747,6 @@ const firebaseConfig = {
             
             // Actualizar la interfaz
             updateCart();
-            // Guardar el carrito en Firestore
-            if (currentFirebaseUserId) {
-                saveCartToFirestore(currentFirebaseUserId);
-            } else {
-                console.warn("No hay ID de usuario de Firebase para guardar el carrito.");
-            }
             showToast(`${product.name}${quantity > 1 ? ` (${quantity})` : ''} agregado al carrito`);
             
             // Si estamos en la sección de productos, actualizar la visualización
@@ -1048,12 +856,6 @@ const firebaseConfig = {
             }
             
             updateCart();
-            // Guardar el carrito en Firestore
-            if (currentFirebaseUserId) {
-                saveCartToFirestore(currentFirebaseUserId);
-            } else {
-                console.warn("No hay ID de usuario de Firebase para guardar el carrito.");
-            }
             
             // Si estamos en la sección de productos, actualizar la visualización
             if (!document.getElementById('productsSection').classList.contains('hidden')) {
@@ -1065,12 +867,6 @@ const firebaseConfig = {
         function removeFromCart(productId) {
             cart = cart.filter(item => item.id !== productId);
             updateCart();
-            // Guardar el carrito en Firestore
-            if (currentFirebaseUserId) {
-                saveCartToFirestore(currentFirebaseUserId);
-            } else {
-                console.warn("No hay ID de usuario de Firebase para guardar el carrito.");
-            }
             showToast('Producto eliminado del carrito');
         }
 
@@ -1200,21 +996,6 @@ const firebaseConfig = {
             });
             
             document.getElementById('logoutBtn').addEventListener('click', logoutUser);
-
-            // Evento para el botón de editar perfil
-            document.getElementById('editProfileBtn').addEventListener('click', () => {
-                if (currentUser) {
-                    populateEditProfileForm();
-                    const editModal = new bootstrap.Modal(document.getElementById('editProfileModal'));
-                    editModal.show();
-                }
-            });
-
-            // Evento para el formulario de guardar cambios del perfil
-            document.getElementById('editProfileForm').addEventListener('submit', function(e) {
-                e.preventDefault();
-                saveProfileChanges();
-            });
         }
 
         // Función para buscar productos
@@ -1230,7 +1011,7 @@ const firebaseConfig = {
                 product.name.toLowerCase().includes(searchTerm) || 
                 product.description.toLowerCase().includes(searchTerm) ||
                 product.category.toLowerCase().includes(searchTerm) ||
-                String(product.codigo).toLowerCase().includes(searchTerm) 
+                String(product.codigo).toLowerCase().includes(searchTerm) // <<-- CAMBIO APLICADO AQUÍ
             );
             
             showSection('productsSection');
@@ -1244,15 +1025,13 @@ const firebaseConfig = {
                 document.getElementById('lastName').value = currentUser.lastName || '';
                 document.getElementById('email').value = currentUser.email || '';
                 document.getElementById('address').value = currentUser.address || '';
-                document.getElementById('city').value = currentUser.city || ''; 
-                document.getElementById('state').value = currentUser.state || ''; 
-                document.getElementById('zipCode').value = currentUser.zipCode || ''; 
                 document.getElementById('phone').value = currentUser.phone || '';
+                // 'city', 'state', 'zipCode' no están en el objeto currentUser original, se mantienen editables
             }
         }
 
         // Función para enviar el pedido
-        async function submitOrder() { // Marcado como async para poder usar await
+        function submitOrder() {
             if (cart.length === 0) {
                 showToast('El carrito está vacío');
                 return;
@@ -1267,35 +1046,28 @@ const firebaseConfig = {
             const firstName = document.getElementById('firstName').value;
             const lastName = document.getElementById('lastName').value;
             const email = document.getElementById('email').value;
-            const address = document.getElementById('address').value; // Calle y Número
+            const address = document.getElementById('address').value;
             const city = document.getElementById('city').value;
             const state = document.getElementById('state').value;
             const zipCode = document.getElementById('zipCode').value;
             const phone = document.getElementById('phone').value;
 
-            // Datos de usuario adicionales que se guardan en el perfil
-            const colonia = currentUser.colonia || ''; 
-            const horario = currentUser.horario || ''; 
-            const instrucciones = currentUser.instrucciones || ''; 
-
             // Validar campos adicionales si son requeridos
-            if (!city || !state || !zipCode || !address) { 
-                showToast('Por favor, completa todos los campos de dirección (Calle y Número, Ciudad, Provincia y Código Postal).');
+            if (!city || !state || !zipCode) {
+                showToast('Por favor, completa los campos de Ciudad, Provincia y Código Postal.');
                 return;
             }
 
-            const totalAmount = cart.reduce((total, item) => total + (item.price * item.quantity), 0) + 35.00; 
+            const totalAmount = cart.reduce((total, item) => total + (item.price * item.quantity), 0) + 35.00; // Sumar costo de envío
 
             const orderDetails = {
-                order_id: `ORD-${Date.now()}`, 
+                order_id: `ORD-${Date.now()}`, // Generar un ID de pedido único
                 nombre_cliente: `${firstName} ${lastName}`,
                 email_cliente: email,
                 telefono_cliente: phone,
-                direccion_envio: `${address}, ${colonia ? colonia + ', ' : ''}${city}, ${state}, CP ${zipCode}`,
-                horario_preferido: horario, 
-                instrucciones_repartidor: instrucciones, 
+                direccion_envio: `${address}, ${city}, ${state}, CP ${zipCode}`,
                 productos: cart.map(item => `${item.name} (Cant: ${item.quantity}) - $${item.price.toFixed(2)} c/u`).join('\n'),
-                subtotal: totalAmount > 35 ? (totalAmount - 35).toFixed(2) : '0.00', // Calcular subtotal correctamente
+                subtotal: cart.reduce((total, item) => total + (item.price * item.quantity), 0).toFixed(2),
                 costo_envio: '35.00',
                 total: totalAmount.toFixed(2),
                 fecha_pedido: new Date().toLocaleString('es-ES')
@@ -1303,43 +1075,35 @@ const firebaseConfig = {
             
             // Enviar email usando EmailJS
             emailjs.send('service_ynni6mh', 'template_mamyuhg', orderDetails)
-                .then(async () => { // Hacer esta función async
+                .then(() => {
                     showToast('Pedido enviado con éxito');
                     
+                    // Guardar el pedido en el historial del usuario logueado
                     const newOrder = {
                         date: orderDetails.order_id,
                         status: 'Pendiente',
-                        shippingAddress: orderDetails.direccion_envio, 
+                        shippingAddress: orderDetails.direccion_envio,
                         items: cart.map(item => ({
                             name: item.name,
                             quantity: item.quantity,
                             price: item.price
                         })),
                         total: totalAmount,
-                        userEmail: currentUser.email 
+                        userEmail: currentUser.email // Asociar el pedido al email del usuario
                     };
                     orders.push(newOrder);
-                    localStorage.setItem('orders', JSON.stringify(orders)); 
+                    localStorage.setItem('orders', JSON.stringify(orders)); // Actualizar localStorage
                     
+                    // Actualizar los pedidos del usuario actual
                     currentUser.orders = orders.filter(o => o.userEmail === currentUser.email);
                     localStorage.setItem('currentUser', JSON.stringify(currentUser));
 
-                    // Limpiar carrito en Firestore después de una compra exitosa
-                    if (db && currentFirebaseUserId) {
-                        try {
-                            const cartRef = doc(db, 'carts', currentFirebaseUserId);
-                            await updateDoc(cartRef, { items: [] }); // Vaciar el array de items
-                            console.log("Carrito vaciado en Firestore para:", currentFirebaseUserId);
-                        } catch (firestoreError) {
-                            console.error("Error vaciando el carrito en Firestore:", firestoreError);
-                            showToast("Error al vaciar el carrito en la nube.");
-                        }
-                    }
 
-                    cart = []; // Limpiar el carrito local
-                    updateCart(); 
+                    // Limpiar carrito y volver a la sección de inicio
+                    cart = [];
+                    updateCart();
                     showSection('homeSection');
-                    showUserSection(); 
+                    showUserSection(); // Refrescar la sección de usuario para mostrar el nuevo pedido
                     
                 }, (error) => {
                     console.error('Error al enviar el pedido:', error);
@@ -1348,7 +1112,7 @@ const firebaseConfig = {
         }
 
         // Función para login de usuario
-        async function loginUser() { // Marcado como async
+        function loginUser() {
             const email = document.getElementById('loginEmail').value;
             const password = document.getElementById('loginPassword').value;
             
@@ -1361,47 +1125,33 @@ const firebaseConfig = {
                     lastName: user.lastName,
                     email: user.email,
                     address: user.address,
-                    colonia: user.colonia,    
-                    zipCode: user.zipCode,    
                     phone: user.phone,
-                    horario: user.horario || '', 
-                    instrucciones: user.instrucciones || '', 
-                    city: user.city || '',    
-                    state: user.state || '',  
+                    // Cargar los pedidos del usuario desde el array global 'orders'
                     orders: orders.filter(o => o.userEmail === user.email)
                 };
-                localStorage.setItem('currentUser', JSON.stringify(currentUser)); 
+                localStorage.setItem('currentUser', JSON.stringify(currentUser)); // Guardar usuario logueado
                 
                 const loginModal = bootstrap.Modal.getInstance(document.getElementById('loginModal'));
                 loginModal.hide();
                 
                 showUserSection();
                 showToast(`Bienvenido, ${user.firstName}`);
-
-                // Después de cargar el usuario de localStorage, asegurar que el carrito de Firestore se cargue para su UID
-                if (currentFirebaseUserId) {
-                    await loadCartFromFirestore(currentFirebaseUserId);
-                }
             } else {
                 showToast('Email o contraseña incorrectos');
             }
         }
 
         // Función para registrar usuario
-        async function registerUser() { // Marcado como async
+        function registerUser() {
             const firstName = document.getElementById('registerFirstName').value;
             const lastName = document.getElementById('registerLastName').value;
             const email = document.getElementById('registerEmail').value;
             const password = document.getElementById('registerPassword').value;
-            const address = document.getElementById('registerAddress').value; 
-            const colonia = document.getElementById('registerColonia').value; 
-            const zipCode = document.getElementById('registerZipCode').value; 
+            const address = document.getElementById('registerAddress').value;
             const phone = document.getElementById('registerPhone').value;
-            const horario = document.getElementById('registerHorario').value; 
-            const instrucciones = document.getElementById('registerInstructions').value; 
             
-            if (!email || !password || !firstName || !lastName || !address || !colonia || !zipCode || !phone) {
-                showToast('Por favor completa todos los campos obligatorios (nombre, apellido, email, contraseña, calle y número, colonia, código postal, teléfono).');
+            if (!email || !password || !firstName || !lastName || !address || !phone) {
+                showToast('Por favor completa todos los campos');
                 return;
             }
             
@@ -1417,14 +1167,8 @@ const firebaseConfig = {
                 lastName,
                 email,
                 password,
-                address,   
-                colonia,   
-                zipCode,   
-                phone,
-                horario,      
-                instrucciones, 
-                city: '',  
-                state: ''  
+                address,
+                phone
             });
             
             localStorage.setItem('users', JSON.stringify(users));
@@ -1433,9 +1177,6 @@ const firebaseConfig = {
             registerModal.hide();
             
             showToast('Registro exitoso. Por favor inicia sesión.');
-
-            // Opcional: Si quieres persistir los datos del usuario registrado en Firestore, aquí deberías hacerlo.
-            // Actualmente, solo el carrito se maneja con Firestore.
         }
 
         // Función para mostrar la sección de usuario
@@ -1444,12 +1185,8 @@ const firebaseConfig = {
             
             document.getElementById('userName').textContent = `${currentUser.firstName} ${currentUser.lastName}`;
             document.getElementById('userEmail').textContent = currentUser.email;
-            document.getElementById('userAddress').textContent = currentUser.address || 'Calle y Número no proporcionados';
-            document.getElementById('userColonia').textContent = currentUser.colonia || 'Colonia no proporcionada'; 
-            document.getElementById('userZipCode').textContent = currentUser.zipCode || 'Código Postal no proporcionado'; 
+            document.getElementById('userAddress').textContent = currentUser.address || 'Dirección no proporcionada';
             document.getElementById('userPhone').textContent = currentUser.phone || 'Teléfono no proporcionado';
-            document.getElementById('userHorario').textContent = `Horario preferido: ${currentUser.horario || 'No especificado'}`; 
-            document.getElementById('userInstructions').textContent = `Instrucciones: ${currentUser.instrucciones || 'Ninguna'}`; 
             
             const ordersContainer = document.getElementById('userOrders');
             if (currentUser.orders && currentUser.orders.length > 0) {
@@ -1462,7 +1199,7 @@ const firebaseConfig = {
                     orderElement.className = 'mb-3 p-3 border rounded';
                     orderElement.innerHTML = `
                         <div class="d-flex justify-content-between">
-                            <h6>Pedido #${order.date.split(' ')[0]}</h6> 
+                            <h6>Pedido #${order.date.split(' ')[0]}</h6> <!-- Mostrar solo la fecha del ID de pedido -->
                             <span class="badge bg-primary">${order.status}</span>
                         </div>
                         <p class="mb-1"><small>${order.shippingAddress}</small></p>
@@ -1484,81 +1221,10 @@ const firebaseConfig = {
         // Función para logout de usuario
         function logoutUser() {
             currentUser = null;
-            localStorage.removeItem('currentUser'); 
+            localStorage.removeItem('currentUser'); // Eliminar usuario del localStorage
             document.getElementById('loginBtn').innerHTML = '<i class="fas fa-user"></i> Iniciar Sesión';
             showToast('Sesión cerrada');
             showSection('homeSection');
-
-            // Opcional: Si se desea que el carrito anónimo se vacíe al cerrar sesión,
-            // se podría llamar a saveCartToFirestore(currentFirebaseUserId, { items: [] }) aquí.
-            // Por ahora, el carrito anónimo persistirá en Firestore hasta que el usuario borre sus datos o use otro navegador.
-        }
-
-        // Función para precargar el formulario de edición de perfil con los datos del usuario actual
-        function populateEditProfileForm() {
-            if (currentUser) {
-                document.getElementById('editFirstName').value = currentUser.firstName || '';
-                document.getElementById('editLastName').value = currentUser.lastName || '';
-                document.getElementById('editEmail').value = currentUser.email || ''; 
-                document.getElementById('editAddress').value = currentUser.address || '';
-                document.getElementById('editColonia').value = currentUser.colonia || ''; 
-                document.getElementById('editZipCode').value = currentUser.zipCode || ''; 
-                document.getElementById('editPhone').value = currentUser.phone || '';
-                document.getElementById('editHorario').value = currentUser.horario || ''; 
-                document.getElementById('editInstructions').value = currentUser.instrucciones || ''; 
-            }
-        }
-
-        // Función para guardar los cambios del perfil
-        function saveProfileChanges() {
-            const editFirstName = document.getElementById('editFirstName').value;
-            const editLastName = document.getElementById('editLastName').value;
-            const editEmail = document.getElementById('editEmail').value; 
-            const editAddress = document.getElementById('editAddress').value; 
-            const editColonia = document.getElementById('editColonia').value; 
-            const editZipCode = document.getElementById('editZipCode').value; 
-            const editPhone = document.getElementById('editPhone').value;
-            const editHorario = document.getElementById('editHorario').value; 
-            const editInstructions = document.getElementById('editInstructions').value; 
-
-            if (!editFirstName || !editLastName || !editAddress || !editColonia || !editZipCode || !editPhone) {
-                showToast('Por favor, completa todos los campos obligatorios para actualizar tu perfil.');
-                return;
-            }
-
-            let users = JSON.parse(localStorage.getItem('users')) || [];
-            const userIndex = users.findIndex(u => u.email === editEmail);
-
-            if (userIndex !== -1) {
-                // Actualizar el usuario en la lista de usuarios de localStorage
-                users[userIndex].firstName = editFirstName;
-                users[userIndex].lastName = editLastName;
-                users[userIndex].address = editAddress;
-                users[userIndex].colonia = editColonia;    
-                users[userIndex].zipCode = editZipCode;    
-                users[userIndex].phone = editPhone;
-                users[userIndex].horario = editHorario; 
-                users[userIndex].instrucciones = editInstructions; 
-                localStorage.setItem('users', JSON.stringify(users));
-
-                // Actualizar el currentUser en sesión
-                currentUser.firstName = editFirstName;
-                currentUser.lastName = editLastName;
-                currentUser.address = editAddress;
-                currentUser.colonia = editColonia;    
-                currentUser.zipCode = editZipCode;    
-                currentUser.phone = editPhone;
-                currentUser.horario = editHorario; 
-                currentUser.instrucciones = editInstructions; 
-                localStorage.setItem('currentUser', JSON.stringify(currentUser));
-
-                const editModal = bootstrap.Modal.getInstance(document.getElementById('editProfileModal'));
-                editModal.hide();
-                showToast('Perfil actualizado con éxito.');
-                showUserSection(); 
-            } else {
-                showToast('Error: Usuario no encontrado para actualizar.');
-            }
         }
     </script>
 </body>
