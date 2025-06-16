@@ -371,7 +371,14 @@
                             <h3 class="mb-0">Mi Cuenta</h3>
                         </div>
                         <div class="card-body">
-                            <h5 id="userName"></h5>
+                            <!-- Botón de Editar Perfil -->
+                            <div class="d-flex justify-content-between align-items-center mb-3">
+                                <h5>Detalles Personales</h5>
+                                <button class="btn btn-sm btn-outline-secondary" id="editProfileBtn">
+                                    <i class="fas fa-edit"></i> Editar
+                                </button>
+                            </div>
+                            <p id="userName"></p>
                             <p id="userEmail"></p>
                             <p id="userAddress"></p>
                             <p id="userPhone"></p>
@@ -391,6 +398,48 @@
                 </div>
             </div>
         </div>
+
+        <!-- Modal de Editar Perfil -->
+        <div class="modal fade" id="editProfileModal" tabindex="-1" aria-hidden="true">
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title">Editar Perfil</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+                    <div class="modal-body">
+                        <form id="editProfileForm">
+                            <div class="row mb-3">
+                                <div class="col-md-6">
+                                    <label for="editFirstName" class="form-label">Nombre</label>
+                                    <input type="text" class="form-control" id="editFirstName" required>
+                                </div>
+                                <div class="col-md-6">
+                                    <label for="editLastName" class="form-label">Apellido</label>
+                                    <input type="text" class="form-control" id="editLastName" required>
+                                </div>
+                            </div>
+                            <div class="mb-3">
+                                <label for="editEmail" class="form-label">Email</label>
+                                <input type="email" class="form-control" id="editEmail" required readonly>
+                            </div>
+                            <div class="mb-3">
+                                <label for="editAddress" class="form-label">Dirección</label>
+                                <input type="text" class="form-control" id="editAddress" required>
+                            </div>
+                            <div class="mb-3">
+                                <label for="editPhone" class="form-label">Teléfono</label>
+                                <input type="tel" class="form-control" id="editPhone" required>
+                            </div>
+                            <div class="d-grid gap-2">
+                                <button type="submit" class="btn btn-primary">Guardar Cambios</button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+
     </div>
 
     <!-- Footer -->
@@ -541,7 +590,7 @@
                     p.name.toLowerCase().includes(searchTerm) || 
                     p.description.toLowerCase().includes(searchTerm) ||
                     p.category.toLowerCase().includes(searchTerm) ||
-		            String(p.codigo).toLowerCase().includes(searchTerm) // <<-- CAMBIO APLICADO AQUÍ
+		            String(p.codigo).toLowerCase().includes(searchTerm) 
                 );
             }
             
@@ -996,6 +1045,21 @@
             });
             
             document.getElementById('logoutBtn').addEventListener('click', logoutUser);
+
+            // Evento para el botón de editar perfil
+            document.getElementById('editProfileBtn').addEventListener('click', () => {
+                if (currentUser) {
+                    populateEditProfileForm();
+                    const editModal = new bootstrap.Modal(document.getElementById('editProfileModal'));
+                    editModal.show();
+                }
+            });
+
+            // Evento para el formulario de guardar cambios del perfil
+            document.getElementById('editProfileForm').addEventListener('submit', function(e) {
+                e.preventDefault();
+                saveProfileChanges();
+            });
         }
 
         // Función para buscar productos
@@ -1011,7 +1075,7 @@
                 product.name.toLowerCase().includes(searchTerm) || 
                 product.description.toLowerCase().includes(searchTerm) ||
                 product.category.toLowerCase().includes(searchTerm) ||
-                String(product.codigo).toLowerCase().includes(searchTerm) // <<-- CAMBIO APLICADO AQUÍ
+                String(product.codigo).toLowerCase().includes(searchTerm) 
             );
             
             showSection('productsSection');
@@ -1225,6 +1289,57 @@
             document.getElementById('loginBtn').innerHTML = '<i class="fas fa-user"></i> Iniciar Sesión';
             showToast('Sesión cerrada');
             showSection('homeSection');
+        }
+
+        // Función para precargar el formulario de edición de perfil con los datos del usuario actual
+        function populateEditProfileForm() {
+            if (currentUser) {
+                document.getElementById('editFirstName').value = currentUser.firstName || '';
+                document.getElementById('editLastName').value = currentUser.lastName || '';
+                document.getElementById('editEmail').value = currentUser.email || ''; // Email readonly
+                document.getElementById('editAddress').value = currentUser.address || '';
+                document.getElementById('editPhone').value = currentUser.phone || '';
+            }
+        }
+
+        // Función para guardar los cambios del perfil
+        function saveProfileChanges() {
+            const editFirstName = document.getElementById('editFirstName').value;
+            const editLastName = document.getElementById('editLastName').value;
+            const editEmail = document.getElementById('editEmail').value; // No se edita, pero se usa para buscar
+            const editAddress = document.getElementById('editAddress').value;
+            const editPhone = document.getElementById('editPhone').value;
+
+            if (!editFirstName || !editLastName || !editAddress || !editPhone) {
+                showToast('Por favor, completa todos los campos para actualizar tu perfil.');
+                return;
+            }
+
+            let users = JSON.parse(localStorage.getItem('users')) || [];
+            const userIndex = users.findIndex(u => u.email === editEmail);
+
+            if (userIndex !== -1) {
+                // Actualizar el usuario en la lista de usuarios
+                users[userIndex].firstName = editFirstName;
+                users[userIndex].lastName = editLastName;
+                users[userIndex].address = editAddress;
+                users[userIndex].phone = editPhone;
+                localStorage.setItem('users', JSON.stringify(users));
+
+                // Actualizar el currentUser en sesión
+                currentUser.firstName = editFirstName;
+                currentUser.lastName = editLastName;
+                currentUser.address = editAddress;
+                currentUser.phone = editPhone;
+                localStorage.setItem('currentUser', JSON.stringify(currentUser));
+
+                const editModal = bootstrap.Modal.getInstance(document.getElementById('editProfileModal'));
+                editModal.hide();
+                showToast('Perfil actualizado con éxito.');
+                showUserSection(); // Refrescar la sección de usuario para mostrar los cambios
+            } else {
+                showToast('Error: Usuario no encontrado para actualizar.');
+            }
         }
     </script>
 </body>
