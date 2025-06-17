@@ -494,14 +494,49 @@
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     <script type="module">
-        // Importar módulos de Firebase
-        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.0/firebase-app.js";
-        import { getAuth, signInAnonymously, onAuthStateChanged, signInWithEmailAndPassword, createUserWithEmailAndPassword, signOut } from "https://www.gstatic.com/firebasejs/10.7.0/firebase-auth.js";
-        import { getFirestore, doc, getDoc, setDoc, updateDoc } from "https://www.gstatic.com/firebasejs/10.7.0/firebase-firestore.js";
 
-        // Hacer las funciones de Firebase accesibles globalmente si es necesario para el resto del script no modular
-        // Aunque el resto del script no está en un módulo, usaremos las variables globales directamente
-        // dentro de este bloque de script module para interactuar con Firebase.
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script type="module">
+        // Import Firebase modules
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
+        import {
+            getAuth,
+            createUserWithEmailAndPassword,
+            signInWithEmailAndPassword,
+            signOut,
+            onAuthStateChanged,
+            signInAnonymously,
+            signInWithCustomToken, // Added
+            updatePassword,         // Added
+            sendPasswordResetEmail, // Added
+            EmailAuthProvider,      // Added
+            reauthenticateWithCredential // Added
+        } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
+        import {
+            getFirestore,
+            collection,             // Added
+            addDoc,                 // Added
+            query,                  // Added
+            orderBy,                // Added
+            getDocs,                // Added
+            serverTimestamp,        // Added
+            doc,
+            setDoc,
+            onSnapshot              // Added
+        } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+
+        // IMPORTANT: Update your Firebase configuration if you haven't already
+const firebaseConfig = {
+  apiKey: "AIzaSyATKAFNmwhe9X0GQ5GxHiSmc3wiOhb7j18",
+  authDomain: "rodillo-2b699.firebaseapp.com",
+  databaseURL: "https://rodillo-2b699-default-rtdb.firebaseio.com",
+  projectId: "rodillo-2b699",
+  storageBucket: "rodillo-2b699.firebasestorage.app",
+  messagingSenderId: "652395478682",
+  appId: "1:652395478682:web:f4447c35fee0599030a923"
+};
+
 
         // Variables globales
         let cart = [];
@@ -515,7 +550,7 @@
         // Firebase Global variables
         let db;
         let auth;
-        let currentFirebaseUserId = null; // Almacena el UID de Firebase Auth para el carrito
+        let currentFirebaseUserId = null; 
 
         // Inicializar EmailJS (debes reemplazar con tus credenciales)
         emailjs.init('-DaNY5iTEaA9aMemL');
