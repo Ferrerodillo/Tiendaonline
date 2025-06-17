@@ -454,7 +454,7 @@
                             </div>
                             <div class="mb-3">
                                 <label for="editEmail" class="form-label">Email</label>
-                                <input type="email" class="form-control" id="editEmail" required readonly>
+                                <input type="email" class="form-control" id="editEmail" required>
                             </div>
                             <div class="mb-3">
                                 <label for="editAddress" class="form-label">Calle y Número</label>
@@ -1615,7 +1615,7 @@ import { getDoc } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-fires
             if (currentUser) {
                 document.getElementById('editFirstName').value = currentUser.firstName || '';
                 document.getElementById('editLastName').value = currentUser.lastName || '';
-                document.getElementById('editEmail').value = currentUser.email || ''; 
+                document.getElementById('editEmail').value = auth.currentUser.email || ''; 
                 document.getElementById('editAddress').value = currentUser.address || '';
                 document.getElementById('editColonia').value = currentUser.colonia || ''; 
                 document.getElementById('editZipCode').value = currentUser.zipCode || ''; 
