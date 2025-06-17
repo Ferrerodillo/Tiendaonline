@@ -1610,71 +1610,86 @@ import { getDoc } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-fires
             }
         }
 
-        // Function to preload edit profile form with current user data
-        function populateEditProfileForm() {
-            if (currentUser) {
-                document.getElementById('editFirstName').value = currentUser.firstName || '';
-                document.getElementById('editLastName').value = currentUser.lastName || '';
-                document.getElementById('editEmail').value = auth.currentUser.email || ''; 
-                document.getElementById('editAddress').value = currentUser.address || '';
-                document.getElementById('editColonia').value = currentUser.colonia || ''; 
-                document.getElementById('editZipCode').value = currentUser.zipCode || ''; 
-                document.getElementById('editPhone').value = currentUser.phone || '';
-                document.getElementById('editHorario').value = currentUser.horario || ''; 
-                document.getElementById('editInstructions').value = currentUser.instrucciones || ''; 
-            }
-        }
+async function populateEditProfileForm() {
+    if (!auth.currentUser) {
+        showToast("No hay sesión activa.");
+        return;
+    }
 
-        // Function to save profile changes
-        async function saveProfileChanges() {
-            const editFirstName = document.getElementById('editFirstName').value;
-            const editLastName = document.getElementById('editLastName').value;
-            const editEmail = document.getElementById('editEmail').value; // Email is readonly, used for lookup
-            const editAddress = document.getElementById('editAddress').value; 
-            const editColonia = document.getElementById('editColonia').value; 
-            const editZipCode = document.getElementById('editZipCode').value; 
-            const editPhone = document.getElementById('editPhone').value;
-            const editHorario = document.getElementById('editHorario').value; 
-            const editInstructions = document.getElementById('editInstructions').value; 
+    const userId = auth.currentUser.uid;
 
-            if (!editFirstName || !editLastName || !editAddress || !editColonia || !editZipCode || !editPhone) {
-                showToast('Por favor, completa todos los campos obligatorios para actualizar tu perfil.');
-                return;
-            }
+    try {
+        // Vuelve a cargar los datos desde Firestore
+        await loadUserProfileFromFirestore(userId);
 
-            if (currentFirebaseUserId) {
-                const userRef = doc(db, 'users', currentFirebaseUserId);
-                const updatedProfileData = {
-                    firstName: editFirstName,
-                    lastName: editLastName,
-                    address: editAddress,
-                    colonia: editColonia,    
-                    zipCode: editZipCode,    
-                    phone: editPhone,
-                    horario: editHorario, 
-                    instrucciones: editInstructions, 
-                    // city and state are intentionally not updated here if they are not on the edit form
-                };
+        // Ahora currentUser se ha actualizado correctamente
+        document.getElementById('editFirstName').value = currentUser.firstName || '';
+        document.getElementById('editLastName').value = currentUser.lastName || '';
+        document.getElementById('editEmail').value = auth.currentUser.email || ''; // más confiable
+        document.getElementById('editAddress').value = currentUser.address || '';
+        document.getElementById('editColonia').value = currentUser.colonia || '';
+        document.getElementById('editZipCode').value = currentUser.zipCode || '';
+        document.getElementById('editPhone').value = currentUser.phone || '';
+        document.getElementById('editHorario').value = currentUser.horario || '';
+        document.getElementById('editInstructions').value = currentUser.instrucciones || '';
+    } catch (error) {
+        console.error("Error al cargar el perfil desde Firestore:", error);
+        showToast("No se pudo cargar el perfil actualizado.");
+    }
+}
 
-                try {
-                    await updateDoc(userRef, updatedProfileData);
-                    // Update currentUser object locally and in localStorage after successful Firestore update
-                    currentUser = { ...currentUser, ...updatedProfileData };
-                    localStorage.setItem('currentUser', JSON.stringify(currentUser));
-                    console.log("Profile updated in Firestore and localStorage.");
+async function saveProfileChanges() {
+    const editFirstName = document.getElementById('editFirstName').value;
+    const editLastName = document.getElementById('editLastName').value;
+    const editAddress = document.getElementById('editAddress').value;
+    const editColonia = document.getElementById('editColonia').value;
+    const editZipCode = document.getElementById('editZipCode').value;
+    const editPhone = document.getElementById('editPhone').value;
+    const editHorario = document.getElementById('editHorario').value;
+    const editInstructions = document.getElementById('editInstructions').value;
 
-                    const editModal = bootstrap.Modal.getInstance(document.getElementById('editProfileModal'));
-                    editModal.hide();
-                    showToast('Perfil actualizado con éxito.');
-                    showUserSection(); 
-                } catch (error) {
-                    console.error("Error updating user profile in Firestore:", error);
-                    showToast("Error al actualizar el perfil en la nube.");
-                }
-            } else {
-                showToast('Error: No hay usuario autenticado para actualizar el perfil.');
-            }
-        }
+    if (!editFirstName || !editLastName || !editAddress || !editColonia || !editZipCode || !editPhone) {
+        showToast('Por favor, completa todos los campos obligatorios para actualizar tu perfil.');
+        return;
+    }
+
+    if (!auth.currentUser || !auth.currentUser.uid) {
+        showToast('No hay usuario autenticado.');
+        return;
+    }
+
+    const userId = auth.currentUser.uid;
+    const userRef = doc(db, 'users', userId);
+
+    const updatedProfileData = {
+        firstName: editFirstName,
+        lastName: editLastName,
+        address: editAddress,
+        colonia: editColonia,
+        zipCode: editZipCode,
+        phone: editPhone,
+        horario: editHorario,
+        instrucciones: editInstructions
+    };
+
+    try {
+        await updateDoc(userRef, updatedProfileData);
+
+        // Actualiza el objeto local y localStorage
+        currentUser = { ...currentUser, ...updatedProfileData };
+        localStorage.setItem('currentUser', JSON.stringify(currentUser));
+
+        const editModal = bootstrap.Modal.getInstance(document.getElementById('editProfileModal'));
+        editModal.hide();
+
+        showToast('Perfil actualizado con éxito.');
+        showUserSection(); // Actualiza la vista de perfil
+    } catch (error) {
+        console.error("Error al guardar el perfil en Firestore:", error);
+        showToast("Error al guardar el perfil en la nube.");
+    }
+}
+e
     </script>
 </body>
 </html>
