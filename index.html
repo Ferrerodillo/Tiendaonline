@@ -559,6 +559,7 @@
 
         // Wait for DOM to be ready
         document.addEventListener('DOMContentLoaded', async function() {
+            console.log("DOM content loaded. Starting Firebase initialization.");
             // --- Firebase Initialization ---
             // IMPORTANT: Replace with your actual Firebase project configuration
             const firebaseConfig = {
@@ -572,40 +573,49 @@
             };
  
             if (Object.keys(firebaseConfig).length > 0 && firebaseConfig.apiKey) {
-                const app = initializeApp(firebaseConfig);
-                db = getFirestore(app);
-                auth = getAuth(app);
+                try {
+                    const app = initializeApp(firebaseConfig);
+                    db = getFirestore(app);
+                    auth = getAuth(app);
+                    console.log("Firebase app initialized successfully.");
 
-                // Listen for Firebase authentication state changes
-                onAuthStateChanged(auth, async (user) => {
-                    if (user) {
-                        currentFirebaseUserId = user.uid;
-                        // Attempt to load user profile from Firestore if authenticated
-                        await loadUserProfileFromFirestore(user.uid);
-                        await loadCartFromFirestore(currentFirebaseUserId);
-                    } else {
-                        // If no Firebase user, attempt anonymous sign-in (for cart persistence without explicit login)
-                        try {
-                            const anonymousUserCredential = await signInAnonymously(auth);
-                            currentFirebaseUserId = anonymousUserCredential.user.uid;
-                            await loadCartFromFirestore(currentFirebaseUserId); // Load cart for anonymous user
-                            // For anonymous users, currentUser remains null or is set minimally.
-                            currentUser = null; 
-                        } catch (error) {
-                            console.error("Error al iniciar sesión anónimamente:", error);
-                            showToast("Error al cargar la sesión. Intenta recargar la página.");
+                    // Listen for Firebase authentication state changes
+                    onAuthStateChanged(auth, async (user) => {
+                        if (user) {
+                            currentFirebaseUserId = user.uid;
+                            console.log("Firebase Auth state changed: User is logged in.", user.uid);
+                            // Attempt to load user profile from Firestore if authenticated
+                            await loadUserProfileFromFirestore(user.uid);
+                            await loadCartFromFirestore(currentFirebaseUserId);
+                        } else {
+                            console.log("Firebase Auth state changed: No user logged in. Attempting anonymous sign-in.");
+                            // If no Firebase user, attempt anonymous sign-in (for cart persistence without explicit login)
+                            try {
+                                const anonymousUserCredential = await signInAnonymously(auth);
+                                currentFirebaseUserId = anonymousUserCredential.user.uid;
+                                console.log("Signed in anonymously with UID:", currentFirebaseUserId);
+                                await loadCartFromFirestore(currentFirebaseUserId); // Load cart for anonymous user
+                                // For anonymous users, currentUser remains null or is set minimally.
+                                currentUser = null; 
+                            } catch (error) {
+                                console.error("Error al iniciar sesión anónimamente:", error);
+                                showToast("Error al cargar la sesión. Intenta recargar la página.");
+                            }
                         }
-                    }
-                    // After Firebase Auth is ready and currentFirebaseUserId is set,
-                    // proceed with displaying the correct section.
-                    if (currentUser) {
-                        showUserSection();
-                    } else {
-                        showSection('homeSection'); 
-                    }
-                });
+                        // After Firebase Auth is ready and currentFirebaseUserId is set,
+                        // proceed with displaying the correct section.
+                        if (currentUser) {
+                            showUserSection();
+                        } else {
+                            showSection('homeSection'); 
+                        }
+                    });
+                } catch (error) {
+                    console.error("Error initializing Firebase app:", error);
+                    showToast("Error al inicializar Firebase. Por favor revisa tu configuración.");
+                }
             } else {
-                console.warn("Firebase configuration not found. Cart will not be saved to cloud.");
+                console.warn("Firebase configuration not found or API key is missing. Cart will not be saved to cloud.");
                 showToast("Configuración de Firebase no encontrada. El carrito no se guardará en la nube.");
                 // Continue with localStorage logic only if Firebase is not configured
                 const storedUser = localStorage.getItem('currentUser');
@@ -633,9 +643,9 @@
             try {
                 const cartRef = doc(db, 'carts', userId);
                 await setDoc(cartRef, { items: cart }); // Overwrite the entire cart document
-                console.log("Cart saved to Firestore for:", userId);
+                console.log("Carrito guardado en Firestore para:", userId);
             } catch (error) {
-                console.error("Error saving cart to Firestore:", error);
+                console.error("Error guardando el carrito en Firestore:", error);
                 showToast("Error al guardar el carrito en la nube.");
             }
         }
@@ -651,14 +661,14 @@
                 const cartSnap = await getDoc(cartRef);
                 if (cartSnap.exists()) {
                     cart = cartSnap.data().items || [];
-                    console.log("Cart loaded from Firestore for:", userId);
+                    console.log("Carrito cargado de Firestore para:", userId);
                 } else {
-                    console.log("No cart in Firestore for:", userId + ". Iniciando con carrito vacío o local.");
+                    console.log("No hay carrito en Firestore para:", userId + ". Iniciando con carrito vacío o local.");
                     cart = []; 
                 }
                 updateCart(); // Update interface after loading cart
             } catch (error) {
-                console.error("Error loading cart from Firestore:", error);
+                console.error("Error cargando el carrito de Firestore:", error);
                 showToast("Error al cargar el carrito desde la nube.");
             }
         }
@@ -666,7 +676,7 @@
         // Function to load user profile from Firestore
         async function loadUserProfileFromFirestore(userId) {
             if (!db || !userId) {
-                console.warn("Firestore or userId not available to load user profile.");
+                console.warn("Firestore o userId no disponibles para cargar el perfil de usuario.");
                 return;
             }
             try {
@@ -675,13 +685,12 @@
                 if (userSnap.exists()) {
                     currentUser = userSnap.data();
                     localStorage.setItem('currentUser', JSON.stringify(currentUser)); // Update localStorage
-                    console.log("User profile loaded from Firestore for:", userId);
+                    console.log("Perfil de usuario cargado de Firestore para:", userId, currentUser);
                 } else {
-                    console.log("No user profile in Firestore for:", userId);
+                    console.log("No hay perfil de usuario en Firestore para:", userId);
                     // If a user logs in but has no profile data in Firestore, create a basic one
-                    // This might happen for new Firebase Auth users who haven't registered through the form
                     currentUser = {
-                        email: auth.currentUser ? auth.currentUser.email : '', // Ensure email is set from Firebase Auth if available
+                        email: auth.currentUser ? auth.currentUser.email : '', 
                         firstName: '',
                         lastName: '',
                         address: '',
@@ -692,15 +701,14 @@
                         instrucciones: '', 
                         city: '',  
                         state: '',  
-                        orders: [] // Initialize with empty orders
+                        orders: [] 
                     };
-                    // Attempt to save this basic profile to Firestore to prevent repeated "not found"
-                    await setDoc(userRef, currentUser, { merge: true }); // Use merge: true to avoid overwriting existing fields if they exist
+                    await setDoc(userRef, currentUser, { merge: true }); 
                     localStorage.setItem('currentUser', JSON.stringify(currentUser));
-                    console.log("Basic user profile created/merged in Firestore for:", userId);
+                    console.log("Perfil de usuario básico creado/fusionado en Firestore para:", userId);
                 }
             } catch (error) {
-                console.error("Error loading user profile from Firestore:", error);
+                console.error("Error cargando el perfil de usuario desde Firestore:", error);
                 showToast("Error al cargar el perfil de usuario desde la nube.");
             }
         }
@@ -1400,9 +1408,9 @@
                         try {
                             const cartRef = doc(db, 'carts', currentFirebaseUserId);
                             await updateDoc(cartRef, { items: [] }); // Empty the items array
-                            console.log("Cart emptied in Firestore for:", currentFirebaseUserId);
+                            console.log("Carrito vaciado en Firestore para:", currentFirebaseUserId);
                         } catch (firestoreError) {
-                            console.error("Error emptying cart in Firestore:", firestoreError);
+                            console.error("Error vaciando el carrito en Firestore:", firestoreError);
                             showToast("Error al vaciar el carrito en la nube.");
                         }
                     }
@@ -1423,10 +1431,12 @@
             const email = document.getElementById('loginEmail').value;
             const password = document.getElementById('loginPassword').value;
             
+            console.log("Attempting login for:", email);
             try {
                 const userCredential = await signInWithEmailAndPassword(auth, email, password);
                 const user = userCredential.user;
                 currentFirebaseUserId = user.uid;
+                console.log("Firebase Auth successful. User UID:", user.uid);
 
                 // Load user profile from Firestore
                 await loadUserProfileFromFirestore(user.uid);
@@ -1439,13 +1449,16 @@
                 showToast(`Bienvenido, ${currentUser.firstName || user.email}`);
 
             } catch (error) {
-                console.error("Error logging in:", error);
+                console.error("Error al iniciar sesión:", error);
                 if (error.code === 'auth/invalid-credential' || error.code === 'auth/user-not-found' || error.code === 'auth/wrong-password') {
                      showToast('Email o contraseña incorrectos');
+                     console.log("Login Error: Invalid credentials.");
                 } else if (error.code === 'auth/user-disabled') {
                      showToast('Tu cuenta ha sido deshabilitada.');
+                     console.log("Login Error: User disabled.");
                 } else {
                      showToast('Error al iniciar sesión. Por favor intenta de nuevo.');
+                     console.log("Login Error: Generic error code:", error.code);
                 }
             }
         }
@@ -1468,10 +1481,12 @@
                 return;
             }
             
+            console.log("Attempting registration for:", email);
             try {
                 const userCredential = await createUserWithEmailAndPassword(auth, email, password);
                 const user = userCredential.user;
                 currentFirebaseUserId = user.uid;
+                console.log("Firebase Auth registration successful. User UID:", user.uid);
 
                 // Save additional user data to Firestore
                 const newUserProfile = {
@@ -1489,6 +1504,7 @@
                     orders: [] // Initialize with empty orders
                 };
                 await setDoc(doc(db, 'users', user.uid), newUserProfile);
+                console.log("User profile saved to Firestore.");
                 
                 // Set currentUser locally and in localStorage
                 currentUser = newUserProfile;
@@ -1501,13 +1517,16 @@
                 showUserSection();
 
             } catch (error) {
-                console.error("Error registering user:", error);
+                console.error("Error al registrar usuario:", error);
                 if (error.code === 'auth/email-already-in-use') {
                     showToast('Este email ya está registrado');
+                    console.log("Registration Error: Email already in use.");
                 } else if (error.code === 'auth/weak-password') {
                     showToast('La contraseña debe tener al menos 6 caracteres.');
+                    console.log("Registration Error: Weak password.");
                 } else {
                     showToast('Error al registrar usuario. Por favor intenta de nuevo.');
+                    console.log("Registration Error: Generic error code:", error.code);
                 }
             }
         }
@@ -1567,10 +1586,11 @@
                 document.getElementById('loginBtn').innerHTML = '<i class="fas fa-user"></i> Iniciar Sesión';
                 showToast('Sesión cerrada');
                 showSection('homeSection');
+                console.log("User logged out successfully.");
                 // The cart in Firestore for the previous user (anonymous or authenticated) will persist.
                 // A new anonymous session will start if no other user logs in.
             } catch (error) {
-                console.error("Error signing out:", error);
+                console.error("Error al cerrar sesión:", error);
                 showToast("Error al cerrar sesión. Por favor intenta de nuevo.");
             }
         }
@@ -1626,6 +1646,7 @@
                     // Update currentUser object locally and in localStorage after successful Firestore update
                     currentUser = { ...currentUser, ...updatedProfileData };
                     localStorage.setItem('currentUser', JSON.stringify(currentUser));
+                    console.log("Profile updated in Firestore and localStorage.");
 
                     const editModal = bootstrap.Modal.getInstance(document.getElementById('editProfileModal'));
                     editModal.hide();
