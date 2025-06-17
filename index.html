@@ -87,6 +87,7 @@
     </style>
 </head>
 <body>
+    <!-- Navbar Estática (fixed-top) -->
     <nav class="navbar navbar-expand-lg navbar-dark bg-danger fixed-top">
         <div class="container">
             <a class="navbar-brand" href="#" style="color: yellow; font-size: 40px;"><strong>Ferretería Y Papelería El Rodillo<strong></a>
@@ -119,7 +120,9 @@
         </div>
     </nav>
 
+    <!-- Contenido Principal -->
     <div class="container mt-4">
+        <!-- Sección de Inicio -->
         <div id="homeSection">
             <div class="jumbotron bg-light p-5 rounded">
 		<img src="https://raw.githubusercontent.com/Ferrerodillo/Tiendaonline/refs/heads/main/logo%20para%20ferreteria%20ilustrator%20-%20copia.png" width="600" height="150" alt="Descripción de la imagen">
@@ -131,6 +134,7 @@
             </div>
         </div>
 
+        <!-- Sección de Productos -->
         <div id="productsSection" class="hidden">
             <div class="row mb-4">
                 <div class="col-md-8">
@@ -139,11 +143,13 @@
                 <div class="col-md-4">
                     <select class="form-select" id="categoryFilter">
                         <option value="all">Todas las categorías</option>
-                        </select>
+                        <!-- Las opciones de categoría se cargarán dinámicamente -->
+                    </select>
                 </div>
             </div>
             
             <div class="row" id="productsContainer">
+                <!-- Los productos se cargarán aquí desde el CSV -->
                 <div class="col-12 text-center">
                     <div class="spinner-border text-primary" role="status">
                         <span class="visually-hidden">Cargando productos...</span>
@@ -153,6 +159,7 @@
             </div>
         </div>
 
+        <!-- Sección del Carrito -->
         <div id="cartSection" class="hidden">
             <div class="row">
                 <div class="col-md-8">
@@ -185,6 +192,7 @@
             </div>
         </div>
 
+        <!-- Modal de Detalles de Producto -->
         <div class="modal fade" id="productDetailModal" tabindex="-1" aria-hidden="true">
             <div class="modal-dialog modal-lg">
                 <div class="modal-content">
@@ -219,6 +227,7 @@
             </div>
         </div>
 
+        <!-- Formulario de Checkout (este formulario ahora se precargará si hay un usuario logueado) -->
         <div id="checkoutSection" class="hidden">
             <div class="row justify-content-center">
                 <div class="col-md-8">
@@ -275,6 +284,7 @@
             </div>
         </div>
 
+        <!-- Modal de Login -->
         <div class="modal fade" id="loginModal" tabindex="-1" aria-hidden="true">
             <div class="modal-dialog">
                 <div class="modal-content">
@@ -304,6 +314,7 @@
             </div>
         </div>
 
+        <!-- Modal de Registro -->
         <div class="modal fade" id="registerModal" tabindex="-1" aria-hidden="true">
             <div class="modal-dialog">
                 <div class="modal-content">
@@ -367,6 +378,7 @@
             </div>
         </div>
 
+        <!-- Área de Usuario -->
         <div id="userSection" class="hidden">
             <div class="row">
                 <div class="col-md-4">
@@ -375,6 +387,7 @@
                             <h3 class="mb-0">Mi Cuenta</h3>
                         </div>
                         <div class="card-body">
+                            <!-- Botón de Editar Perfil -->
                             <div class="d-flex justify-content-between align-items-center mb-3">
                                 <h5>Detalles Personales</h5>
                                 <button class="btn btn-sm btn-outline-secondary" id="editProfileBtn">
@@ -387,7 +400,9 @@
                             <p id="userColonia"></p> 
                             <p id="userZipCode"></p> 
                             <p id="userPhone"></p>
-                            <p id="userHorario"></p> <p id="userInstructions"></p> <button class="btn btn-outline-danger w-100 mt-3" id="logoutBtn">Cerrar Sesión</button>
+                            <p id="userHorario"></p> <!-- Nuevo campo para Horario -->
+                            <p id="userInstructions"></p> <!-- Nuevo campo para Instrucciones -->
+                            <button class="btn btn-outline-danger w-100 mt-3" id="logoutBtn">Cerrar Sesión</button>
                         </div>
                     </div>
                 </div>
@@ -404,6 +419,7 @@
             </div>
         </div>
 
+        <!-- Modal de Editar Perfil -->
         <div class="modal fade" id="editProfileModal" tabindex="-1" aria-hidden="true">
             <div class="modal-dialog">
                 <div class="modal-content">
@@ -462,6 +478,7 @@
 
     </div>
 
+    <!-- Footer -->
     <footer class="bg-warning mt-5 py-4">
         <div class="container">
             <div class="row">
@@ -494,10 +511,6 @@
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     <script type="module">
-
-
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-    <script type="module">
         // Import Firebase modules
         import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
         import {
@@ -507,36 +520,25 @@
             signOut,
             onAuthStateChanged,
             signInAnonymously,
-            signInWithCustomToken, // Added
-            updatePassword,         // Added
-            sendPasswordResetEmail, // Added
-            EmailAuthProvider,      // Added
-            reauthenticateWithCredential // Added
+            signInWithCustomToken,
+            updatePassword,
+            sendPasswordResetEmail,
+            EmailAuthProvider,
+            reauthenticateWithCredential
         } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
         import {
             getFirestore,
-            collection,             // Added
-            addDoc,                 // Added
-            query,                  // Added
-            orderBy,                // Added
-            getDocs,                // Added
-            serverTimestamp,        // Added
+            collection,
+            addDoc,
+            query,
+            orderBy,
+            getDocs,
+            serverTimestamp,
             doc,
             setDoc,
-            onSnapshot              // Added
+            updateDoc, // Ensure updateDoc is imported for profile updates
+            onSnapshot
         } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
-
-        // IMPORTANT: Update your Firebase configuration if you haven't already
-const firebaseConfig = {
-  apiKey: "AIzaSyATKAFNmwhe9X0GQ5GxHiSmc3wiOhb7j18",
-  authDomain: "rodillo-2b699.firebaseapp.com",
-  databaseURL: "https://rodillo-2b699-default-rtdb.firebaseio.com",
-  projectId: "rodillo-2b699",
-  storageBucket: "rodillo-2b699.firebasestorage.app",
-  messagingSenderId: "652395478682",
-  appId: "1:652395478682:web:f4447c35fee0599030a923"
-};
-
 
         // Variables globales
         let cart = [];
@@ -550,30 +552,31 @@ const firebaseConfig = {
         // Firebase Global variables
         let db;
         let auth;
-        let currentFirebaseUserId = null; 
+        let currentFirebaseUserId = null; // Stores Firebase Auth UID for cart and user data
 
-        // Inicializar EmailJS (debes reemplazar con tus credenciales)
+        // Initialize EmailJS (replace with your credentials)
         emailjs.init('-DaNY5iTEaA9aMemL');
 
-        // Esperar a que el DOM esté listo
+        // Wait for DOM to be ready
         document.addEventListener('DOMContentLoaded', async function() {
-            // --- Inicialización de Firebase ---
-const firebaseConfig = {
-  apiKey: "AIzaSyATKAFNmwhe9X0GQ5GxHiSmc3wiOhb7j18",
-  authDomain: "rodillo-2b699.firebaseapp.com",
-  databaseURL: "https://rodillo-2b699-default-rtdb.firebaseio.com",
-  projectId: "rodillo-2b699",
-  storageBucket: "rodillo-2b699.firebasestorage.app",
-  messagingSenderId: "652395478682",
-  appId: "1:652395478682:web:f4447c35fee0599030a923"
-};
+            // --- Firebase Initialization ---
+            // IMPORTANT: Replace with your actual Firebase project configuration
+            const firebaseConfig = {
+              apiKey: "AIzaSyATKAFNmwhe9X0GQ5GxHiSmc3wiOhb7j18",
+              authDomain: "rodillo-2b699.firebaseapp.com",
+              databaseURL: "https://rodillo-2b699-default-rtdb.firebaseio.com",
+              projectId: "rodillo-2b699",
+              storageBucket: "rodillo-2b699.firebasestorage.app",
+              messagingSenderId: "652395478682",
+              appId: "1:652395478682:web:f4447c35fee0599030a923"
+            };
  
-            if (Object.keys(firebaseConfig).length > 0) {
+            if (Object.keys(firebaseConfig).length > 0 && firebaseConfig.apiKey) {
                 const app = initializeApp(firebaseConfig);
                 db = getFirestore(app);
                 auth = getAuth(app);
 
-                // Escuchar cambios en el estado de autenticación de Firebase
+                // Listen for Firebase authentication state changes
                 onAuthStateChanged(auth, async (user) => {
                     if (user) {
                         currentFirebaseUserId = user.uid;
@@ -581,7 +584,7 @@ const firebaseConfig = {
                         await loadUserProfileFromFirestore(user.uid);
                         await loadCartFromFirestore(currentFirebaseUserId);
                     } else {
-                        // If no Firebase user, attempt anonymous sign-in
+                        // If no Firebase user, attempt anonymous sign-in (for cart persistence without explicit login)
                         try {
                             const anonymousUserCredential = await signInAnonymously(auth);
                             currentFirebaseUserId = anonymousUserCredential.user.uid;
@@ -602,7 +605,7 @@ const firebaseConfig = {
                     }
                 });
             } else {
-                console.warn("Configuración de Firebase no encontrada. El carrito no se guardará en la nube.");
+                console.warn("Firebase configuration not found. Cart will not be saved to cloud.");
                 showToast("Configuración de Firebase no encontrada. El carrito no se guardará en la nube.");
                 // Continue with localStorage logic only if Firebase is not configured
                 const storedUser = localStorage.getItem('currentUser');
@@ -633,7 +636,7 @@ const firebaseConfig = {
                 console.log("Cart saved to Firestore for:", userId);
             } catch (error) {
                 console.error("Error saving cart to Firestore:", error);
-                showToast("Error saving cart to cloud.");
+                showToast("Error al guardar el carrito en la nube.");
             }
         }
 
@@ -650,13 +653,13 @@ const firebaseConfig = {
                     cart = cartSnap.data().items || [];
                     console.log("Cart loaded from Firestore for:", userId);
                 } else {
-                    console.log("No cart in Firestore for:", userId + ". Starting with empty or local cart.");
+                    console.log("No cart in Firestore for:", userId + ". Iniciando con carrito vacío o local.");
                     cart = []; 
                 }
                 updateCart(); // Update interface after loading cart
             } catch (error) {
                 console.error("Error loading cart from Firestore:", error);
-                showToast("Error loading cart from cloud.");
+                showToast("Error al cargar el carrito desde la nube.");
             }
         }
 
@@ -677,14 +680,22 @@ const firebaseConfig = {
                     console.log("No user profile in Firestore for:", userId);
                     // If a user logs in but has no profile data in Firestore, create a basic one
                     // This might happen for new Firebase Auth users who haven't registered through the form
-                    // Or if they previously only used localStorage.
-                    currentUser = JSON.parse(localStorage.getItem('currentUser')) || {};
-                    currentUser.email = auth.currentUser.email; // Ensure email is set from Firebase Auth
-                    // Set a placeholder for orders, which will be filtered later based on user email
-                    currentUser.orders = orders.filter(o => o.userEmail === currentUser.email);
-
+                    currentUser = {
+                        email: auth.currentUser ? auth.currentUser.email : '', // Ensure email is set from Firebase Auth if available
+                        firstName: '',
+                        lastName: '',
+                        address: '',
+                        colonia: '',    
+                        zipCode: '',    
+                        phone: '',
+                        horario: '', 
+                        instrucciones: '', 
+                        city: '',  
+                        state: '',  
+                        orders: [] // Initialize with empty orders
+                    };
                     // Attempt to save this basic profile to Firestore to prevent repeated "not found"
-                    await setDoc(userRef, currentUser, { merge: true });
+                    await setDoc(userRef, currentUser, { merge: true }); // Use merge: true to avoid overwriting existing fields if they exist
                     localStorage.setItem('currentUser', JSON.stringify(currentUser));
                     console.log("Basic user profile created/merged in Firestore for:", userId);
                 }
@@ -729,7 +740,7 @@ const firebaseConfig = {
                 },
                 error: function(error) {
                     console.error("Error loading products from GitHub:", error);
-                    showToast("Error loading catalog products. Loading examples.");
+                    showToast("Error al cargar productos del catálogo. Cargando ejemplos.");
                     loadSampleProducts();
                 }
             });
@@ -1429,7 +1440,7 @@ const firebaseConfig = {
 
             } catch (error) {
                 console.error("Error logging in:", error);
-                if (error.code === 'auth/invalid-credential') { // More generic now for "user-not-found" or "wrong-password"
+                if (error.code === 'auth/invalid-credential' || error.code === 'auth/user-not-found' || error.code === 'auth/wrong-password') {
                      showToast('Email o contraseña incorrectos');
                 } else if (error.code === 'auth/user-disabled') {
                      showToast('Tu cuenta ha sido deshabilitada.');
@@ -1474,7 +1485,7 @@ const firebaseConfig = {
                     horario,      
                     instrucciones, 
                     city: '',  
-                    state: '',
+                    state: '',  
                     orders: [] // Initialize with empty orders
                 };
                 await setDoc(doc(db, 'users', user.uid), newUserProfile);
