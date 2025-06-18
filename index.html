@@ -266,16 +266,11 @@
                                 </div>
                                 <div class="mb-3">
                                     <label for="address" class="form-label">Dirección</label>
-                                    <input type="text" class="form-control" id="address" required>
+                                    <input type="text" class="form-control" id="address" required readonly>
                                 </div>
-                                <div class="row mb-3">
                                     <div class="col-md-4">
-                                        <label for="city" class="form-label">Ciudad</label>
-                                        <input type="text" class="form-control" id="city" required>
-                                    </div>
-                                    <div class="col-md-4">
-                                        <label for="state" class="form-label">Provincia</label>
-                                        <input type="text" class="form-control" id="state" required>
+                                        <label for="state" class="form-label">colonia</label>
+                                        <input type="text" class="form-control" id="colonia" required>
                                     </div>
                                     <div class="col-md-4">
                                         <label for="zipCode" class="form-label">Código Postal</label>
@@ -714,8 +709,6 @@ import { getDoc } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-fires
                         phone: '',
                         horario: '', 
                         instrucciones: '', 
-                        city: '',  
-                        state: '',  
                         orders: [] 
                     };
                     await setDoc(userRef, currentUser, { merge: true }); 
@@ -1332,114 +1325,107 @@ import { getDoc } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-fires
                 document.getElementById('lastName').value = currentUser.lastName || '';
                 document.getElementById('email').value = currentUser.email || '';
                 document.getElementById('address').value = currentUser.address || '';
-                document.getElementById('city').value = currentUser.city || ''; 
-                document.getElementById('state').value = currentUser.state || ''; 
+                document.getElementById('colonia').value = currentUser.colonia || '';
                 document.getElementById('zipCode').value = currentUser.zipCode || ''; 
                 document.getElementById('phone').value = currentUser.phone || '';
             }
         }
 
-        // Function to submit the order
-        async function submitOrder() {
-            if (cart.length === 0) {
-                showToast('El carrito está vacío');
-                return;
-            }
-            
-            if (!currentUser) {
-                showToast('Debes iniciar sesión para completar la compra.');
-                return;
-            }
 
-            // Re-fetch user data to ensure it's up-to-date
-            if (currentFirebaseUserId) {
-                await loadUserProfileFromFirestore(currentFirebaseUserId);
-            }
+async function submitOrder() {
+    if (cart.length === 0) {
+        showToast('El carrito está vacío');
+        return;
+    }
 
-            // Collect form data (some pre-loaded, some new)
-            const firstName = document.getElementById('firstName').value;
-            const lastName = document.getElementById('lastName').value;
-            const email = document.getElementById('email').value;
-            const address = document.getElementById('address').value; // Street and Number
-            const city = document.getElementById('city').value;
-            const state = document.getElementById('state').value;
-            const zipCode = document.getElementById('zipCode').value;
-            const phone = document.getElementById('phone').value;
+    if (!currentUser || !auth.currentUser) {
+        showToast('Debes iniciar sesión para completar la compra.');
+        return;
+    }
 
-            // Additional user data stored in the profile
-            const colonia = currentUser.colonia || ''; 
-            const horario = currentUser.horario || ''; 
-            const instrucciones = currentUser.instrucciones || ''; 
+    // Revalidar perfil desde Firestore
+    await loadUserProfileFromFirestore(auth.currentUser.uid);
 
-            // Validate additional fields if required
-            if (!city || !state || !zipCode || !address) { 
-                showToast('Por favor, completa todos los campos de dirección (Calle y Número, Ciudad, Provincia y Código Postal).');
-                return;
-            }
+    // Recoger datos del formulario
+    const firstName = document.getElementById('firstName').value;
+    const lastName = document.getElementById('lastName').value;
+    const email = auth.currentUser.email;
+    const address = document.getElementById('address').value;
+    const colonia = document.getElementById('colonia').value;
+    const zipCode = document.getElementById('zipCode').value;
+    const phone = document.getElementById('phone').value;
+    const horario = currentUser.horario || '';
+    const instrucciones = currentUser.instrucciones || '';
 
-            const totalAmount = cart.reduce((total, item) => total + (item.price * item.quantity), 0) + 35.00; 
+    if (!firstName || !lastName || !email || !address || !colonia || !zipCode || !phone) {
+        showToast('Por favor, completa todos los campos obligatorios.');
+        return;
+    }
+
+    const totalAmount = cart.reduce((total, item) => total + (item.price * item.quantity), 0) + 35.00;
+
+            const miemail = "cesar.jarra@gmail.com";
 
             const orderDetails = {
-                order_id: `ORD-${Date.now()}`, 
                 nombre_cliente: `${firstName} ${lastName}`,
+                order_id: `ORD-${Date.now()}`,
+                fecha_pedido: new Date().toLocaleString('es-ES'), 
                 email_cliente: email,
                 telefono_cliente: phone,
-                direccion_envio: `${address}, ${colonia ? colonia + ', ' : ''}${city}, ${state}, CP ${zipCode}`,
-                horario_preferido: horario, 
-                instrucciones_repartidor: instrucciones, 
+                direccion_envio: `${address}, ${colonia ? colonia + ', ' : ''}, CP ${zipCode}`,
                 productos: cart.map(item => `${item.name} (Cant: ${item.quantity}) - $${item.price.toFixed(2)} c/u`).join('\n'),
                 subtotal: totalAmount > 35 ? (totalAmount - 35).toFixed(2) : '0.00', // Calculate subtotal correctly
                 costo_envio: '35.00',
                 total: totalAmount.toFixed(2),
-                fecha_pedido: new Date().toLocaleString('es-ES')
+                email_cliente: miemail
             };
-            
-            // Send email using EmailJS
-            emailjs.send('service_ynni6mh', 'template_mamyuhg', orderDetails)
-                .then(async () => {
-                    showToast('Pedido enviado con éxito');
-                    
-                    const newOrder = {
-                        date: orderDetails.order_id,
-                        status: 'Pendiente',
-                        shippingAddress: orderDetails.direccion_envio, 
-                        items: cart.map(item => ({
-                            name: item.name,
-                            quantity: item.quantity,
-                            price: item.price
-                        })),
-                        total: totalAmount,
-                        userEmail: currentUser.email 
-                    };
-                    orders.push(newOrder);
-                    localStorage.setItem('orders', JSON.stringify(orders)); 
-                    
-                    // Update currentUser orders in localStorage after adding the new order
-                    currentUser.orders = orders.filter(o => o.userEmail === currentUser.email);
-                    localStorage.setItem('currentUser', JSON.stringify(currentUser));
 
-                    // Clear cart in Firestore after successful purchase
-                    if (db && currentFirebaseUserId) {
-                        try {
-                            const cartRef = doc(db, 'carts', currentFirebaseUserId);
-                            await updateDoc(cartRef, { items: [] }); // Empty the items array
-                            console.log("Carrito vaciado en Firestore para:", currentFirebaseUserId);
-                        } catch (firestoreError) {
-                            console.error("Error vaciando el carrito en Firestore:", firestoreError);
-                            showToast("Error al vaciar el carrito en la nube.");
-                        }
-                    }
+    try {
+        // Enviar email con EmailJS
+        const response = await emailjs.send('service_ynni6mh', 'template_mamyuhg', orderDetails);
+        console.log('Email enviado:', response);
+        showToast('Pedido enviado con éxito');
 
-                    cart = []; // Clear local cart
-                    updateCart(); 
-                    showSection('homeSection');
-                    showUserSection(); 
-                    
-                }, (error) => {
-                    console.error('Error sending order:', error);
-                    showToast('Error al enviar el pedido. Por favor intenta nuevamente.');
-                });
+        // Guardar pedido en localStorage
+        const newOrder = {
+            date: orderDetails.order_id,
+            status: 'Pendiente',
+            shippingAddress: orderDetails.direccion_envio,
+            items: cart.map(item => ({
+                name: item.name,
+                quantity: item.quantity,
+                price: item.price
+            })),
+            total: totalAmount,
+            userEmail: currentUser.email
+        };
+
+        orders.push(newOrder);
+        localStorage.setItem('orders', JSON.stringify(orders));
+
+        // Vaciar carrito en Firestore
+        if (db && auth.currentUser.uid) {
+            try {
+                await updateDoc(doc(db, 'carts', auth.currentUser.uid), { items: [] });
+            } catch (err) {
+                console.warn("Error al limpiar el carrito en Firestore:", err);
+            }
         }
+
+        // Vaciar carrito local
+        cart = [];
+        updateCart();
+
+        // Volver a mostrar sección de usuario
+        showSection('homeSection');
+        showUserSection();
+
+    } catch (error) {
+        console.error('Error al enviar el pedido con EmailJS:', error);
+        showToast('Error al enviar el pedido. Por favor intenta nuevamente.');
+    }
+}
+
 
         // Function for user login
         async function loginUser() {
@@ -1504,20 +1490,19 @@ import { getDoc } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-fires
                 console.log("Firebase Auth registration successful. User UID:", user.uid);
 
                 // Save additional user data to Firestore
-                const newUserProfile = {
-                    firstName,
-                    lastName,
-                    email,
-                    address,   
-                    colonia,   
-                    zipCode,   
-                    phone,
-                    horario,      
-                    instrucciones, 
-                    city: '',  
-                    state: '',  
-                    orders: [] // Initialize with empty orders
-                };
+ const newUserProfile = {
+  firstName,
+  lastName,
+  email,
+  address,
+  colonia,
+  zipCode,
+  phone,
+  horario,
+  instrucciones,
+  orders: []// Initialize with empty orders
+};
+
                 await setDoc(doc(db, 'users', user.uid), newUserProfile);
                 console.log("User profile saved to Firestore.");
                 
