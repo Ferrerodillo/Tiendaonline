@@ -84,6 +84,39 @@
             opacity: 0.65;
             cursor: not-allowed;
         }
+#userOrders {
+  max-height: 50vh; /* Hasta la mitad de la pantalla */
+  overflow-y: auto;
+  padding-right: 8px; /* Para que la barra no tape contenido */
+  scroll-behavior: smooth; /* Scroll suave */
+  position: relative;
+}
+
+/* Sombra para indicar que hay más contenido abajo */
+#userOrders::after {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  width: 100%;
+  height: 30px;
+  background: linear-gradient(to top, rgba(255,255,255,0.8), transparent);
+  pointer-events: none; /* No bloquea clics */
+  z-index: 10;
+}
+
+/* Barra de desplazamiento visible y más estilizada (en navegadores que lo soporten) */
+#userOrders::-webkit-scrollbar {
+  width: 8px;
+}
+#userOrders::-webkit-scrollbar-thumb {
+  background-color: #888;
+  border-radius: 4px;
+}
+#userOrders::-webkit-scrollbar-track {
+  background-color: #f1f1f1;
+}
+
     </style>
 </head>
 <body>
@@ -1377,7 +1410,7 @@ async function submitOrder() {
                 subtotal: totalAmount > 35 ? (totalAmount - 35).toFixed(2) : '0.00', // Calculate subtotal correctly
                 costo_envio: '35.00',
                 total: totalAmount.toFixed(2),
-                email: miemail
+                email: `${miemail}, ${email}`
             };
 
     try {
@@ -1386,22 +1419,7 @@ async function submitOrder() {
         console.log('Email enviado:', response);
         showToast('Pedido enviado con éxito');
 
-        // Guardar pedido en localStorage
-        const newOrder = {
-            date: orderDetails.order_id,
-            status: 'Pendiente',
-            shippingAddress: orderDetails.direccion_envio,
-            items: cart.map(item => ({
-                name: item.name,
-                quantity: item.quantity,
-                price: item.price
-            })),
-            total: totalAmount,
-            userEmail: currentUser.email
-        };
-
-        orders.push(newOrder);
-        localStorage.setItem('orders', JSON.stringify(orders));
+        guardapedido();
 
         // Vaciar carrito en Firestore
         if (db && auth.currentUser.uid) {
@@ -1532,50 +1550,78 @@ async function submitOrder() {
         }
 
         // Function to show user section
-        function showUserSection() {
-            if (!currentUser) return;
-            
-            document.getElementById('userName').textContent = `${currentUser.firstName || ''} ${currentUser.lastName || ''}`;
-            document.getElementById('userEmail').textContent = currentUser.email || '';
-            document.getElementById('userAddress').textContent = currentUser.address || 'Calle y Número no proporcionados';
-            document.getElementById('userColonia').textContent = currentUser.colonia || 'Colonia no proporcionada'; 
-            document.getElementById('userZipCode').textContent = currentUser.zipCode || 'Código Postal no proporcionado'; 
-            document.getElementById('userPhone').textContent = currentUser.phone || 'Teléfono no proporcionado';
-            document.getElementById('userHorario').textContent = `Horario preferido: ${currentUser.horario || 'No especificado'}`; 
-            document.getElementById('userInstructions').textContent = `Instrucciones: ${currentUser.instrucciones || 'Ninguna'}`; 
-            
-            const ordersContainer = document.getElementById('userOrders');
-            // Filter orders specifically for the logged-in user's email
-            const userSpecificOrders = orders.filter(o => o.userEmail === currentUser.email);
+async function showUserSection() {
+    if (!currentUser || !auth.currentUser) return;
 
-            if (userSpecificOrders && userSpecificOrders.length > 0) {
-                ordersContainer.innerHTML = '';
-                // Sort orders from most recent to oldest
-                const sortedOrders = [...userSpecificOrders].sort((a, b) => new Date(b.date) - new Date(a.date));
+    const userId = auth.currentUser.uid;
+    const ordersContainer = document.getElementById('userOrders');
 
-                sortedOrders.forEach(order => {
-                    const orderElement = document.createElement('div');
-                    orderElement.className = 'mb-3 p-3 border rounded';
-                    orderElement.innerHTML = `
-                        <div class="d-flex justify-content-between">
-                            <h6>Pedido #${order.date.split(' ')[0]}</h6> 
-                            <span class="badge bg-primary">${order.status}</span>
-                        </div>
-                        <p class="mb-1"><small>${order.shippingAddress}</small></p>
-                        <ul class="mb-2">
-                            ${order.items.map(item => `<li>${item.name} - ${item.quantity} x $${item.price.toFixed(2)}</li>`).join('')}
-                        </ul>
-                        <p class="fw-bold mb-0">Total: $${order.total.toFixed(2)}</p>
-                    `;
-                    ordersContainer.appendChild(orderElement);
-                });
-            } else {
-                ordersContainer.innerHTML = '<p class="text-muted">No hay pedidos registrados</p>';
-            }
-            
-            document.getElementById('loginBtn').innerHTML = `<i class="fas fa-user"></i> ${currentUser.firstName || 'Usuario'}`;
-            showSection('userSection');
+    // Mostrar datos del perfil
+    document.getElementById('userName').textContent = `${currentUser.firstName || ''} ${currentUser.lastName || ''}`;
+    document.getElementById('userEmail').textContent = currentUser.email || '';
+    document.getElementById('userAddress').textContent = currentUser.address || 'Calle y Número no proporcionados';
+    document.getElementById('userColonia').textContent = currentUser.colonia || 'Colonia no proporcionada'; 
+    document.getElementById('userZipCode').textContent = currentUser.zipCode || 'Código Postal no proporcionado'; 
+    document.getElementById('userPhone').textContent = currentUser.phone || 'Teléfono no proporcionado';
+    document.getElementById('userHorario').textContent = `Horario preferido: ${currentUser.horario || 'No especificado'}`; 
+    document.getElementById('userInstructions').textContent = `Instrucciones: ${currentUser.instrucciones || 'Ninguna'}`; 
+
+    try {
+        const pedidosSnapshot = await getDocs(collection(db, 'orders', userId, 'pedidos'));
+        const userOrders = [];
+
+        pedidosSnapshot.forEach(doc => {
+            const data = doc.data();
+
+            userOrders.push({
+                date: data.fecha_pedido,
+                status: data.estado,
+                shippingAddress: data.direccion_envio,
+                items: Array.isArray(data.productos) ? data.productos.map(item => ({
+                    name: item.name,
+                    quantity: item.quantity,
+                    price: item.price
+                })) : [],
+                total: parseFloat(data.total)
+            });
+        });
+
+        if (userOrders.length > 0) {
+            ordersContainer.innerHTML = '';
+            const sortedOrders = userOrders.sort((a, b) => new Date(b.date) - new Date(a.date));
+
+            sortedOrders.forEach(order => {
+                const orderElement = document.createElement('div');
+                orderElement.className = 'mb-3 p-3 border rounded';
+                orderElement.innerHTML = `
+                    <div class="d-flex justify-content-between">
+                        <h6>Pedido #${order.date.split(' ')[0]}</h6> 
+                        <span class="badge bg-primary">${order.status}</span>
+                    </div>
+                    <p class="mb-1"><small>${order.shippingAddress}</small></p>
+                    <ul class="mb-2">
+                        ${order.items.map(item => `
+                            <li>${item.name} - ${item.quantity} x $${item.price.toFixed(2)}</li>
+                        `).join('')}
+                    </ul>
+                    <p class="fw-bold mb-0">Total: $${order.total.toFixed(2)}</p>
+                `;
+                ordersContainer.appendChild(orderElement);
+            });
+        } else {
+            ordersContainer.innerHTML = '<p class="text-muted">No hay pedidos registrados</p>';
         }
+
+    } catch (error) {
+        console.error("Error al cargar los pedidos:", error);
+        ordersContainer.innerHTML = '<p class="text-danger">No se pudieron cargar los pedidos</p>';
+    }
+
+    document.getElementById('loginBtn').innerHTML = `<i class="fas fa-user"></i> ${currentUser.firstName || 'Usuario'}`;
+    showSection('userSection');
+}
+
+
 
         // Function for user logout
         async function logoutUser() {
@@ -1646,6 +1692,7 @@ async function saveProfileChanges() {
     const userId = auth.currentUser.uid;
     const userRef = doc(db, 'users', userId);
 
+
     const updatedProfileData = {
         firstName: editFirstName,
         lastName: editLastName,
@@ -1674,6 +1721,51 @@ async function saveProfileChanges() {
         showToast("Error al guardar el perfil en la nube.");
     }
 }
+
+async function guardapedido() {
+    // Recoger datos del formulario
+    const firstName = document.getElementById('firstName').value;
+    const lastName = document.getElementById('lastName').value;
+    const email = auth.currentUser.email;
+    const address = document.getElementById('address').value;
+    const colonia = document.getElementById('colonia').value;
+    const zipCode = document.getElementById('zipCode').value;
+    const phone = document.getElementById('phone').value;
+    const horario = currentUser.horario || '';
+    const instrucciones = currentUser.instrucciones || '';
+
+    const userId = auth.currentUser.uid;
+    const orderId = `ORD-${Date.now()}`;
+    const orderRef = doc(db, 'orders', userId, 'pedidos', orderId);
+
+    const totalAmount = cart.reduce((total, item) => total + (item.price * item.quantity), 0) + 35.00;
+    const miemail = "cesar.jarra@gmail.com";
+
+    const orderDetails = {
+        nombre_cliente: `${firstName} ${lastName}`,
+        order_id: orderId,
+        fecha_pedido: new Date().toLocaleString('es-ES'),
+        email_cliente: email,
+        telefono_cliente: phone,
+        direccion_envio: `${address}, ${colonia ? colonia + ', ' : ''}CP ${zipCode}`,
+        productos: cart.map(item => ({name: item.name, quantity: item.quantity, price: item.price})),
+        subtotal: totalAmount > 35 ? (totalAmount - 35).toFixed(2) : '0.00',
+        costo_envio: '35.00',
+        total: totalAmount.toFixed(2),
+        estado: 'pendiente',
+        horario: horario,
+        instrucciones: instrucciones
+    };
+
+    try {
+        await setDoc(orderRef, orderDetails);
+        showToast('Pedido guardado con éxito.');
+    } catch (error) {
+        console.error("Error al guardar el pedido en Firestore:", error);
+        showToast("Error al guardar el pedido en la nube.");
+    }
+}
+
     </script>
 </body>
 </html>
