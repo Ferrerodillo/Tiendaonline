@@ -347,6 +347,11 @@
                                 <button type="submit" class="btn btn-primary">Iniciar Sesión</button>
                             </div>
                         </form>
+<div class="mb-3">
+    <div class="text-end mt-1">
+        <a href="#" id="forgotPasswordLink" class="text-decoration-none">¿Olvidaste tu contraseña?</a>
+    </div>
+</div>
                         <div class="mt-3 text-center">
                             <p>¿No tienes cuenta? <a href="#" id="showRegister">Regístrate</a></p>
                         </div>
@@ -382,6 +387,10 @@
                             <div class="mb-3">
                                 <label for="registerPassword" class="form-label">Contraseña</label>
                                 <input type="password" class="form-control" id="registerPassword" required>
+                            </div>
+                            <div class="mb-3">
+                                <label for="registerPassword" class="form-label">Confirmar Contraseña</label>
+                                <input type="password" class="form-control" id="registerPasswordconf" required>
                             </div>
                             <div class="mb-3">
                                 <label for="registerAddress" class="form-label">Calle y Número</label>
@@ -434,6 +443,10 @@
                                 <button class="btn btn-sm btn-outline-secondary" id="editProfileBtn">
                                     <i class="fas fa-edit"></i> Editar
                                 </button>
+<!-- Botón para abrir el modal -->
+<button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#passwordModal">
+  Cambiar contraseña
+</button>
                             </div>
                             <p id="userName"></p>
                             <p id="userEmail"></p>
@@ -518,6 +531,34 @@
         </div>
 
     </div>
+
+<!-- Modal -->
+<div class="modal fade" id="passwordModal" tabindex="-1" aria-labelledby="passwordModalLabel" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content">
+
+      <form id="changePasswordForm">
+        <div class="modal-header">
+          <h5 class="modal-title" id="passwordModalLabel">Cambiar contraseña</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+        </div>
+
+        <div class="modal-body">
+          <input type="password" id="currentPassword" class="form-control mb-2" placeholder="Contraseña actual" required>
+          <input type="password" id="newPassword" class="form-control mb-2" placeholder="Nueva contraseña" required>
+          <input type="password" id="confirmNewPassword" class="form-control mb-2" placeholder="Confirmar nueva contraseña" required>
+        </div>
+
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+          <button type="submit" class="btn btn-primary">Guardar Cambios</button>
+        </div>
+      </form>
+
+    </div>
+  </div>
+</div>
+
 
     <!-- Footer -->
     <footer class="bg-warning mt-5 py-4">
@@ -676,6 +717,11 @@ import { getDoc } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-fires
             // Set up events
             setupEventListeners();
         });
+
+document.getElementById('changePasswordForm').addEventListener('submit', function (e) {
+    e.preventDefault(); // Evita que recargue la página
+    changeUserPassword(); // Ejecuta tu función
+});
 
         // Function to save the cart to Firestore
         async function saveCartToFirestore(userId) {
@@ -1488,6 +1534,7 @@ async function submitOrder() {
             const lastName = document.getElementById('registerLastName').value;
             const email = document.getElementById('registerEmail').value;
             const password = document.getElementById('registerPassword').value;
+            const passwordconf = document.getElementById('registerPasswordconf').value;
             const address = document.getElementById('registerAddress').value; 
             const colonia = document.getElementById('registerColonia').value; 
             const zipCode = document.getElementById('registerZipCode').value; 
@@ -1495,11 +1542,15 @@ async function submitOrder() {
             const horario = document.getElementById('registerHorario').value; 
             const instrucciones = document.getElementById('registerInstructions').value; 
             
-            if (!email || !password || !firstName || !lastName || !address || !colonia || !zipCode || !phone) {
+            if (!email || !password || !passwordconf || !firstName || !lastName || !address || !colonia || !zipCode || !phone) {
                 showToast('Por favor completa todos los campos obligatorios (nombre, apellido, email, contraseña, calle y número, colonia, código postal, teléfono).');
                 return;
             }
-            
+                // Verificar que las contraseñas coincidan
+    if (password !== passwordconf) {
+        showToast('La contraseña y su confirmación no coinciden.');
+        return;
+    }
             console.log("Attempting registration for:", email);
             try {
                 const userCredential = await createUserWithEmailAndPassword(auth, email, password);
@@ -1620,8 +1671,6 @@ async function showUserSection() {
     document.getElementById('loginBtn').innerHTML = `<i class="fas fa-user"></i> ${currentUser.firstName || 'Usuario'}`;
     showSection('userSection');
 }
-
-
 
         // Function for user logout
         async function logoutUser() {
@@ -1765,6 +1814,74 @@ async function guardapedido() {
         showToast("Error al guardar el pedido en la nube.");
     }
 }
+
+async function changeUserPassword() {
+    console.log("Ejecutando función de cambio de contraseña");
+
+    const currentPassword = document.getElementById('currentPassword').value;
+    const newPassword = document.getElementById('newPassword').value;
+    const confirmNewPassword = document.getElementById('confirmNewPassword').value;
+
+    if (!currentPassword || !newPassword || !confirmNewPassword) {
+        showToast('Por favor completa todos los campos.');
+        return;
+    }
+
+    if (newPassword !== confirmNewPassword) {
+        showToast('Las contraseñas nuevas no coinciden.');
+        return;
+    }
+
+    const auth = getAuth();
+    const user = auth.currentUser;
+
+    if (!user) {
+        showToast('No hay usuario autenticado.');
+        return;
+    }
+
+    try {
+        const credential = EmailAuthProvider.credential(user.email, currentPassword);
+        await reauthenticateWithCredential(user, credential);
+
+        await updatePassword(user, newPassword);
+        showToast('Contraseña actualizada correctamente.');
+        console.log("Contraseña actualizada correctamente.");
+        const modal = bootstrap.Modal.getInstance(document.getElementById('passwordModal'));
+        modal.hide();  // cierra el modal
+    } catch (error) {
+        console.error('Error al cambiar la contraseña:', error);
+        showToast('Error al cambiar la contraseña: ' + error.message);
+    }
+}
+
+document.addEventListener('DOMContentLoaded', function () {
+    const forgotPasswordLink = document.getElementById('forgotPasswordLink');
+    
+    if (forgotPasswordLink) {
+        forgotPasswordLink.addEventListener('click', function (e) {
+            e.preventDefault();
+
+            const email = document.getElementById('loginEmail').value;
+            const auth = getAuth();
+
+            if (!email) {
+                showToast('Por favor ingresa tu correo electrónico para recuperar la contraseña.');
+                return;
+            }
+
+            sendPasswordResetEmail(auth, email)
+                .then(() => {
+                    showToast('Se ha enviado un enlace de recuperación a tu correo.');
+                })
+                .catch((error) => {
+                    console.error('Error al enviar correo de recuperación:', error);
+                    showToast('No se pudo enviar el correo. Verifica que el correo esté registrado.');
+                });
+        });
+    }
+});
+
 
     </script>
 </body>
