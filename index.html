@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="es">
 <head>
     <meta charset="UTF-8">
@@ -8,7 +8,7 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <script src="https://cdn.jsdelivr.net/npm/emailjs-com@3.2.0/dist/email.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/papaparse@5.3.0/papaparse.min.js"></script>
-    <style>
+<style>
 .imagen-redimensionada {
   width: 400px; /* Ancho de la imagen (puedes usar px, %, etc.) */
   height: 100px; /* Altura de la imagen (puedes usar px, %, etc.) */
@@ -590,7 +590,6 @@
             </div>
         </div>
     </footer>
-
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     <script type="module">
         // Import Firebase modules
@@ -800,48 +799,66 @@ document.getElementById('changePasswordForm').addEventListener('submit', functio
             }
         }
 
-        // Function to load products from a CSV on GitHub
-        function loadProductsFromGitHubCSV() {
-            // URL of the raw CSV file on GitHub
-            const githubCsvUrl = 'https://raw.githubusercontent.com/Ferrerodillo/Tiendaonline/refs/heads/main/productos.csv';
-            
-            // Configuration to prevent caching (optional)
-            const nocacheUrl = githubCsvUrl + '?nocache=' + (new Date()).getTime();
-            
-            Papa.parse(nocacheUrl, {
+  // Function to load products from a CSV on GitHub ********************************************************************************************
+        
+
+    async function verificarImagen(urlBase) {
+        const extensiones = ['.jpg', '.jpeg', '.png', '.webp', '.gif', '.bmp', '.svg'];
+        for (const ext of extensiones) {
+            const urlCompleta = urlBase + ext;
+            try {
+                const response = await fetch(urlCompleta, { method: 'HEAD' });
+                if (response.ok) return urlCompleta;
+            } catch {}
+        }
+        return 'https://via.placeholder.com/150';
+    }
+
+    function parseCSV(url) {
+        return new Promise((resolve, reject) => {
+            Papa.parse(url, {
                 download: true,
                 header: true,
-                complete: function(results) {
-                    if (results.data && results.data.length > 0) {
-                        products = results.data.map(product => ({
+                complete: results => resolve(results.data),
+                error: err => reject(err)
+            });
+        });
+    }
+
+    async function loadProductsFromGitHubCSV() {
+        const githubCsvUrl = 'https://raw.githubusercontent.com/Ferrerodillo/Tiendaonline/refs/heads/main/productos.csv';
+        const nocacheUrl = githubCsvUrl + '?nocache=' + Date.now();
+
+        try {
+            const rawData = await parseCSV(nocacheUrl);
+            products = await Promise.all(rawData.map(async (product) => {
+                const imagenRaw = product.imagen || product.image || '';
+                const imagenBase = imagenRaw.replace(/\.[a-zA-Z]+$/, '');
+                const imagenVerificada = await verificarImagen(imagenBase);
+
+                return {
                             id: parseInt(product.id) || Math.floor(Math.random() * 10000),
                             name: product.nombre || product.name || 'Producto sin nombre',
                             price: parseFloat(product.precio || product.price || 0),
                             category: product.categoria || product.category || 'Sin categoría',
                             description: product.descripcion || product.description || 'Descripción no disponible',
-                            image: product.imagen || product.image || 'https://via.placeholder.com/150',
+                            image: imagenVerificada,
 			    codigo: product.codigo || product.sku || product.barcode || '0', 
                             stock: parseInt(product.stock || product.existencia || product.cantidad || 0) 
-                        })); 
-                        
-                        // Extract unique categories
-                        categories = [...new Set(products.map(p => p.category))];
-                        populateCategoryFilter();
-                        
-                        displayProducts(products);
-                    } else {
-                        loadSampleProducts();
-                    }
-                },
-                error: function(error) {
-                    console.error("Error loading products from GitHub:", error);
-                    showToast("Error al cargar productos del catálogo. Cargando ejemplos.");
-                    loadSampleProducts();
-                }
-            });
-        }
+                };
+            }));
 
-        // Function to populate the category filter
+            categories = [...new Set(products.map(p => p.category))];
+                        populateCategoryFilter();
+            displayProducts(products);
+        } catch (error) {
+            console.error("Error al cargar o procesar el CSV:", error);
+            alert("Error al cargar productos.");
+        }
+    }
+
+
+ // Function to populate the category filter**********************************************************************************
         function populateCategoryFilter() {
             const filter = document.getElementById('categoryFilter');
             
@@ -923,7 +940,7 @@ filter.addEventListener('change', function() {
             container.innerHTML = '';
             
             if (productsToDisplay.length === 0) {
-                container.innerHTML = '<div class="col-12 text-center"><p>No se encontraron productos</p></div>';
+                container.innerHTML = '<div class="col-12 text-center"><p>Cargando productos por favor espere...</p></div>';
                 return;
             }
             
