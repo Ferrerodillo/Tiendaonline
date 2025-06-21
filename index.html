@@ -147,7 +147,7 @@
 	  
     <!-- Elementos SIEMPRE visibles: búsqueda, carrito, login -->
     <div class="d-flex align-items-center mt-2 mt-lg-0 flex-wrap justify-content-end" style="gap: 8px;">
-      <input class="form-control" type="search" id="searchInput" placeholder="Buscar..." style="font-size: 16px; font-weight: bold; width: 150px;">
+      <input class="form-control" type="search" id="searchInput" placeholder="Buscar..." style="font-size: 16px; font-weight: bold; width: 250px;">
       <button class="btn btn-outline-light" id="searchBtn">
         <i class="fas fa-search"></i>
       </button>
@@ -861,10 +861,16 @@ document.getElementById('changePasswordForm').addEventListener('submit', functio
                 filter.appendChild(option);
             });
             
-            // Event for filtering
-            filter.addEventListener('change', function() {
-                filterProducts();
-            });
+filter.addEventListener('change', function() {
+    // Mostrar la sección de productos si está oculta
+    if (document.getElementById('productsSection').classList.contains('hidden')) {
+        showSection('productsSection');
+    }
+
+    // Filtrar productos según categoría
+    filterProducts();
+});
+
         }
 
         // Function to filter products by category and search
