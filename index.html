@@ -130,6 +130,7 @@
           <a class="nav-link" href="#" id="productsLink" style="color: blue; font-size: 25px;"> Productos</a>
     </a>
 
+
     <!-- Elementos SIEMPRE visibles: búsqueda, carrito, login -->
     <div class="d-flex align-items-right mt-2 mt-lg-0 " style="gap: 18px;">
       <input class="form-control" type="search" id="searchInput" placeholder="Buscar..." style="font-size: 16px; font-weight: bold; width: 250px;">
@@ -140,6 +141,8 @@
         <option value="all">Todas las categorías</option>
       </select>
       <button class="btn btn-outline-light" id="btnBuscarCategoria">
+        <i class="fas fa-search"></i>
+      </button>
       <button class="btn btn-outline-light position-relative" id="cartBtn">
         <i class="fas fa-shopping-cart"></i>
         <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger" id="cartCount">0</span>
@@ -170,7 +173,7 @@
         <div id="productsSection" class="hidden">
             <div class="row mb-4">
                 <div class="col-md-8">
-                    <h2>Nuestros Productos</h2>
+                    <h2>Nuestros Productos Seleccione una Categoria</h2>
                 </div>
             </div>
             
@@ -1297,9 +1300,7 @@ async function iniciarBusqueda() {
   });
 
   link.addEventListener("click", function (e) {
-    e.preventDefault(); // Evita que el <a> recargue la página
-    select.value = "Todas las categorías"; // Selecciona la opción deseada
-    select.dispatchEvent(new Event("change")); // Lanza el evento de cambio
+    showSection('productsSection');
   });
 
   linkhome.addEventListener("click", function (e) {
@@ -1355,7 +1356,7 @@ showSection('homeSection');
             // Login/Register
             document.getElementById('loginBtn').addEventListener('click', () => {
                 if (currentUser) {
-                    showUserSection();showSection('homeSection');
+                    showUserSection();showSection('userSection');
                 } else {
                     const loginModal = new bootstrap.Modal(document.getElementById('loginModal'));
                     loginModal.show();
@@ -1522,7 +1523,6 @@ async function submitOrder() {
                 const loginModal = bootstrap.Modal.getInstance(document.getElementById('loginModal'));
                 loginModal.hide();
                 
-                showUserSection();
                 showToast(`Bienvenido, ${currentUser.firstName || user.email}`);
 
             } catch (error) {
@@ -1681,7 +1681,7 @@ async function showUserSection() {
     }
 
     document.getElementById('loginBtn').innerHTML = `<i class="fas fa-user"></i> ${currentUser.firstName || 'Usuario'}`;
-    showSection('userSection');
+
 }
 
         // Function for user logout
