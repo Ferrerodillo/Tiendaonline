@@ -1,0 +1,210 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Ferretería Y Papelería El Rodillo</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+  <script src="https://cdn.jsdelivr.net/npm/papaparse@5.3.0/papaparse.min.js"></script>
+  <style>
+    body { padding-top: 120px; font-family: Arial, sans-serif; }
+    .navbar { position: fixed; top: 0; width: 100%; z-index: 1030; }
+    .product-card { border: 1px solid #ccc; border-radius: 8px; padding: 10px; height: 100%; }
+    .product-card img { width: 100%; height: 200px; object-fit: cover; }
+    .row { display: flex; flex-wrap: wrap; gap: 10px; }
+    .col-md-3 { flex: 1 1 calc(25% - 10px); box-sizing: border-box; }
+    @media (max-width: 768px) { .col-md-3 { flex: 1 1 calc(50% - 10px); } }
+    @media (max-width: 480px) { .col-md-3 { flex: 1 1 100%; } }
+    .hidden { display: none; }
+    .stock-info { font-size: 0.8rem; }
+    .out-of-stock { color: #dc3545; font-weight: bold; }
+    .low-stock { color: #ffc107; font-weight: bold; }
+  </style>
+</head>
+<body>
+
+<nav class="navbar navbar-expand-lg navbar-dark bg-danger">
+  <div class="container-fluid">
+    <a class="navbar-brand" href="#" style="color: yellow; font-size: 28px;"><strong>Ferretería Y Papelería El Rodillo</strong></a>
+    <div class="d-flex align-items-center gap-2">
+      <input class="form-control" type="search" id="inputBusqueda" placeholder="Buscar..." style="width: 250px;">
+      <button class="btn btn-outline-light" id="btnBuscar"><i class="fas fa-search"></i></button>
+      <select class="form-select" id="selectCategoria" style="max-width: 180px;">
+        <option value="">Todas las categorías</option>
+      </select>
+      <button class="btn btn-outline-light" id="btnBuscarCategoria"><i class="fas fa-search"></i></button>
+    </div>
+  </div>
+</nav>
+
+<div id="productsSection" class="hidden">
+  <div class="row" id="productsContainer">
+    <div class="col-12 text-center">
+      <div class="spinner-border text-primary" role="status"></div>
+      <p class="mt-2">Cargando productos...</p>
+    </div>
+  </div>
+</div>
+
+<!-- PayPal SDK (NO se marca como module) -->
+<script src="https://www.paypal.com/sdk/js?client-id=AevOJN5ckcEobvgNiW8ohlL5ZvBs9ajqIMJ5CtfqP6eQv28MRjLeEl_kcu45z19s0DjWmINgBQH-vjYA"></script>
+
+<!-- Tu script como módulo -->
+<script type="module" src="./main.js">
+
+  async function verificarImagenPorCodigo(codigo) {
+    const baseUrl = 'https://raw.githubusercontent.com/Ferrerodillo/Tiendaonline/refs/heads/main/Imagenes/';
+    const extensiones = ['.jpg', '.jpeg', '.png', '.webp', '.gif', '.bmp', '.svg'];
+    for (const ext of extensiones) {
+      const url = baseUrl + codigo + ext;
+      try {
+        const res = await fetch(url, { method: 'HEAD' });
+        if (res.ok) return { url, encontrada: true };
+      } catch {}
+    }
+    return { url: 'https://via.placeholder.com/150?text=Sin+Imagen', encontrada: false };
+  }
+
+  function displayProductos(products) {
+    const container = document.getElementById('productsContainer');
+    container.innerHTML = '';
+    if (products.length === 0) {
+      container.innerHTML = '<div class="col-12 text-center"><p>No se encontraron productos.</p></div>';
+      return;
+    }
+    products.forEach(product => {
+      const stock = getStockStatus(product);
+      const card = document.createElement('div');
+      card.className = 'col-md-3 mb-4';
+      card.innerHTML = `
+        <div class="card product-card">
+          <img src="${product.image}" class="card-img-top" alt="${product.name}">
+          <div class="card-body">
+            <h5 class="card-title">${product.name}</h5>
+            <p class="text-muted">${product.category}</p>
+            <p class="fw-bold">$${product.price.toFixed(2)}</p>
+            <p class="text-muted">Código: ${product.codigo}</p>
+            <p class="stock-info ${stock.class}">${stock.text}</p>
+          </div>
+        </div>`;
+      container.appendChild(card);
+    });
+  }
+
+  function getStockStatus(product) {
+    if (product.stock <= 0) return { text: 'Agotado', class: 'out-of-stock' };
+    if (product.stock <= 3) return { text: `Últimas ${product.stock} unidades`, class: 'low-stock' };
+    return { text: `${product.stock} disponibles`, class: '' };
+  }
+
+  async function procesarProductos(lista) {
+    return Promise.all(lista.map(async p => {
+      const codigo = p.codigo || p.sku || p.barcode || '0';
+      const imagen = await verificarImagenPorCodigo(codigo);
+      return {
+        id: parseInt(p.id) || Math.floor(Math.random() * 10000),
+        name: p.nombre || p.name || 'Producto sin nombre',
+        price: parseFloat(p.precio || p.price || 0),
+        category: p.categoria || p.category || 'Sin categoría',
+        description: p.descripcion || p.description || 'Sin descripción',
+        image: imagen.url,
+        codigo,
+        stock: parseInt(p.stock || p.existencia || p.cantidad || 0)
+      };
+    }));
+  }
+
+  async function buscarEnCSV(termino) {
+    const url = 'https://raw.githubusercontent.com/Ferrerodillo/Tiendaonline/refs/heads/main/productos.csv';
+    return new Promise((resolve, reject) => {
+      Papa.parse(url, {
+        download: true,
+        header: true,
+        complete: async results => {
+          const matches = results.data.filter(p => {
+            const name = (p.nombre || p.name || '').toLowerCase();
+            const code = (p.codigo || p.sku || p.barcode || '').toLowerCase();
+            return name.includes(termino) || code.includes(termino);
+          });
+          resolve(await procesarProductos(matches));
+        },
+        error: err => reject(err)
+      });
+    });
+  }
+
+  async function buscarEnCSVPorCategoria(termino) {
+    const url = 'https://raw.githubusercontent.com/Ferrerodillo/Tiendaonline/refs/heads/main/productos.csv';
+    return new Promise((resolve, reject) => {
+      Papa.parse(url, {
+        download: true,
+        header: true,
+        complete: async results => {
+          const matches = results.data.filter(p => {
+            const cat = (p.categoria || p.category || '').toLowerCase();
+            return termino === '' || cat.includes(termino);
+          });
+          resolve(await procesarProductos(matches));
+        },
+        error: err => reject(err)
+      });
+    });
+  }
+
+  function showSection(id) {
+    document.getElementById(id).classList.remove('hidden');
+  }
+
+  async function iniciarBusqueda() {
+    const term = inputBusqueda.value.trim().toLowerCase();
+    if (term.length < 2) return;
+    const products = await buscarEnCSV(term);
+    showSection('productsSection');
+    displayProductos(products);
+  }
+
+  async function buscarPorCategoria() {
+    const cat = selectCategoria.value.trim().toLowerCase();
+    const products = await buscarEnCSVPorCategoria(cat);
+    showSection('productsSection');
+    displayProductos(products);
+  }
+
+  async function cargarCategorias() {
+    const url = 'https://raw.githubusercontent.com/Ferrerodillo/Tiendaonline/refs/heads/main/productos.csv';
+    Papa.parse(url, {
+      download: true,
+      header: true,
+      complete: results => {
+        const cats = new Set();
+        results.data.forEach(p => {
+          const cat = (p.categoria || p.category || '').trim();
+          if (cat) cats.add(cat);
+        });
+        selectCategoria.innerHTML = '<option value="">Todas las categorías</option>';
+        Array.from(cats).sort().forEach(cat => {
+          const opt = document.createElement('option');
+          opt.value = cat.toLowerCase();
+          opt.textContent = cat;
+          selectCategoria.appendChild(opt);
+        });
+      }
+    });
+  }
+
+  const inputBusqueda = document.getElementById('inputBusqueda');
+  const btnBuscar = document.getElementById('btnBuscar');
+  const selectCategoria = document.getElementById('selectCategoria');
+  const btnBuscarCategoria = document.getElementById('btnBuscarCategoria');
+
+  btnBuscar.addEventListener('click', iniciarBusqueda);
+  inputBusqueda.addEventListener('keydown', e => { if (e.key === 'Enter') iniciarBusqueda(); });
+  btnBuscarCategoria.addEventListener('click', buscarPorCategoria);
+  selectCategoria.addEventListener('change', buscarPorCategoria);
+
+  cargarCategorias();
+</script>
+
+</body>
+</html>
