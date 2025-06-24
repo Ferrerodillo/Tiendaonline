@@ -314,7 +314,7 @@
 <div class="mb-3">
     <label class="form-label">Selecciona una forma de pago:</label>
     <div>
-        <input type="radio" name="metodoPago" id="pagoOnline" value="online">
+        <input type="radio" name="metodoPago" id="pagoOnline" value="online" checked>
         <label for="pagoOnline">Pago Online</label>
     </div>
     <div>
@@ -1999,9 +1999,9 @@ document.addEventListener('DOMContentLoaded', function () {
 
     function verificarMetodoPago() {
         if (pagoOnline.checked) {
-            enviarBtn.disabled = false;
-        } else {
             enviarBtn.disabled = true;
+        } else {
+            enviarBtn.disabled = false;
         }
     }
 
