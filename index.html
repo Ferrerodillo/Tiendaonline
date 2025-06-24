@@ -1437,6 +1437,8 @@ showSection('homeSection');
                 }
                 populateCheckoutForm(); // Preload user data
                 showSection('checkoutSection');
+		            if (pagoOnline.checked) {
+            initPayPalButton();
             });
             
             document.getElementById('backToCartBtn').addEventListener('click', () => {
