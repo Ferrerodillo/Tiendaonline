@@ -276,7 +276,7 @@
                 </div>
                 <div class="card-body py-2 px-3">
                     <div>
-                        <input type="radio" name="metodoPago" id="pagoOnline" value="online" checked>
+                        <input type="radio" name="metodoPago" id="pagoOnline" value="online">
                         <label for="pagoOnline">Pago Online</label>
                     </div>
                     <div>
@@ -2023,8 +2023,10 @@ document.addEventListener('DOMContentLoaded', function () {
     function verificarMetodoPago() {
         if (pagoOnline.checked) {
             enviarBtn.disabled = true;
+		  document.getElementById('paypal-button-container').style.display = 'block';
         } else {
             enviarBtn.disabled = false;
+		document.getElementById('paypal-button-container').style.display = 'none';
         }
     }
 
