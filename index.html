@@ -311,7 +311,7 @@
 
 
 <!-- Opciones de pago -->
-<div class="mb-3">
+	<div id="opcionesPago" class="mt-3 d-none">
     <label class="form-label">Selecciona una forma de pago:</label>
     <div>
         <input type="radio" name="metodoPago" id="pagoOnline" value="online" checked>
@@ -1437,6 +1437,7 @@ showSection('homeSection');
                 }
                 populateCheckoutForm(); // Preload user data
                 showSection('checkoutSection');
+		            opcionesPago.classList.remove("d-none");
 		            if (pagoOnline.checked) {
             initPayPalButton();}
             });
