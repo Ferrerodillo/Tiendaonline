@@ -214,12 +214,55 @@
                                 <p>Total:</p>
                                 <p id="totalCost">$0.00</p>
                             </div>
-                            <button class="btn btn-primary w-100 mt-3" id="checkoutBtn">Finalizar Compra</button>
-                        </div>
-                    </div>
-                </div>
-            </div>
+<!-- HTML -->
+<div class="payment-options mb-4">
+  <h5 class="mb-3">Método de pago</h5>
+  <div class="form-check">
+    <input class="form-check-input" type="radio" name="paymentMethod" id="cashOnDelivery" value="cash" checked>
+    <label class="form-check-label" for="cashOnDelivery">
+      Pago contra entrega (Efectivo)
+    </label>
+  </div>
+  <div class="form-check">
+    <input class="form-check-input" type="radio" name="paymentMethod" id="onlinePayment" value="online">
+    <label class="form-check-label" for="onlinePayment">
+      Pago en línea
+    </label>
+  </div>
+</div>
+
+<!-- Botón Finalizar Compra (visible siempre) -->
+<button class="btn btn-primary w-100 mt-3" id="checkoutBtn">Finalizar Compra</button>
+
+<!-- Modal para pagos en línea (oculto inicialmente) -->
+<div class="modal fade" id="onlinePaymentModal" tabindex="-1" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title">Seleccione método de pago</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body">
+        <div class="d-grid gap-3">
+          <button class="btn btn-payment paypal-btn" id="paypalPaymentBtn">
+            <img src="https://www.paypalobjects.com/webstatic/mktg/logo/pp_cc_mark_37x23.jpg" alt="PayPal">
+            Pagar con PayPal
+          </button>
+          <button class="btn btn-payment mercadopago-btn" id="mercadopagoPaymentBtn">
+            <img src="https://http2.mlstatic.com/frontend-assets/ui-navigation/5.18.9/mercadopago/logo__small.png" alt="MercadoPago">
+            Pagar con MercadoPago
+          </button>
+          <button class="btn btn-payment bank-transfer-btn" id="bankTransferBtn">
+            <i class="bi bi-bank"></i> Transferencia Bancaria
+          </button>
         </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Contenedor oculto para el botón PayPal (se mostrará cuando se seleccione PayPal) -->
+<div id="paypal-button-container" class="d-none mt-3"></div>
 
         <!-- Modal de Detalles de Producto -->
         <div class="modal fade" id="productDetailModal" tabindex="-1" aria-hidden="true">
@@ -1337,8 +1380,19 @@ showSection('homeSection');
                     loginModal.show();
                     return;
                 }
+		    
+const paymentMethod = document.querySelector('input[name="paymentMethod"]:checked').value;
+    
+    if (paymentMethod === 'cash') {
+        // Pago contra entrega - procesar directamente
                 populateCheckoutForm(); // Preload user data
                 showSection('checkoutSection');
+    } else {
+        // Pago en línea - mostrar modal de opciones
+        const onlinePaymentModal = new bootstrap.Modal(document.getElementById('onlinePaymentModal'));
+        onlinePaymentModal.show();
+    }
+
             });
             
             document.getElementById('backToCartBtn').addEventListener('click', () => {
