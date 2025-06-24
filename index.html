@@ -737,15 +737,6 @@ document.getElementById('paypalPaymentBtn').addEventListener('click', () => {
     return cart.reduce((total, item) => total + (item.price * item.quantity), 0) + 35.00;
   }
 });
-
-
-  function validateCheckoutForm() {
-    const requiredFields = ['firstName', 'lastName', 'address', 'colonia', 'zipCode', 'phone'];
-    return requiredFields.every(field => 
-        document.getElementById(field).value.trim() !== ''
-    );
-}
-	
 	
         // Import Firebase modules
 import { getDoc } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
@@ -1508,14 +1499,6 @@ document.getElementById('checkoutBtn').addEventListener('click', () => {
         showToast('Por favor, inicia sesión para finalizar tu compra.');
         const loginModal = new bootstrap.Modal(document.getElementById('loginModal'));
         loginModal.show();
-        return;
-    }
-
-    // Verificar si ya se completó el formulario de envío (opcional)
-    const formCompleted = validateCheckoutForm(); // Implementa esta función si es necesario
-    
-    if (!formCompleted) {
-        showSection('checkoutSection'); // Muestra el formulario de envío primero
         return;
     }
 
