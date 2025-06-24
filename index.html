@@ -2014,8 +2014,10 @@ document.addEventListener('DOMContentLoaded', function () {
     function verificarMetodoPago() {
         if (pagoOnline.checked) {
             enviarBtn.disabled = true;
+		            paypalButtonContainer.style.display = "inline-block"; // Mostrar PayPal
         } else {
             enviarBtn.disabled = false;
+				            paypalButtonContainer.style.display = "none"; // Ocultar PayPal
         }
     }
 
