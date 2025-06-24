@@ -298,10 +298,10 @@
                                     <label for="phone" class="form-label">Teléfono</label>
                                     <input type="tel" class="form-control" id="phone" required >
                                 </div>
-                                <div class="d-grid gap-2">
-                                    <button type="submit" class="btn btn-primary">Enviar Pedido</button>
-                                    <button type="button" class="btn btn-outline-secondary" id="backToCartBtn">Volver al Carrito</button>
-                                </div>
+<div class="d-grid gap-2">
+    <button type="submit" class="btn btn-primary" id="enviarBtn" disabled>Enviar Pedido</button>
+    <button type="button" class="btn btn-outline-secondary" id="backToCartBtn">Volver al Carrito</button>
+</div>
                             </form>
                         </div>
                     </div>
@@ -1422,7 +1422,6 @@ showSection('homeSection');
                 }
                 populateCheckoutForm(); // Preload user data
                 showSection('checkoutSection');
-		    initPayPalButton();
             });
             
             document.getElementById('backToCartBtn').addEventListener('click', () => {
@@ -1979,8 +1978,23 @@ document.addEventListener('DOMContentLoaded', function () {
         });
     }
 });
+    const pagoOnline = document.getElementById("pagoOnline");
+    const pagoContraentrega = document.getElementById("pagoContraentrega");
+    const enviarBtn = document.getElementById("enviarBtn");
 
+    function verificarMetodoPago() {
+        if (pagoOnline.checked) {
+            enviarBtn.disabled = false;
+        } else {
+            enviarBtn.disabled = true;
+        }
+    }
 
+    // Escuchar cambios en los radios
+    pagoOnline.addEventListener("change", initPayPalButton);
+    pagoContraentrega.addEventListener("change", verificarMetodoPago);
+function verificarMetodoPago(){
+}
 </script>
 
 </body>
