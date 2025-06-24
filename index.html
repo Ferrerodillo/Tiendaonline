@@ -708,7 +708,13 @@ document.getElementById('paypalPaymentBtn').addEventListener('click', () => {
     onlinePaymentModal.hide();
     showBankTransferDetails(); // Mostrar datos para transferencia
   });
-  
+	
+  function validateCheckoutForm() {
+    const requiredFields = ['firstName', 'lastName', 'address', 'colonia', 'zipCode', 'phone'];
+    return requiredFields.every(field => 
+        document.getElementById(field).value.trim() !== ''
+    );
+}
   // Función para inicializar PayPal (similar a la que tenías)
   function initPayPalButton() {
     paypal.Buttons({
@@ -2080,12 +2086,7 @@ document.addEventListener('DOMContentLoaded', function () {
         });
     }
 });
-function validateCheckoutForm() {
-    const requiredFields = ['firstName', 'lastName', 'address', 'colonia', 'zipCode', 'phone'];
-    return requiredFields.every(field => 
-        document.getElementById(field).value.trim() !== ''
-    );
-}
+
 
 </script>
 
