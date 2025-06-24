@@ -674,7 +674,20 @@ document.addEventListener('DOMContentLoaded', function() {
   const onlinePaymentRadio = document.getElementById('onlinePayment');
   const cashOnDeliveryRadio = document.getElementById('cashOnDelivery');
   const onlinePaymentModal = new bootstrap.Modal(document.getElementById('onlinePaymentModal'));
-  
+
+	// Dentro del DOMContentLoaded o tu inicialización
+document.getElementById('paypalPaymentBtn').addEventListener('click', () => {
+    // Ocultar modal y mostrar contenedor PayPal
+    bootstrap.Modal.getInstance(document.getElementById('onlinePaymentModal')).hide();
+    document.getElementById('paypal-button-container').classList.remove('d-none');
+    
+    // Inicializar botón PayPal si no está creado
+    if (!window.paypalButtonRendered) {
+        initPayPalButton();
+        window.paypalButtonRendered = true;
+    }
+});
+	
   // Manejar clic en el botón Finalizar Compra
   checkoutBtn.addEventListener('click', function() {
     if (onlinePaymentRadio.checked) {
@@ -684,13 +697,6 @@ document.addEventListener('DOMContentLoaded', function() {
       // Pago contra entrega - procesar directamente
       submitOrder();
     }
-  });
-  
-  // Configurar botones de pago dentro del modal
-  document.getElementById('paypalPaymentBtn').addEventListener('click', function() {
-    onlinePaymentModal.hide();
-    initPayPalButton(); // Inicializar PayPal
-    document.getElementById('paypal-button-container').classList.remove('d-none');
   });
   
   document.getElementById('mercadopagoPaymentBtn').addEventListener('click', function() {
@@ -1484,20 +1490,41 @@ showSection('homeSection');
             });
             
             // Checkout
-            document.getElementById('checkoutBtn').addEventListener('click', () => {
-                if (cart.length === 0) {
-                    showToast('El carrito está vacío');
-                    return;
-                }
-                if (!currentUser) {
-                    showToast('Por favor, inicia sesión para finalizar tu compra.');
-                    const loginModal = new bootstrap.Modal(document.getElementById('loginModal'));
-                    loginModal.show();
-                    return;
-                }
-                populateCheckoutForm(); // Preload user data
-                showSection('checkoutSection');
-            });
+// Checkout - Versión modificada para el nuevo flujo
+document.getElementById('checkoutBtn').addEventListener('click', () => {
+    // Validaciones básicas (carrito vacío/usuario no logueado)
+    if (cart.length === 0) {
+        showToast('El carrito está vacío');
+        return;
+    }
+    
+    if (!currentUser) {
+        showToast('Por favor, inicia sesión para finalizar tu compra.');
+        const loginModal = new bootstrap.Modal(document.getElementById('loginModal'));
+        loginModal.show();
+        return;
+    }
+
+    // Verificar si ya se completó el formulario de envío (opcional)
+    const formCompleted = validateCheckoutForm(); // Implementa esta función si es necesario
+    
+    if (!formCompleted) {
+        showSection('checkoutSection'); // Muestra el formulario de envío primero
+        return;
+    }
+
+    // MOSTRAR SELECTOR DE MÉTODO DE PAGO (nueva lógica)
+    const paymentMethod = document.querySelector('input[name="paymentMethod"]:checked').value;
+    
+    if (paymentMethod === 'cash') {
+        // Pago contra entrega - procesar directamente
+        submitOrder();
+    } else {
+        // Pago en línea - mostrar modal de opciones
+        const onlinePaymentModal = new bootstrap.Modal(document.getElementById('onlinePaymentModal'));
+        onlinePaymentModal.show();
+    }
+});
             
             document.getElementById('backToCartBtn').addEventListener('click', () => {
                 showSection('cartSection');
