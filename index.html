@@ -1456,13 +1456,11 @@ showSection('homeSection');
                     return;
                 }
                 populateCheckoutForm(); // Preload user data
+		    initPayPalButton();
+		    document.getElementById("opcionesPago").classList.remove("oculto");
                 showSection('checkoutSection');
-		initPayPalButton();
-            document.getElementById("opcionesPago").classList.remove("d-none");
-            document.getElementById('backToCartBtn').addEventListener('click', () => {
-                showSection('cartSection');
+
             });
-	}
             // Checkout form
             document.getElementById('checkoutForm').addEventListener('submit', function(e) {
                 e.preventDefault();
