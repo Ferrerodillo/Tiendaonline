@@ -116,28 +116,41 @@
 #userOrders::-webkit-scrollbar-track {
   background-color: #f1f1f1;
 }
-#checkoutBtn {
+/* CSS Personalizado */
+.btn-payment {
+  border-radius: 8px;
+  padding: 12px;
+  font-weight: bold;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
   transition: all 0.3s ease;
+  border: 1px solid #ddd;
 }
 
-#checkoutBtn:hover {
+.paypal-btn {
+  background-color: #FFC439;
+  color: #000;
+}
+
+.mercadopago-btn {
+  background-color: #009ee3;
+  color: white;
+}
+
+.bank-transfer-btn {
+  background-color: #28a745;
+  color: white;
+}
+
+.btn-payment:hover {
   transform: translateY(-2px);
-  box-shadow: 0 6px 12px rgba(255, 107, 0, 0.3);
+  box-shadow: 0 4px 8px rgba(0,0,0,0.1);
 }
 
-#checkoutBtn:active {
-  transform: translateY(0);
-}
-
-/* Efecto de "pulsación" al hacer clic */
-@keyframes pulse {
-  0% { transform: scale(1); }
-  50% { transform: scale(1.05); }
-  100% { transform: scale(1); }
-}
-
-#checkoutBtn:focus {
-  animation: pulse 0.5s ease;
+.btn-payment img {
+  height: 20px;
 }
     </style>
 </head>
@@ -236,42 +249,55 @@
                                 <p>Total:</p>
                                 <p id="totalCost">$0.00</p>
                             </div>
-<button 
-  class="btn btn-primary w-100 mt-3 py-3 fw-bold" 
-  id="checkoutBtn"
-  style="
-    border-radius: 25px;
-    letter-spacing: 1px;
-    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-    background: linear-gradient(135deg, #ff6b00 0%, #ff9500 100%);
-    border: none;
-    position: relative;
-    overflow: hidden;
-  "
-  onclick="submitOrder()"
->
-  <i class="bi bi-bag-check-fill me-2"></i> <!-- Icono de Bootstrap Icons -->
-  Finalizar Compra
-  <span 
-    style="
-      position: absolute;
-      top: -10px;
-      right: -10px;
-      background: #fff;
-      color: #ff6b00;
-      width: 25px;
-      height: 25px;
-      border-radius: 50%;
-      font-size: 12px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-weight: bold;
-    "
-  >
-    ${cart.length} <!-- Muestra la cantidad de items en el carrito -->
-  </span>
-</button>
+<!-- HTML -->
+<div class="payment-options mb-4">
+  <h5 class="mb-3">Método de pago</h5>
+  <div class="form-check">
+    <input class="form-check-input" type="radio" name="paymentMethod" id="cashOnDelivery" value="cash" checked>
+    <label class="form-check-label" for="cashOnDelivery">
+      Pago contra entrega (Efectivo)
+    </label>
+  </div>
+  <div class="form-check">
+    <input class="form-check-input" type="radio" name="paymentMethod" id="onlinePayment" value="online">
+    <label class="form-check-label" for="onlinePayment">
+      Pago en línea
+    </label>
+  </div>
+</div>
+
+<!-- Botón Finalizar Compra (visible siempre) -->
+<button class="btn btn-primary w-100 mt-3" id="checkoutBtn">Finalizar Compra</button>
+
+<!-- Modal para pagos en línea (oculto inicialmente) -->
+<div class="modal fade" id="onlinePaymentModal" tabindex="-1" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title">Seleccione método de pago</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body">
+        <div class="d-grid gap-3">
+          <button class="btn btn-payment paypal-btn" id="paypalPaymentBtn">
+            <img src="https://www.paypalobjects.com/webstatic/mktg/logo/pp_cc_mark_37x23.jpg" alt="PayPal">
+            Pagar con PayPal
+          </button>
+          <button class="btn btn-payment mercadopago-btn" id="mercadopagoPaymentBtn">
+            <img src="https://http2.mlstatic.com/frontend-assets/ui-navigation/5.18.9/mercadopago/logo__small.png" alt="MercadoPago">
+            Pagar con MercadoPago
+          </button>
+          <button class="btn btn-payment bank-transfer-btn" id="bankTransferBtn">
+            <i class="bi bi-bank"></i> Transferencia Bancaria
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Contenedor oculto para el botón PayPal (se mostrará cuando se seleccione PayPal) -->
+<div id="paypal-button-container" class="d-none mt-3"></div>
                         </div>
                     </div>
                 </div>
@@ -628,9 +654,7 @@
                 <p class="mb-0">&copy; 2025 Ferretería Y Papelería El Rodillo. Todos los derechos reservados.</p>
             </div>
         </div>
-    </footer>
-
-<div id="paypal-button-container"></div>       
+    </footer> 
 	
           <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 
@@ -645,75 +669,71 @@
     });
   }
 
-  // Función para inicializar el botón de PayPal
-  async function initPayPalButton() {
-    try {
-      await loadPayPalSDK();
-      
-      paypal.Buttons({
-        createOrder: function(data, actions) {
-          if (cart.length === 0) {
-            showToast('El carrito está vacío');
-            return actions.reject();
-          }
-
-          if (!currentUser || !auth.currentUser) {
-            showToast('Debes iniciar sesión para completar la compra.');
-            return actions.reject();
-          }
-
-          const totalAmount = cart.reduce((total, item) => total + (item.price * item.quantity), 0) + 35.00;
-
-          return actions.order.create({
-            purchase_units: [{
-              amount: {
-                value: totalAmount.toFixed(2),
-                currency_code: "MXN",
-                breakdown: {
-                  item_total: {
-                    value: (totalAmount - 35).toFixed(2),
-                    currency_code: "MXN"
-                  },
-                  shipping: {
-                    value: "35.00",
-                    currency_code: "MXN"
-                  }
-                }
-              },
-              items: cart.map(item => ({
-                name: item.name,
-                unit_amount: {
-                  value: item.price.toFixed(2),
-                  currency_code: "MXN"
-                },
-                quantity: item.quantity.toString()
-              }))
-            }]
-          });
-        },
-        onApprove: function(data, actions) {
-          return actions.order.capture().then(function(details) {
-            return submitOrder().then(() => {
-              showToast('Pago completado con éxito!');
-              console.log('Pago completado:', details);
-            });
-          });
-        },
-        onError: function(err) {
-          console.error('Error en el pago de PayPal:', err);
-          showToast('Ocurrió un error al procesar el pago con PayPal');
-        }
-      }).render('#paypal-button-container');
-      
-    } catch (error) {
-      console.error('Error al cargar PayPal SDK:', error);
-      showToast('Error al inicializar el sistema de pagos');
+document.addEventListener('DOMContentLoaded', function() {
+  const checkoutBtn = document.getElementById('checkoutBtn');
+  const onlinePaymentRadio = document.getElementById('onlinePayment');
+  const cashOnDeliveryRadio = document.getElementById('cashOnDelivery');
+  const onlinePaymentModal = new bootstrap.Modal(document.getElementById('onlinePaymentModal'));
+  
+  // Manejar clic en el botón Finalizar Compra
+  checkoutBtn.addEventListener('click', function() {
+    if (onlinePaymentRadio.checked) {
+      // Mostrar modal de opciones de pago en línea
+      onlinePaymentModal.show();
+    } else {
+      // Pago contra entrega - procesar directamente
+      submitOrder();
     }
+  });
+  
+  // Configurar botones de pago dentro del modal
+  document.getElementById('paypalPaymentBtn').addEventListener('click', function() {
+    onlinePaymentModal.hide();
+    initPayPalButton(); // Inicializar PayPal
+    document.getElementById('paypal-button-container').classList.remove('d-none');
+  });
+  
+  document.getElementById('mercadopagoPaymentBtn').addEventListener('click', function() {
+    onlinePaymentModal.hide();
+    initMercadoPagoCheckout(); // Implementar MercadoPago
+  });
+  
+  document.getElementById('bankTransferBtn').addEventListener('click', function() {
+    onlinePaymentModal.hide();
+    showBankTransferDetails(); // Mostrar datos para transferencia
+  });
+  
+  // Función para inicializar PayPal (similar a la que tenías)
+  function initPayPalButton() {
+    paypal.Buttons({
+      createOrder: function(data, actions) {
+        // Tu lógica existente para crear la orden
+        return actions.order.create({
+          purchase_units: [{
+            amount: {
+              value: calculateTotal().toFixed(2),
+              currency_code: "MXN"
+            }
+          }]
+        });
+      },
+      onApprove: function(data, actions) {
+        return actions.order.capture().then(function(details) {
+          submitOrder();
+        });
+      }
+    }).render('#paypal-button-container');
   }
+  
+  function calculateTotal() {
+    // Tu lógica para calcular el total
+    return cart.reduce((total, item) => total + (item.price * item.quantity), 0) + 35.00;
+  }
+});
 
-  // Inicializar cuando el DOM esté listo
-  document.addEventListener('DOMContentLoaded', initPayPalButton);
 
+
+	
 	
         // Import Firebase modules
 import { getDoc } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
