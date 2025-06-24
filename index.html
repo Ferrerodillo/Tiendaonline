@@ -2080,7 +2080,12 @@ document.addEventListener('DOMContentLoaded', function () {
         });
     }
 });
-
+function validateCheckoutForm() {
+    const requiredFields = ['firstName', 'lastName', 'address', 'colonia', 'zipCode', 'phone'];
+    return requiredFields.every(field => 
+        document.getElementById(field).value.trim() !== ''
+    );
+}
 
 </script>
 
