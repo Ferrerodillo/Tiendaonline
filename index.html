@@ -1457,11 +1457,8 @@ showSection('homeSection');
                 }
                 populateCheckoutForm(); // Preload user data
                 showSection('checkoutSection');
-    document.getElementById("opcionesPago").classList.remove("d-none");
-		            if (pagoOnline.checked) {
-            initPayPalButton();}
-            });
-            
+		initPayPalButton();}
+            document.getElementById("opcionesPago").classList.remove("d-none");
             document.getElementById('backToCartBtn').addEventListener('click', () => {
                 showSection('cartSection');
             });
