@@ -258,25 +258,28 @@
         </div>
 
 
-<div class="row justify-content-center">
-    <div class="col-md-4"> <!-- Antes era col-md-8 -->
-        <div class="card">
-            <div class="card-header bg-primary text-white py-2 px-3">
-                <h5 class="mb-0">Selecciona una forma de pago:</h5> <!-- h5 en lugar de h3 -->
-            </div>
-            <div class="card-body py-2 px-3">
-                <div>
-                    <input type="radio" name="metodoPago" id="pagoOnline" value="online" checked>
-                    <label for="pagoOnline">Pago Online</label>
+<div id="opcionesPago" class="mt-3 d-none">
+    <div class="row justify-content-center">
+        <div class="col-md-4">
+            <div class="card">
+                <div class="card-header bg-primary text-white py-2 px-3">
+                    <h5 class="mb-0">Selecciona una forma de pago:</h5>
                 </div>
-                <div>
-                    <input type="radio" name="metodoPago" id="pagoContraentrega" value="contraentrega">
-                    <label for="pagoContraentrega">Pago Contraentrega</label>
+                <div class="card-body py-2 px-3">
+                    <div>
+                        <input type="radio" name="metodoPago" id="pagoOnline" value="online" checked>
+                        <label for="pagoOnline">Pago Online</label>
+                    </div>
+                    <div>
+                        <input type="radio" name="metodoPago" id="pagoContraentrega" value="contraentrega">
+                        <label for="pagoContraentrega">Pago Contraentrega</label>
+                    </div>
                 </div>
             </div>
         </div>
     </div>
 </div>
+
 
 
 	    	<!-- Botón de PayPal en tu HTML -->
@@ -1445,7 +1448,7 @@ showSection('homeSection');
                 }
                 populateCheckoutForm(); // Preload user data
                 showSection('checkoutSection');
-		            opcionesPago.classList.remove("d-none");
+    document.getElementById("opcionesPago").classList.remove("d-none");
 		            if (pagoOnline.checked) {
             initPayPalButton();}
             });
