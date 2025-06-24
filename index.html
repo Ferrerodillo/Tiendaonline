@@ -267,30 +267,6 @@
         </div>
 
 
-	            <div id="opcionesPago" class="hidden">
-<div class="row justify-content-center">
-    <div class="col-md-4"> <!-- Antes era col-md-8 -->
-        <div class="card">
-            <div class="card-header bg-primary text-white py-2 px-3">
-                <h5 class="mb-0">Selecciona una forma de pago:</h5> <!-- h5 en lugar de h3 -->
-            </div>
-            <div class="card-body py-2 px-3">
-                <div>
-                    <input type="radio" name="metodoPago" id="pagoOnline" value="online">
-                    <label for="pagoOnline">Pago Online</label>
-                </div>
-                <div>
-                    <input type="radio" name="metodoPago" id="pagoContraentrega" value="contraentrega">
-                    <label for="pagoContraentrega">Pago Contraentrega</label>
-                </div>
-            </div>
-        </div>
-    </div>
-</div>
-
-
-
-
 	    	<!-- Botón de PayPal en tu HTML -->
 <div id="paypal-button-container"></div>
 
@@ -307,11 +283,13 @@
                             <form id="checkoutForm">
                                 <div class="row mb-3">
 					                <div class="col-md-6">
-                    <input type="radio" name="metodoPago" id="pagoOnline2" value="online">
+                    <input type="radio" name="metodoPago" id="pagoOnline" value="online">
                     <label for="pagoOnline">Pago Online</label>
                 </div>
+					<div class="col-md-6">
+						</div>
                 <div class="col-md-6">
-                    <input type="radio" name="metodoPago" id="pagoContraentrega2" value="contraentrega">
+                    <input type="radio" name="metodoPago" id="pagoContraentrega" value="contraentrega">
                     <label for="pagoContraentrega">Pago Contraentrega</label>
                 </div>
                                     <div class="col-md-6">
@@ -1465,7 +1443,6 @@ showSection('homeSection');
                 }
                 populateCheckoutForm(); // Preload user data
 		    initPayPalButton();
-		                    showSection('opcionesPago');
                 showSection('checkoutSection');
 
             });
