@@ -282,14 +282,6 @@
                         <div class="card-body">
                             <form id="checkoutForm">
                                 <div class="row mb-3">
-					                <div class="col-md-6">
-                    <input type="radio" name="metodoPago" id="pagoOnline" value="online">
-		<label for="pagoOnline" style="font-size: 1.2em;">Pago Online</label>
-                </div>
-                <div class="col-md-6">
-                    <input type="radio" name="metodoPago" id="pagoContraentrega" value="contraentrega">
-                    <label for="pagoContraentrega">Pago Contraentrega</label>
-                </div>
                                     <div class="col-md-6">
                                         <label for="firstName" class="form-label">Nombre</label>
                                         <input type="text" class="form-control" id="firstName" required>
@@ -320,6 +312,14 @@
                                     <label for="phone" class="form-label">Teléfono</label>
                                     <input type="tel" class="form-control" id="phone" required >
                                 </div>
+		<div class="col-md-6">
+                    <input type="radio" name="metodoPago" id="pagoOnline" value="online">
+		<label for="pagoOnline" style="font-size: 2.2em;">Pago Online</label>
+                </div>
+                <div class="col-md-6">
+                    <input type="radio" name="metodoPago" id="pagoContraentrega" value="contraentrega">
+                    <label for="pagoOnline" style="font-size: 2.2em;">Pago Contraentrega</label>
+                </div>
 <div class="d-grid gap-2">
     <button type="submit" class="btn btn-primary" id="enviarBtn" disabled>Enviar Pedido</button>
     <button type="button" class="btn btn-outline-secondary" id="backToCartBtn">Volver al Carrito</button>
