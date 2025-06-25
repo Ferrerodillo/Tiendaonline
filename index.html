@@ -269,7 +269,7 @@
         <!-- Formulario de Checkout (este formulario ahora se precargará si hay un usuario logueado) -->
         <div id="checkoutSection" class="hidden">
             <div class="row justify-content-center">
-                <div class="col-md-8">
+                <div class="col-md-14">
                     <div class="card">
                         <div class="card-header bg-primary text-white">
                             <h3 class="mb-0">Finalizar Compra</h3>
@@ -286,15 +286,18 @@
                                         <input type="text" class="form-control" id="lastName" required>
                                     </div>
                                 </div>
-                                <div class="mb-3">
+                                <div class="row mb-3">
+                                <div class="col-md-6">
                                     <label for="email" class="form-label">Email</label>
                                     <input type="email" class="form-control" id="email" required>
                                 </div>
-                                <div class="mb-3">
+                                <div class="col-md-6">
                                     <label for="address" class="form-label">Dirección</label>
                                     <input type="text" class="form-control" id="address" required>
                                 </div>
-                                    <div class="col-md-3">
+                                </div>
+                                  <div class="row mb-3">
+                                    <div class="col-md-6">
                                         <label for="state" class="form-label">Colonia</label>
                                         <input type="text" class="form-control" id="colonia" required>
                                     </div>
@@ -302,23 +305,24 @@
                                         <label for="zipCode" class="form-label">Código Postal</label>
                                         <input type="text" class="form-control" id="zipCode" required>
                                     </div>
-                                </div>
                                 <div class="col-md-6">
                                     <label for="phone" class="form-label">Teléfono</label>
                                     <input type="tel" class="form-control" id="phone" required >
                                 </div>
+                                </div>
+                 <h3 class="mb-0 text-center" style="font-size: 2em; font-weight: bold; font-family: Arial, sans-serif;">Selecciona Metodo de Pago</h3>
 		<div class="col-md-6">
                     <input type="radio" name="metodoPago" id="pagoOnline" value="online" required >
-		<label for="pagoOnline" style="font-size: 1.2em; font-weight: bold; font-family: Arial, sans-serif;">Pago Online</label>
+                   <label for="pagoOnline" style="font-size: 1.4em; font-weight: bold; font-family: Arial, sans-serif;">Pago Online</label>
                 </div>
                 <div class="col-md-6">
                     <input type="radio" name="metodoPago" id="pagoContraentrega" value="contraentrega" required >
-                    <label for="pagoOnline" style="font-size: 1.2em; font-weight: bold; font-family: Arial, sans-serif;">Pago Contraentrega</label>
+                    <label for="pagoContraentrega" style="font-size: 1.4em; font-weight: bold; font-family: Arial, sans-serif;">Pago Contraentrega</label>
                 </div>
-<div class="d-grid gap-2">
-    <button type="submit" class="btn btn-primary" id="enviarBtn" disabled>Enviar Pedido</button>
-    <button type="button" class="btn btn-outline-secondary" id="backToCartBtn">Volver al Carrito</button>
-</div>
+                <div class="d-grid gap-2">
+                <button type="submit" class="btn btn-primary" id="enviarBtn" disabled>Enviar Pedido</button>
+               <button type="button" class="btn btn-outline-secondary" id="backToCartBtn">Volver al Carrito</button>
+                             </div>
                             </form>
                         </div>
                     </div>
