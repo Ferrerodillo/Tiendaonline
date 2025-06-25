@@ -1391,6 +1391,15 @@ async function iniciarBusqueda() {
             });
             
             document.getElementById(sectionId).classList.remove('hidden');
+		
+		    // Mostrar u ocultar el contenedor de PayPal según la sección
+    const paypalContainer = document.getElementById('paypal-button-container');
+    if (sectionId === 'checkoutSection') {
+        paypalContainer.style.display = 'block';
+    } else {
+        paypalContainer.style.display = 'none';
+    }
+		
         }
 
         // Function to set up event listeners
