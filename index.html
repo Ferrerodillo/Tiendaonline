@@ -1059,12 +1059,10 @@ document.getElementById('changePasswordForm').addEventListener('submit', functio
     btnBuscar.addEventListener('click', iniciarBusqueda);
     inputBusqueda.addEventListener('keydown', (e) => {
         if (e.key === 'Enter') iniciarBusqueda();
-	    		document.getElementById('paypal-button-container').style.display = 'none';
     });
     inputBusqueda.addEventListener('input', () => {
         clearTimeout(timeout);
         timeout = setTimeout(iniciarBusqueda, 500);
-	    		document.getElementById('paypal-button-container').style.display = 'none';
     });
 
     btnBuscarCategoria.addEventListener('click', buscarPorCategoria);
@@ -1461,7 +1459,6 @@ showSection('homeSection');
             document.getElementById('checkoutForm').addEventListener('submit', function(e) {
                 e.preventDefault();
                 submitOrder();
-		    		document.getElementById('paypal-button-container').style.display = 'none';
             });
           
             
@@ -1592,7 +1589,6 @@ async function submitOrder() {
         const response = await emailjs.send('service_ynni6mh', 'template_mamyuhg', orderDetails);
         console.log('Email enviado:', response);
         showToast('Pedido enviado con éxito');
-		document.getElementById('paypal-button-container').style.display = 'none';
         guardapedido();
 
         // Vaciar carrito en Firestore
