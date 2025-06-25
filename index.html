@@ -333,7 +333,7 @@
 
     <!-- Botón de PayPal -->
     <div id="paypal-button-container">
-                            <h3 class="mb-0">Finalizar Compra</h3>
+    <h3 class="mb-0">Finalizar Compra</h3>
 	    
     </div>
 	
@@ -1452,12 +1452,14 @@ showSection('homeSection');
 
 		document.getElementById('backToCartBtn').addEventListener('click', () => {
                 showSection('cartSection');
+                document.getElementById('paypal-button-container').style.display = 'none';
             });
 		
             // Checkout form
             document.getElementById('checkoutForm').addEventListener('submit', function(e) {
                 e.preventDefault();
                 submitOrder();
+		    		document.getElementById('paypal-button-container').style.display = 'none';
             });
           
             
@@ -1588,7 +1590,7 @@ async function submitOrder() {
         const response = await emailjs.send('service_ynni6mh', 'template_mamyuhg', orderDetails);
         console.log('Email enviado:', response);
         showToast('Pedido enviado con éxito');
-
+		document.getElementById('paypal-button-container').style.display = 'none';
         guardapedido();
 
         // Vaciar carrito en Firestore
