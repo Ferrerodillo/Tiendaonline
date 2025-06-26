@@ -81,13 +81,20 @@
 
       // Llamar a tu función de Firebase
 const respuesta = await fetch('https://us-central1-rodilloback.cloudfunctions.net/crear_preferencia', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ items: carrito })
-      });
+  method: 'POST',
+  headers: { 'Content-Type': 'application/json' },
+  body: JSON.stringify({ items: carrito })
+});
 
-      const datos = await respuesta.json();
-      const preferenceId = datos.id;
+if (!respuesta.ok) {
+  const errorData = await respuesta.json();
+  console.error('❌ Error desde el backend:', errorData);
+  alert('Error al crear preferencia: ' + errorData.error);
+  return;
+}
+
+const datos = await respuesta.json();
+const preferenceId = datos.id;
 
       const bricksBuilder = await mp.bricks();
       await bricksBuilder.create('wallet', 'wallet_container', {
