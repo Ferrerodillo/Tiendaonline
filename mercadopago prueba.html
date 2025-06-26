@@ -1,95 +1,171 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-  <meta charset="UTF-8">
-  <title>Tienda de prueba con Mercado Pago</title>
-  <script src="https://sdk.mercadopago.com/js/v2"></script>
-  <style>
-    body { font-family: sans-serif; max-width: 600px; margin: 2rem auto; }
-    .producto { border: 1px solid #ccc; padding: 1rem; margin-bottom: 1rem; }
-    .total { font-size: 1.2em; font-weight: bold; }
-  </style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tienda de Prueba con MercadoPago</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        .articulo {
+            border: 1px solid #ddd;
+            padding: 15px;
+            margin-bottom: 20px;
+            border-radius: 5px;
+        }
+        .precio {
+            font-weight: bold;
+            color: #2e8b57;
+            font-size: 1.2em;
+        }
+        #carrito {
+            margin-top: 30px;
+            padding: 20px;
+            background-color: #f9f9f9;
+            border-radius: 5px;
+        }
+        #boton-pago {
+            margin-top: 20px;
+            padding: 10px 20px;
+            background-color: #009ee3;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 1.1em;
+        }
+        #boton-pago:hover {
+            background-color: #0078b4;
+        }
+    </style>
 </head>
 <body>
-  <h1>Tienda de Prueba</h1>
+    <h1>Tienda de Prueba</h1>
+    
+    <div class="articulo">
+        <h2>Producto 1</h2>
+        <p>Descripción del producto 1. Un artículo muy útil para el día a día.</p>
+        <p class="precio">$1,200.00</p>
+        <button class="agregar-carrito" data-id="1" data-precio="1200">Agregar al carrito</button>
+    </div>
+    
+    <div class="articulo">
+        <h2>Producto 2</h2>
+        <p>Descripción del producto 2. Ideal para regalos y ocasiones especiales.</p>
+        <p class="precio">$850.50</p>
+        <button class="agregar-carrito" data-id="2" data-precio="850.50">Agregar al carrito</button>
+    </div>
+    
+    <div class="articulo">
+        <h2>Producto 3</h2>
+        <p>Descripción del producto 3. La mejor calidad al mejor precio.</p>
+        <p class="precio">$2,499.99</p>
+        <button class="agregar-carrito" data-id="3" data-precio="2499.99">Agregar al carrito</button>
+    </div>
+    
+    <div id="carrito">
+        <h2>Carrito de Compras</h2>
+        <ul id="lista-carrito"></ul>
+        <p>Total: <span id="total">$0.00</span></p>
+        <button id="boton-pago">Pagar con MercadoPago</button>
+        <div id="wallet_container"></div>
+    </div>
 
-  <div class="producto" data-id="1" data-title="Camiseta Blanca" data-price="250">
-    <h3>Camiseta Blanca</h3>
-    <p>Precio: $250</p>
-    <button class="agregar">Agregar al carrito</button>
-  </div>
-
-  <div class="producto" data-id="2" data-title="Gorra Negra" data-price="150">
-    <h3>Gorra Negra</h3>
-    <p>Precio: $150</p>
-    <button class="agregar">Agregar al carrito</button>
-  </div>
-
-  <p class="total">Total: $<span id="total">0</span></p>
-
-  <!-- Contenedor del botón de Mercado Pago -->
-  <div id="wallet_container"></div>
-
-  <script type="module">
-    const mp = new window.MercadoPago("TEST-b5545725-ecee-4f80-9074-d03ef0b115c9", {
-      locale: "es-MX"
-    });
-
-    let carrito = [];
-    const totalEl = document.getElementById("total");
-
-    function actualizarTotal() {
-      const total = carrito.reduce((acc, item) => acc + item.unit_price * item.quantity, 0);
-      totalEl.textContent = total;
-    }
-
-    document.querySelectorAll(".agregar").forEach(btn => {
-      btn.addEventListener("click", () => {
-        const producto = btn.closest(".producto");
-        const id = producto.dataset.id;
-        const title = producto.dataset.title;
-        const price = parseFloat(producto.dataset.price);
-
-        const existente = carrito.find(p => p.id === id);
-        if (existente) {
-          existente.quantity++;
-        } else {
-          carrito.push({
-            id,
-            title,
-            unit_price: price,
-            quantity: 1,
-            currency_id: "MXN"
-          });
+    <!-- SDK MercadoPago -->
+    <script src="https://sdk.mercadopago.com/js/v2"></script>
+    
+    <!-- Nuestro módulo JavaScript -->
+    <script type="module">
+        // Configuración inicial
+        const publicKey = 'TEST-b5545725-ecee-4f80-9074-d03ef0b115c9'; // Reemplaza con tu public key
+        const mp = new MercadoPago(publicKey);
+        
+        let carrito = [];
+        let total = 0;
+        
+        // Elementos del DOM
+        const listaCarrito = document.getElementById('lista-carrito');
+        const totalElement = document.getElementById('total');
+        const botonesAgregar = document.querySelectorAll('.agregar-carrito');
+        const botonPago = document.getElementById('boton-pago');
+        const walletContainer = document.getElementById('wallet_container');
+        
+        // Event listeners
+        botonesAgregar.forEach(boton => {
+            boton.addEventListener('click', agregarAlCarrito);
+        });
+        
+        botonPago.addEventListener('click', iniciarPago);
+        
+        // Funciones
+        function agregarAlCarrito(e) {
+            const id = e.target.dataset.id;
+            const precio = parseFloat(e.target.dataset.precio);
+            
+            carrito.push({ id, precio });
+            total += precio;
+            
+            actualizarCarrito();
         }
-
-        actualizarTotal();
-      });
-    });
-
-    // Crea preferencia y muestra botón
-    async function crearBotonPago() {
-      if (carrito.length === 0) return alert("Agrega productos al carrito");
-
-      const res = await fetch("https://tu-backend.com/crear_preferencia", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ items: carrito })
-      });
-
-      const { id: preferenceId } = await res.json();
-
-      const bricksBuilder = await mp.bricks();
-      await bricksBuilder.create("wallet", "wallet_container", {
-        initialization: { preferenceId }
-      });
-    }
-
-    // Botón para generar el botón de pago después de agregar productos
-    const btnGenerarPago = document.createElement("button");
-    btnGenerarPago.textContent = "Pagar con Mercado Pago";
-    btnGenerarPago.onclick = crearBotonPago;
-    document.body.appendChild(btnGenerarPago);
-  </script>
+        
+        function actualizarCarrito() {
+            listaCarrito.innerHTML = '';
+            
+            carrito.forEach(item => {
+                const li = document.createElement('li');
+                li.textContent = `Producto ${item.id} - $${item.precio.toFixed(2)}`;
+                listaCarrito.appendChild(li);
+            });
+            
+            totalElement.textContent = `$${total.toFixed(2)}`;
+        }
+        
+        async function iniciarPago() {
+            if (carrito.length === 0) {
+                alert('Agrega productos al carrito primero');
+                return;
+            }
+            
+            try {
+                // Crear preferencia de pago
+                const response = await fetch('https://tu-backend.com/crear-preferencia', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        items: carrito.map(item => ({
+                            title: `Producto ${item.id}`,
+                            unit_price: item.precio,
+                            quantity: 1,
+                        })),
+                        back_urls: {
+                            success: window.location.href,
+                            failure: window.location.href,
+                            pending: window.location.href,
+                        },
+                        auto_return: "approved",
+                    }),
+                });
+                
+                const preferenceId = await response.json();
+                
+                // Mostrar botón de pago
+                mp.bricks().create("wallet", "wallet_container", {
+                    initialization: {
+                        preferenceId: preferenceId,
+                    },
+                });
+                
+            } catch (error) {
+                console.error('Error al procesar el pago:', error);
+                alert('Ocurrió un error al procesar el pago');
+            }
+        }
+    </script>
 </body>
 </html>
