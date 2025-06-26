@@ -2,19 +2,21 @@
 <html lang="es">
 <head>
   <meta charset="UTF-8">
-  <title>Tienda de prueba con Mercado Pago</title>
+  <title>Tienda con Mercado Pago</title>
   <script src="https://sdk.mercadopago.com/js/v2"></script>
   <style>
     body { font-family: sans-serif; max-width: 600px; margin: 2rem auto; }
     .producto { border: 1px solid #ccc; padding: 1rem; margin-bottom: 1rem; }
-    .total { font-size: 1.2em; font-weight: bold; }
+    .total { font-size: 1.2em; font-weight: bold; margin-top: 2rem; }
+    button { padding: 0.5rem 1rem; }
   </style>
 </head>
 <body>
-  <h1>Tienda de Prueba</h1>
+  <h1>Tienda de prueba</h1>
 
-  <div class="producto" data-id="1" data-title="Camiseta Blanca" data-price="250">
-    <h3>Camiseta Blanca</h3>
+  <!-- Productos -->
+  <div class="producto" data-id="1" data-title="Playera Blanca" data-price="250">
+    <h3>Playera Blanca</h3>
     <p>Precio: $250</p>
     <button class="agregar">Agregar al carrito</button>
   </div>
@@ -25,27 +27,31 @@
     <button class="agregar">Agregar al carrito</button>
   </div>
 
+  <!-- Total -->
   <p class="total">Total: $<span id="total">0</span></p>
 
-  <!-- Contenedor del botón de Mercado Pago -->
-  <div id="wallet_container"></div>
+  <!-- Botón para generar preferencia -->
+  <button id="btnPagar">Pagar con Mercado Pago</button>
+
+  <!-- Contenedor del botón real de MP -->
+  <div id="wallet_container" style="margin-top: 20px;"></div>
 
   <script type="module">
-    const mp = new window.MercadoPago("APP_USR-0668701b-e33d-4e49-b32c-6cd78586a7ee", {
-      locale: "es-MX"
+    const mp = new window.MercadoPago('APP_USR-0668701b-e33d-4e49-b32c-6cd78586a7ee', {
+      locale: 'es-MX'
     });
 
     let carrito = [];
-    const totalEl = document.getElementById("total");
+    const totalEl = document.getElementById('total');
 
     function actualizarTotal() {
       const total = carrito.reduce((acc, item) => acc + item.unit_price * item.quantity, 0);
       totalEl.textContent = total;
     }
 
-    document.querySelectorAll(".agregar").forEach(btn => {
-      btn.addEventListener("click", () => {
-        const producto = btn.closest(".producto");
+    document.querySelectorAll('.agregar').forEach(btn => {
+      btn.addEventListener('click', () => {
+        const producto = btn.closest('.producto');
         const id = producto.dataset.id;
         const title = producto.dataset.title;
         const price = parseFloat(producto.dataset.price);
@@ -59,7 +65,7 @@
             title,
             unit_price: price,
             quantity: 1,
-            currency_id: "MXN"
+            currency_id: 'MXN'
           });
         }
 
@@ -67,29 +73,28 @@
       });
     });
 
-    // Crea preferencia y muestra botón
-    async function crearBotonPago() {
-      if (carrito.length === 0) return alert("Agrega productos al carrito");
+    document.getElementById('btnPagar').addEventListener('click', async () => {
+      if (carrito.length === 0) {
+        alert('Agrega productos al carrito');
+        return;
+      }
 
-      const res = await fetch("https://console.firebase.google.com/project/rodilloback/overview", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
+      // Llamar a tu función de Firebase
+      const respuesta = await fetch('https://console.firebase.google.com/project/rodilloback/overview', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ items: carrito })
       });
 
-      const { id: preferenceId } = await res.json();
+      const datos = await respuesta.json();
+      const preferenceId = datos.id;
 
       const bricksBuilder = await mp.bricks();
-      await bricksBuilder.create("wallet", "wallet_container", {
-        initialization: { preferenceId }
+      await bricksBuilder.create('wallet', 'wallet_container', {
+        initialization: { preferenceId },
+        customization: { texts: { valueProp: 'smart_option' } }
       });
-    }
-
-    // Botón para generar el botón de pago después de agregar productos
-    const btnGenerarPago = document.createElement("button");
-    btnGenerarPago.textContent = "Pagar con Mercado Pago";
-    btnGenerarPago.onclick = crearBotonPago;
-    document.body.appendChild(btnGenerarPago);
+    });
   </script>
 </body>
 </html>
