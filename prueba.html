@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <title>Tienda con Mercado Pago</title>
+  <script src="https://sdk.mercadopago.com/js/v2"></script>
+  <style>
+  </style>
+</head>
+<body>
+
+
+  <script type="module">
+fetch('https://ferrerodillo.github.io', {
+  method: 'POST',
+  headers: { 'Content-Type': 'application/json' },
+  body: JSON.stringify({
+    items: [
+      {
+        title: 'Producto de prueba',
+        quantity: 1,
+        unit_price: 100,
+        currency_id: 'MXN'
+      }
+    ]
+  })
+})
+.then(response => response.json())
+.then(data => console.log('✅ Respuesta:', data))
+.catch(error => console.error('❌ Error al llamar a la función:', error));
+
+  </script>
+</body>
+</html>
