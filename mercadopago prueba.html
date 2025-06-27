@@ -2,105 +2,88 @@
 <html lang="es">
 <head>
   <meta charset="UTF-8">
-  <title>Tienda con Mercado Pago</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Tienda Demo con Mercado Pago</title>
   <script src="https://sdk.mercadopago.com/js/v2"></script>
   <style>
-    body { font-family: sans-serif; max-width: 600px; margin: 2rem auto; }
-    .producto { border: 1px solid #ccc; padding: 1rem; margin-bottom: 1rem; }
-    .total { font-size: 1.2em; font-weight: bold; margin-top: 2rem; }
-    button { padding: 0.5rem 1rem; }
+    body { font-family: Arial, sans-serif; margin: 20px; display: flex; flex-direction: column; align-items: center; }
+    .product-card { border: 1px solid #eee; padding: 20px; margin-bottom: 20px; border-radius: 8px; box-shadow: 2px 2px 8px rgba(0,0,0,0.1); text-align: center; }
+    button { padding: 12px 25px; background-color: #009ee3; color: white; border: none; border-radius: 5px; cursor: pointer; font-size: 18px; font-weight: bold; transition: background-color 0.3s ease; }
+    button:hover { background-color: #007bb6; }
+    #checkout-pro-container { margin-top: 30px; width: 100%; max-width: 400px; }
   </style>
 </head>
 <body>
-  <h1>Tienda de prueba</h1>
 
-  <!-- Productos -->
-  <div class="producto" data-id="1" data-title="Playera Blanca" data-price="250">
-    <h3>Playera Blanca</h3>
-    <p>Precio: $250</p>
-    <button class="agregar">Agregar al carrito</button>
+  <h1>Mi Tienda Online</h1>
+
+  <div class="product-card">
+    <h2>Producto Fantástico</h2>
+    <p>¡El mejor producto que jamás tendrás!</p>
+    <p>Precio: <span style="font-size: 24px; font-weight: bold; color: #333;">$100.00 MXN</span></p>
+    <button id="buy-button">Comprar Ahora</button>
   </div>
 
-  <div class="producto" data-id="2" data-title="Gorra Negra" data-price="150">
-    <h3>Gorra Negra</h3>
-    <p>Precio: $150</p>
-    <button class="agregar">Agregar al carrito</button>
-  </div>
-
-  <!-- Total -->
-  <p class="total">Total: $<span id="total">0</span></p>
-
-  <!-- Botón para generar preferencia -->
-  <button id="btnPagar">Pagar con Mercado Pago</button>
-
-  <!-- Contenedor del botón real de MP -->
-  <div id="wallet_container" style="margin-top: 20px;"></div>
+  <div id="checkout-pro-container"></div>
 
   <script type="module">
-const cors = require('cors')({
-  origin: 'https://ferrerodillo.github.io'
-});
-
-    let carrito = [];
-    const totalEl = document.getElementById('total');
-
-    function actualizarTotal() {
-      const total = carrito.reduce((acc, item) => acc + item.unit_price * item.quantity, 0);
-      totalEl.textContent = total;
-    }
-
-    document.querySelectorAll('.agregar').forEach(btn => {
-      btn.addEventListener('click', () => {
-        const producto = btn.closest('.producto');
-        const id = producto.dataset.id;
-        const title = producto.dataset.title;
-        const price = parseFloat(producto.dataset.price);
-
-        const existente = carrito.find(p => p.id === id);
-        if (existente) {
-          existente.quantity++;
-        } else {
-          carrito.push({
-            id,
-            title,
-            unit_price: price,
-            quantity: 1,
-            currency_id: 'MXN'
-          });
-        }
-
-        actualizarTotal();
-      });
+    // Inicializa el SDK de Mercado Pago con tu Public Key
+    // ¡Importante! Reemplaza "TU_PUBLIC_KEY_DE_MERCADOPAGO" con tu Public Key de Producción o Prueba
+    const mp = new MercadoPago('TEST-b5545725-ecee-4f80-9074-d03ef0b115c9', {
+      locale: 'es-MX' // Opcional: Define el idioma y región
     });
 
-    document.getElementById('btnPagar').addEventListener('click', async () => {
-      if (carrito.length === 0) {
-        alert('Agrega productos al carrito');
-        return;
+    document.getElementById('buy-button').addEventListener('click', async () => {
+      try {
+        // Datos del producto a enviar al backend
+        const productData = {
+          items: [
+            {
+              title: 'Producto Fantástico',
+              quantity: 1,
+              unit_price: 100,
+              currency_id: 'MXN'
+            }
+          ]
+        };
+
+        // Llama a tu backend para crear la preferencia
+        // Si tu backend está en Cloud Run, usa la URL de tu servicio Cloud Run aquí.
+        // Ejemplo: 'https://crear-preferencia-lir7xgr7aq-uc.a.run.app/create_preference'
+        const response = await fetch('http://localhost:3000/create_preference', { // Asegúrate que esta URL apunte a tu backend
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify(productData)
+        });
+
+        if (!response.ok) {
+          const errorData = await response.json();
+          throw new Error(errorData.error || 'Error desconocido al obtener la preferencia del backend');
+        }
+
+        const data = await response.json();
+        const preferenceId = data.id; // Obtenemos el ID de la preferencia
+
+        // Renderiza el botón de pago de Checkout Pro en el contenedor especificado
+        mp.checkout({
+          preference: {
+            id: preferenceId // Aquí se usa el ID de la preferencia obtenido del backend
+          },
+          render: {
+            container: '#checkout-pro-container', // ID del elemento HTML donde se mostrará el botón
+            label: 'Pagar con Mercado Pago',      // Texto que aparecerá en el botón
+          }
+        });
+
+        // Opcional: Deshabilita el botón de compra original para evitar múltiples clicks
+        document.getElementById('buy-button').disabled = true;
+
+      } catch (error) {
+        console.error('❌ Error al procesar la compra:', error);
+        alert('Hubo un error al intentar procesar tu compra. Por favor, inténtalo de nuevo. Detalles: ' + error.message);
       }
-
-      // Llamar a tu función de Firebase
-const respuesta = await fetch('https://crear-preferencia-lir7xgr7aq-uc.a.run.app', {
-  method: 'POST',
-  headers: { 'Content-Type': 'application/json' },
-  body: JSON.stringify({ items: carrito })
-});
-
-if (!respuesta.ok) {
-  const errorData = await respuesta.json();
-  console.error('❌ Error desde el backend:', errorData);
-  alert('Error al crear preferencia: ' + errorData.error);
-  return;
-}
-
-const datos = await respuesta.json();
-const preferenceId = datos.id;
-
-      const bricksBuilder = await mp.bricks();
-      await bricksBuilder.create('wallet', 'wallet_container', {
-        initialization: { preferenceId },
-        customization: { texts: { valueProp: 'smart_option' } }
-      });
     });
   </script>
 </body>
