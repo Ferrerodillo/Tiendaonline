@@ -3,859 +3,1818 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Ferretería Industrial - Stock Online</title>
-    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
-    <style>
-        :root {
-            --primary: #2c3e50;
-            --secondary: #e74c3c;
-            --light: #ecf0f1;
-            --dark: #34495e;
-            --success: #27ae60;
-            --warning: #f39c12;
-        }
-        
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-        
+    <title>Ferretería Y Papelería El Rodillo</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/emailjs-com@3.2.0/dist/email.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/papaparse@5.3.0/papaparse.min.js"></script>
+<style>
+.imagen-redimensionada {
+  width: 400px; /* Ancho de la imagen (puedes usar px, %, etc.) */
+  height: 100px; /* Altura de la imagen (puedes usar px, %, etc.) */
+  object-fit: cover; /* o object-fit: contain */
+}
+        /* Navbar estática con ajustes */
         body {
-            font-family: 'Roboto', sans-serif;
-            background-color: #f5f5f5;
-            color: #333;
-            line-height: 1.6;
+            padding-top: 70px; /* Aumenté el padding para dar más espacio */
         }
-        
-        header {
-            background-color: var(--primary);
-            color: white;
-            padding: 1rem 2rem;
-            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
-            position: sticky;
-            top: 0;
-            z-index: 100;
-        }
-        
-        .header-container {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            max-width: 1200px;
-            margin: 0 auto;
-        }
-        
-        .logo {
-            display: flex;
-            align-items: center;
-            gap: 10px;
-        }
-        
-        .logo i {
-            font-size: 2rem;
-            color: var(--secondary);
-        }
-        
-        .logo h1 {
-            font-weight: 700;
-            font-size: 1.5rem;
-        }
-        
-        .search-bar {
-            flex-grow: 1;
-            margin: 0 2rem;
-        }
-        
-        .search-bar input {
-            width: 100%;
-            padding: 0.5rem 1rem;
-            border-radius: 20px;
-            border: none;
-            font-size: 1rem;
-        }
-        
-        .user-actions a {
-            color: white;
-            margin-left: 1rem;
-            text-decoration: none;
-            font-size: 1.2rem;
-        }
-        
-        main {
-            max-width: 1200px;
-            margin: 2rem auto;
-            padding: 0 1rem;
-        }
-        
-        .controls {
-            display: flex;
-            justify-content: space-between;
-            margin-bottom: 2rem;
-            flex-wrap: wrap;
-            gap: 1rem;
-        }
-        
-        .filter-group {
-            display: flex;
-            gap: 1rem;
-            flex-wrap: wrap;
-        }
-        
-        select, button {
-            padding: 0.5rem 1rem;
-            border-radius: 4px;
-            border: 1px solid #ddd;
-            background-color: white;
-            font-size: 0.9rem;
-        }
-        
-        button {
-            background-color: var(--primary);
-            color: white;
-            border: none;
-            cursor: pointer;
-            transition: background-color 0.3s;
-        }
-        
-        button:hover {
-            background-color: var(--dark);
-        }
-        
-        .refresh-btn {
-            background-color: var(--secondary);
-        }
-        
-        .refresh-btn:hover {
-            background-color: #c0392b;
-        }
-        
-        .status {
-            padding: 1rem;
-            background-color: var(--light);
-            border-radius: 4px;
-            margin-bottom: 1rem;
-            text-align: center;
-        }
-        
-        .products-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
-            gap: 1.5rem;
-        }
-        
-        .product-card {
-            background-color: white;
-            border-radius: 8px;
-            overflow: hidden;
-            box-shadow: 0 3px 10px rgba(0, 0, 0, 0.1);
-            transition: transform 0.3s, box-shadow 0.3s;
-        }
-        
-        .product-card:hover {
-            transform: translateY(-5px);
-            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
-        }
-        
-        .product-image {
-            height: 200px;
-            background-color: #eee;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            position: relative;
-        }
-        
-        .product-image img {
-            max-width: 100%;
-            max-height: 100%;
-            object-fit: contain;
-        }
-        
-        .stock-badge {
-            position: absolute;
-            top: 10px;
-            right: 10px;
-            background-color: var(--success);
-            color: white;
-            padding: 0.25rem 0.5rem;
-            border-radius: 20px;
-            font-size: 0.8rem;
-        }
-        
-        .low-stock {
-            background-color: var(--warning);
-        }
-        
-        .no-stock {
-            background-color: var(--secondary);
-        }
-        
-        .product-info {
-            padding: 1rem;
-        }
-        
-        .product-code {
-            font-size: 0.8rem;
-            color: #777;
-            margin-bottom: 0.5rem;
-        }
-        
-        .product-title {
-            font-weight: 500;
-            margin-bottom: 0.5rem;
-            min-height: 3rem;
-        }
-        
-        .product-price {
-            font-weight: 700;
-            font-size: 1.2rem;
-            color: var(--secondary);
-            margin: 0.5rem 0;
-        }
-        
-        .product-meta {
-            display: flex;
-            justify-content: space-between;
-            font-size: 0.8rem;
-            color: #777;
-            margin-top: 0.5rem;
-        }
-        
-        .product-actions {
-            display: flex;
-            justify-content: space-between;
-            margin-top: 1rem;
-            border-top: 1px solid #eee;
-            padding-top: 1rem;
-        }
-        
-        .detail-btn {
-            background-color: var(--light);
-            color: var(--dark);
-            padding: 0.5rem;
-            border-radius: 4px;
-            font-size: 0.8rem;
-        }
-        
-        .add-to-cart {
-            background-color: var(--success);
-            color: white;
-            padding: 0.5rem 1rem;
-            border-radius: 4px;
-            font-size: 0.8rem;
-        }
-        
-        footer {
-            background-color: var(--dark);
-            color: white;
-            padding: 2rem;
-            margin-top: 3rem;
-        }
-        
-        .footer-container {
-            max-width: 1200px;
-            margin: 0 auto;
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-            gap: 2rem;
-        }
-        
-        .footer-section h3 {
-            margin-bottom: 1rem;
-            font-size: 1.1rem;
-        }
-        
-        .footer-section ul {
-            list-style: none;
-        }
-        
-        .footer-section ul li {
-            margin-bottom: 0.5rem;
-        }
-        
-        .footer-section ul li a {
-            color: var(--light);
-            text-decoration: none;
-        }
-        
-        .copyright {
-            text-align: center;
-            margin-top: 2rem;
-            padding-top: 1rem;
-            border-top: 1px solid rgba(255, 255, 255, 0.1);
-            font-size: 0.9rem;
-        }
-        
-        @media (max-width: 768px) {
-            .header-container {
-                flex-direction: column;
-                gap: 1rem;
-            }
-            
-            .search-bar {
-                margin: 1rem 0;
-                width: 100%;
-            }
-            
-            .controls {
-                flex-direction: column;
-            }
-        }
-        
-        /* Modal */
-        .modal {
-            display: none;
+        .navbar {
             position: fixed;
             top: 0;
+            right: 0;
             left: 0;
-            width: 100%;
+            z-index: 1030;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+
+        /* Margen adicional para la sección de productos */
+        #productsSection {
+            margin-top: 90px; /* Espacio extra debajo de la navbar */
+        }
+
+        /* Resto de estilos... */
+        .card {
+            transition: transform 0.3s;
             height: 100%;
-            background-color: rgba(0, 0, 0, 0.7);
-            z-index: 1000;
+            margin-bottom: 20px; /* Espacio entre tarjetas */
+        }
+        .card:hover {
+            transform: scale(1.03);
+        }
+        .card-img-top {
+            height: 150px;
+            object-fit: contain;
+            padding: 10px;
+            background: #f8f9fa;
+        }
+        .cart-item {
+            border-bottom: 1px solid #eee;
+            padding: 10px 0;
+        }
+        .hidden {
+            display: none;
+        }
+        #userOrders {
+            max-height: 300px;
             overflow-y: auto;
         }
-        
-        .modal-content {
-            background-color: white;
-            margin: 2rem auto;
-            max-width: 800px;
-            border-radius: 8px;
-            overflow: hidden;
-            animation: modalFadeIn 0.3s;
+        .product-card {
+            height: 100%;
         }
-        
-        @keyframes modalFadeIn {
-            from { opacity: 0; transform: translateY(-50px); }
-            to { opacity: 1; transform: translateY(0); }
+        .category-filter {
+            margin-bottom: 20px;
         }
-        
-        .modal-header {
-            background-color: var(--primary);
-            color: white;
-            padding: 1rem;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
-        
-        .close-modal {
-            background: none;
-            border: none;
-            color: white;
-            font-size: 1.5rem;
-            cursor: pointer;
-        }
-        
-        .modal-body {
-            padding: 1.5rem;
-            display: grid;
-            grid-template-columns: 1fr 2fr;
-            gap: 2rem;
-        }
-        
-        .modal-image {
-            background-color: #f9f9f9;
-            padding: 1rem;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            height: 300px;
-        }
-        
-        .modal-image img {
-            max-width: 100%;
-            max-height: 100%;
+        .product-detail-img {
+            max-height: 300px;
             object-fit: contain;
         }
-        
-        .modal-details h2 {
-            margin-bottom: 1rem;
-            color: var(--primary);
+        .stock-info {
+            font-size: 0.8rem;
+            color: #6c757d;
         }
-        
-        .detail-row {
-            margin-bottom: 1rem;
-            padding-bottom: 1rem;
-            border-bottom: 1px solid #eee;
+        .out-of-stock {
+            color: #dc3545;
+            font-weight: bold;
         }
-        
-        .detail-label {
-            font-weight: 500;
-            color: var(--dark);
-            margin-bottom: 0.25rem;
+        .low-stock {
+            color: #ffc107;
+            font-weight: bold;
         }
-        
-        .price-section {
-            display: flex;
-            gap: 1rem;
-            margin: 1.5rem 0;
+        .btn-out-of-stock {
+            opacity: 0.65;
+            cursor: not-allowed;
         }
-        
-        .price-section div {
-            flex: 1;
-            padding: 1rem;
-            border-radius: 4px;
-            text-align: center;
-        }
-        
-        .purchase-price {
-            background-color: #f8f9fa;
-            border: 1px solid #ddd;
-        }
-        
-        .sale-price {
-            background-color: var(--light);
-            border: 1px solid var(--success);
-            color: var(--success);
-            font-weight: 500;
-        }
-        
-        .modal-actions {
-            display: flex;
-            justify-content: flex-end;
-            gap: 1rem;
-            margin-top: 1.5rem;
-        }
-        
-        @media (max-width: 768px) {
-            .modal-body {
-                grid-template-columns: 1fr;
-            }
-            
-            .modal-image {
-                height: 200px;
-            }
-        }
+#userOrders {
+  max-height: 50vh; /* Hasta la mitad de la pantalla */
+  overflow-y: auto;
+  padding-right: 8px; /* Para que la barra no tape contenido */
+  scroll-behavior: smooth; /* Scroll suave */
+  position: relative;
+}
+
+/* Sombra para indicar que hay más contenido abajo */
+#userOrders::after {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  width: 100%;
+  height: 30px;
+  background: linear-gradient(to top, rgba(255,255,255,0.8), transparent);
+  pointer-events: none; /* No bloquea clics */
+  z-index: 10;
+}
+
+/* Barra de desplazamiento visible y más estilizada (en navegadores que lo soporten) */
+#userOrders::-webkit-scrollbar {
+  width: 8px;
+}
+#userOrders::-webkit-scrollbar-thumb {
+  background-color: #888;
+  border-radius: 4px;
+}
+#userOrders::-webkit-scrollbar-track {
+  background-color: #f1f1f1;
+}
+
+
+
+	#paypal-button-container {
+  display: none; /* Oculta inicialmente */
+  margin: 20px auto;
+  max-width: 300px;
+}
+
+	
     </style>
 </head>
 <body>
-    <header>
-        <div class="header-container">
-            <div class="logo">
-                <i class="fas fa-tools"></i>
-                <h1>Ferretería Industrial</h1>
-            </div>
-            
-            <div class="search-bar">
-                <input type="text" placeholder="Buscar productos...">
-            </div>
-            
-            <div class="user-actions">
-                <a href="#"><i class="fas fa-user"></i></a>
-                <a href="#"><i class="fas fa-shopping-cart"></i></a>
-            </div>
-        </div>
-    </header>
-    
-    <main>
-        <div class="controls">
-            <div class="filter-group">
-                <select id="categoryFilter">
-                    <option value="">Todas las categorías</option>
-                    <!-- Las opciones se llenarán dinámicamente -->
-                </select>
-                
-                <select id="sortBy">
-                    <option value="name">Ordenar por nombre</option>
-                    <option value="price">Ordenar por precio</option>
-                    <option value="stock">Ordenar por stock</option>
-                </select>
-            </div>
-            
-            <button id="refreshData" class="refresh-btn">
-                <i class="fas fa-sync-alt"></i> Actualizar datos
-            </button>
-        </div>
-        
-        <div id="status" class="status">
-            Presiona "Actualizar datos" para cargar el inventario
-        </div>
-        
-        <div id="productsGrid" class="products-grid">
-            <!-- Los productos se cargarán aquí dinámicamente -->
-        </div>
-    </main>
-    
-    <footer>
-        <div class="footer-container">
-            <div class="footer-section">
-                <h3>Contacto</h3>
-                <ul>
-                    <li><i class="fas fa-map-marker-alt"></i> Av. Principal 1234</li>
-                    <li><i class="fas fa-phone"></i> +56 2 1234 5678</li>
-                    <li><i class="fas fa-envelope"></i> contacto@ferreteria.cl</li>
-                </ul>
-            </div>
-            
-            <div class="footer-section">
-                <h3>Horario</h3>
-                <ul>
-                    <li>Lunes a Viernes: 9:00 - 19:00</li>
-                    <li>Sábado: 9:00 - 14:00</li>
-                    <li>Domingo: Cerrado</li>
-                </ul>
-            </div>
-            
-            <div class="footer-section">
-                <h3>Enlaces rápidos</h3>
-                <ul>
-                    <li><a href="#">Inicio</a></li>
-                    <li><a href="#">Productos</a></li>
-                    <li><a href="#">Contacto</a></li>
-                    <li><a href="#">Sobre nosotros</a></li>
-                </ul>
+
+
+<a href="https://wa.me/5213112016561?text=Hola%20quiero%20más%20información"
+   target="_blank"
+   style="
+       position: fixed;
+       bottom: 20px;
+       right: 20px;
+       background-color: #25D366;
+       color: white;
+       padding: 12px 16px;
+       border-radius: 30px;
+       display: flex;
+       align-items: center;
+       gap: 8px;
+       font-size: 16px;
+       font-weight: bold;
+       text-decoration: none;
+       z-index: 1000;
+       box-shadow: 0 4px 10px rgba(0,0,0,0.3);
+   "
+   aria-label="Habla por WhatsApp">
+
+   <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" fill="white" viewBox="0 0 24 24">
+     <path d="M12.04 2.003C6.518 1.993 2.003 6.493 2 12.004c-.002 2.104.634 4.148 1.834 5.894L2 22l4.218-1.795a10.003 10.003 0 005.821 1.782h.008c5.522 0 10.037-4.5 10.04-10.011.003-5.51-4.511-10.002-10.04-10zM12.04 20c-1.748 0-3.447-.508-4.91-1.47l-.351-.224-2.504 1.065.53-2.605-.169-.269a7.936 7.936 0 01-1.285-4.498C3.352 7.364 7.378 3.353 12.04 3.36c4.662.007 8.685 4.029 8.68 8.69-.004 4.663-4.025 8.69-8.68 8.69zm4.746-6.805c-.26-.13-1.538-.757-1.777-.843-.238-.088-.412-.13-.586.13-.174.26-.674.843-.827 1.016-.152.174-.304.195-.564.065-.26-.13-1.096-.403-2.087-1.28-.772-.688-1.292-1.54-1.444-1.8-.152-.26-.017-.4.114-.529.117-.116.26-.304.39-.456.13-.152.173-.26.26-.43.086-.174.043-.325-.022-.456-.065-.13-.586-1.413-.803-1.936-.21-.504-.42-.435-.586-.443l-.5-.01c-.173 0-.456.065-.695.325s-.913.892-.913 2.174.935 2.521 1.065 2.695c.13.173 1.84 2.84 4.46 3.975.625.27 1.112.43 1.492.55.626.2 1.195.172 1.647.104.502-.075 1.538-.628 1.754-1.234.217-.605.217-1.123.152-1.234-.065-.108-.238-.173-.498-.304z"/>
+   </svg>
+
+   ¿Preguntas?
+</a>
+
+	
+<nav class="navbar navbar-expand-lg navbar-dark bg-danger fixed-top">
+  <div class="container-fluid">
+    <a class="navbar-brand fs-8 fs-sm-4" href="#" style="color: yellow; font-size: 30px;">
+      <strong>Ferretería Y Papelería El Rodillo</strong>
+          <a class="nav-link active" href="#" id="homeLink" style="color: blue; font-size: 25px;">Inicio </a>
+          <a class="nav-link" href="#" id="productsLink" style="color: blue; font-size: 25px;"> Productos</a>
+    </a>
+
+
+    <div class="d-flex align-items-right mt-2 mt-lg-0 " style="gap: 18px;">
+      <input class="form-control" type="search" id="searchInput" placeholder="Buscar..." style="font-size: 16px; font-weight: bold; width: 250px;">
+      <button class="btn btn-outline-light" id="searchBtn">
+        <i class="fas fa-search"></i>
+      </button>
+      <select class="form-select" id="categoryFilter" style="max-width: 180px; font-size: 14px;">
+        <option value="all">Todas las categorías</option>
+      </select>
+      <button class="btn btn-outline-light" id="btnBuscarCategoria">
+        <i class="fas fa-search"></i>
+      </button>
+      <button class="btn btn-outline-light position-relative" id="cartBtn">
+        <i class="fas fa-shopping-cart"></i>
+        <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger" id="cartCount">0</span>
+      </button>
+      <button class="btn btn-outline-light" id="loginBtn">
+        <i class="fas fa-user"></i> Iniciar Sesión
+      </button>
+    </div>
+  </div>
+</nav>
+
+
+    <div class="container mt-4">
+        <div id="homeSection">
+            <div class="jumbotron bg-light p-5 rounded">
+		<img src="https://raw.githubusercontent.com/Ferrerodillo/Tiendaonline/refs/heads/main/logo%20para%20ferreteria%20ilustrator%20-%20copia.png" width="600" height="150" alt="Descripción de la imagen">
+                <h1 class="display-4">Bienvenido a nuestra tienda</h1>
+                <p class="lead">Encuentra los mejores productos al mejor precio.</p>
+                <hr class="my-4">
+                <p>Explora nuestro catálogo y descubre nuestras ofertas especiales.</p>
+                <button class="btn btn-primary btn-lg" id="exploreBtn">Explorar Productos</button>
             </div>
         </div>
-        
-        <div class="copyright">
-            &copy; 2023 Ferretería Industrial. Todos los derechos reservados.
+
+        <div id="productsSection" class="hidden">
+            <div class="row mb-4">
+                <div class="col-md-8">
+                    <h2>Nuestros Productos Seleccione una Categoria</h2>
+                </div>
+            </div>
+            
+            <div class="row" id="productsContainer">
+                <div class="col-12 text-center">
+                    <div class="spinner-border text-primary" role="status">
+                        <span class="visually-hidden">Cargando productos...</span>
+                    </div>
+                    <p class="mt-2">Cargando productos...</p>
+                </div>
+            </div>
+        </div>
+
+        <div id="cartSection" class="hidden">
+            <div class="row">
+                <div class="col-md-8">
+                    <h2>Tu Carrito</h2>
+                    <div id="cartItems">
+                        <p class="text-muted">Tu carrito está vacío</p>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="card">
+                        <div class="card-body">
+                            <h5 class="card-title">Resumen del Pedido</h5>
+                            <div class="d-flex justify-content-between">
+                                <p>Subtotal:</p>
+                                <p id="subtotal">$0.00</p>
+                            </div>
+                            <div class="d-flex justify-content-between">
+                                <p>Envío:</p>
+                                <p id="shippingCost">$35.00</p>
+                            </div>
+                            <hr>
+                            <div class="d-flex justify-content-between fw-bold">
+                                <p>Total:</p>
+                                <p id="totalCost">$0.00</p>
+                            </div>
+                            <button class="btn btn-primary w-100 mt-3" id="checkoutBtn">Finalizar Compra</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+
+        <div class="modal fade" id="productDetailModal" tabindex="-1" aria-hidden="true">
+            <div class="modal-dialog modal-lg">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="productDetailTitle">Detalles del Producto</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+                    <div class="modal-body">
+                        <div class="row">
+                            <div class="col-md-6">
+                                <img src="" class="img-fluid product-detail-img" id="productDetailImage" alt="">
+                            </div>
+                            <div class="col-md-6">
+                                <h4 id="productDetailName"></h4>
+                                <p class="text-muted" id="productDetailCategory"></p>
+                                <h5 class="my-3" id="productDetailPrice"></h5>
+                                <p id="productDetailDescription"></p>
+                                <div class="stock-info mb-3" id="productDetailStock"></div>
+                                <div class="d-flex align-items-center mt-4">
+                                    <button class="btn btn-outline-secondary decrease-detail" id="decreaseDetail">-</button>
+                                    <span class="mx-2" id="detailQuantity">1</span>
+                                    <button class="btn btn-outline-secondary increase-detail" id="increaseDetail">+</button>
+                                    <button class="btn btn-primary ms-3" id="addToCartDetail">Agregar al Carrito</button>
+                                </div>
+                                <div class="alert alert-warning mt-3 hidden" id="stockWarning">
+                                    No puedes agregar más unidades de las disponibles en stock
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+	    
+        <div id="checkoutSection" class="hidden">
+            <div class="row justify-content-center">
+                <div class="col-md-14">
+                    <div class="card">
+                        <div class="card-header bg-primary text-white">
+                            <h3 class="mb-0">Finalizar Compra</h3>
+                        </div>
+                        <div class="card-body">
+                            <form id="checkoutForm">
+                                <div class="row mb-3">
+                                    <div class="col-md-6">
+                                        <label for="firstName" class="form-label">Nombre</label>
+                                        <input type="text" class="form-control" id="firstName" required>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <label for="lastName" class="form-label">Apellido</label>
+                                        <input type="text" class="form-control" id="lastName" required>
+                                    </div>
+                                </div>
+                                <div class="row mb-3">
+                                <div class="col-md-6">
+                                    <label for="email" class="form-label">Email</label>
+                                    <input type="email" class="form-control" id="email" required>
+                                </div>
+                                <div class="col-md-6">
+                                    <label for="address" class="form-label">Dirección</label>
+                                    <input type="text" class="form-control" id="address" required>
+                                </div>
+                                </div>
+                                  <div class="row mb-3">
+                                    <div class="col-md-6">
+                                        <label for="state" class="form-label">Colonia</label>
+                                        <input type="text" class="form-control" id="colonia" required>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <label for="zipCode" class="form-label">Código Postal</label>
+                                        <input type="text" class="form-control" id="zipCode" required>
+                                    </div>
+                                <div class="col-md-6">
+                                    <label for="phone" class="form-label">Teléfono</label>
+                                    <input type="tel" class="form-control" id="phone" required >
+                                </div>
+                                </div>
+
+                 <div class="mb-3">
+                     <h4 class="mb-2">Opciones de Envío</h4>
+                     <div class="form-check">
+                         <input class="form-check-input" type="radio" name="shippingOption" id="shippingLocalDay" value="35.00" checked>
+                         <label class="form-check-label" for="shippingLocalDay">
+                             Envío local en Tepic (día siguiente) - $35.00
+                         </label>
+                     </div>
+                     <div class="form-check">
+                         <input class="form-check-input" type="radio" name="shippingOption" id="shippingLocalUrgent" value="50.00">
+                         <label class="form-check-label" for="shippingLocalUrgent">
+                             Envío local Urgente en Tepic (Mismo día) - $50.00
+                         </label>
+                     </div>
+                     <div class="form-check">
+                         <input class="form-check-input" type="radio" name="shippingOption" id="shippingLocalFree" value="0.00">
+                         <label class="form-check-label" for="shippingLocalFree">
+                             Envío local gratis en Tepic (compra superior a $350.00, día siguiente)
+                         </label>
+                     </div>
+                 </div>
+
+                 <h3 class="mb-0 text-center" style="font-size: 2em; font-weight: bold; font-family: Arial, sans-serif;">Selecciona Metodo de Pago</h3>
+		<div class="col-md-6">
+                    <input type="radio" name="metodoPago" id="pagoOnline" value="online" required checked>
+                   <label for="pagoOnline" style="font-size: 1.4em; font-weight: bold; font-family: Arial, sans-serif;">Pago Online</label>
+                </div>
+                <div class="col-md-6">
+                    <input type="radio" name="metodoPago" id="pagoContraentrega" value="contraentrega" required >
+                    <label for="pagoContraentrega" style="font-size: 1.4em; font-weight: bold; font-family: Arial, sans-serif;">Pago Contraentrega</label>
+                </div>
+                <div class="d-grid gap-2">
+                <button type="submit" class="btn btn-primary" id="enviarBtn" disabled>Enviar Pedido</button>
+               <button type="button" class="btn btn-outline-secondary" id="backToCartBtn">Volver al Carrito</button>
+                             </div>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+
+    <div id="paypal-button-container">
+    <h3 class="mb-0">Inicie Sesion en Paypal</h3>
+    </div>
+	
+        <div class="modal fade" id="loginModal" tabindex="-1" aria-hidden="true">
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title">Iniciar Sesión</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+                    <div class="modal-body">
+                        <form id="loginForm">
+                            <div class="mb-3">
+                                <label for="loginEmail" class="form-label">Email</label>
+                                <input type="email" class="form-control" id="loginEmail" required>
+                            </div>
+                            <div class="mb-3">
+                                <label for="loginPassword" class="form-label">Contraseña</label>
+                                <input type="password" class="form-control" id="loginPassword" required>
+                            </div>
+                            <div class="d-grid gap-2">
+                                <button type="submit" class="btn btn-primary">Iniciar Sesión</button>
+                            </div>
+                        </form>
+<div class="mb-3">
+    <div class="text-end mt-1">
+        <a href="#" id="forgotPasswordLink" class="text-decoration-none">¿Olvidaste tu contraseña?</a>
+    </div>
+</div>
+                        <div class="mt-3 text-center">
+                            <p>¿No tienes cuenta? <a href="#" id="showRegister">Regístrate</a></p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="modal fade" id="registerModal" tabindex="-1" aria-hidden="true">
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title">Registrarse</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+                    <div class="modal-body">
+                        <form id="registerForm">
+                            <div class="row mb-3">
+                                <div class="col-md-6">
+                                    <label for="registerFirstName" class="form-label">Nombre</label>
+                                    <input type="text" class="form-control" id="registerFirstName" required>
+                                </div>
+                                <div class="col-md-6">
+                                    <label for="registerLastName" class="form-label">Apellido</label>
+                                    <input type="text" class="form-control" id="registerLastName" required>
+                                </div>
+                            </div>
+                            <div class="mb-3">
+                                <label for="registerEmail" class="form-label">Email</label>
+                                <input type="email" class="form-control" id="registerEmail" required>
+                            </div>
+                            <div class="mb-3">
+                                <label for="registerPassword" class="form-label">Contraseña</label>
+                                <input type="password" class="form-control" id="registerPassword" required>
+                            </div>
+                            <div class="mb-3">
+                                <label for="registerPassword" class="form-label">Confirmar Contraseña</label>
+                                <input type="password" class="form-control" id="registerPasswordconf" required>
+                            </div>
+                            <div class="mb-3">
+                                <label for="registerAddress" class="form-label">Calle y Número</label>
+                                <input type="text" class="form-control" id="registerAddress" required>
+                            </div>
+                            <div class="mb-3">
+                                <label for="registerColonia" class="form-label">Colonia</label>
+                                <input type="text" class="form-control" id="registerColonia" required>
+                            </div>
+                            <div class="mb-3">
+                                <label for="registerZipCode" class="form-label">Código Postal</label>
+                                <input type="text" class="form-control" id="registerZipCode" required>
+                            </div>
+                            <div class="mb-3">
+                                <label for="registerPhone" class="form-label">Teléfono</label>
+                                <input type="tel" class="form-control" id="registerPhone" required>
+                            </div>
+                            <div class="mb-3">
+                                <label for="registerHorario" class="form-label">Horario Preferido para Recibir</label>
+                                <input type="text" class="form-control" id="registerHorario" placeholder="Ej: L-V 9:00-18:00">
+                            </div>
+                            <div class="mb-3">
+                                <label for="registerInstructions" class="form-label">Instrucciones Especiales para el Repartidor</label>
+                                <textarea class="form-control" id="registerInstructions" rows="3" placeholder="Ej: Dejar con el vecino, tocar dos veces, etc."></textarea>
+                            </div>
+                            <div class="d-grid gap-2">
+                                <button type="submit" class="btn btn-primary">Registrarse</button>
+                            </div>
+                        </form>
+                        <div class="mt-3 text-center">
+                            <p>¿Ya tienes cuenta? <a href="#" id="showLogin">Inicia Sesión</a></p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div id="userSection" class="hidden">
+            <div class="row">
+                <div class="col-md-4">
+                    <div class="card">
+                        <div class="card-header bg-primary text-white">
+                            <h3 class="mb-0">Mi Cuenta</h3>
+                        </div>
+                        <div class="card-body">
+                            <div class="d-flex justify-content-between align-items-center mb-3">
+                                <h5>Detalles Personales</h5>
+                                <button class="btn btn-sm btn-outline-secondary" id="editProfileBtn">
+                                    <i class="fas fa-edit"></i> Editar
+                                </button>
+<button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#passwordModal">
+  Cambiar contraseña
+</button>
+                            </div>
+                            <p id="userName"></p>
+                            <p id="userEmail"></p>
+                            <p id="userAddress"></p>
+                            <p id="userColonia"></p> 
+                            <p id="userZipCode"></p> 
+                            <p id="userPhone"></p>
+                            <p id="userHorario"></p> <p id="userInstructions"></p> <button class="btn btn-outline-danger w-100 mt-3" id="logoutBtn">Cerrar Sesión</button>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-8">
+                    <div class="card">
+                        <div class="card-header bg-primary text-white">
+                            <h3 class="mb-0">Mis Pedidos</h3>
+                        </div>
+                        <div class="card-body" id="userOrders">
+                            <p class="text-muted">No hay pedidos registrados</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="modal fade" id="editProfileModal" tabindex="-1" aria-hidden="true">
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title">Editar Perfil</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+                    <div class="modal-body">
+                        <form id="editProfileForm">
+                            <div class="row mb-3">
+                                <div class="col-md-6">
+                                    <label for="editFirstName" class="form-label">Nombre</label>
+                                    <input type="text" class="form-control" id="editFirstName" required>
+                                </div>
+                                <div class="col-md-6">
+                                    <label for="editLastName" class="form-label">Apellido</label>
+                                    <input type="text" class="form-control" id="editLastName" required>
+                                </div>
+                            </div>
+                            <div class="mb-3">
+                                <label for="editEmail" class="form-label">Email</label>
+                                <input type="email" class="form-control" id="editEmail" required>
+                            </div>
+                            <div class="mb-3">
+                                <label for="editAddress" class="form-label">Calle y Número</label>
+                                <input type="text" class="form-control" id="editAddress" required>
+                            </div>
+                            <div class="mb-3">
+                                <label for="editColonia" class="form-label">Colonia</label>
+                                <input type="text" class="form-control" id="editColonia" required>
+                            </div>
+                            <div class="mb-3">
+                                <label for="editZipCode" class="form-label">Código Postal</label>
+                                <input type="text" class="form-control" id="editZipCode" required>
+                            </div>
+                            <div class="mb-3">
+                                <label for="editPhone" class="form-label">Teléfono</label>
+                                <input type="tel" class="form-control" id="editPhone" required>
+                            </div>
+                            <div class="mb-3">
+                                <label for="editHorario" class="form-label">Horario Preferido para Recibir</label>
+                                <input type="text" class="form-control" id="editHorario">
+                            </div>
+                            <div class="mb-3">
+                                <label for="editInstructions" class="form-label">Instrucciones Especiales para el Repartidor</label>
+                                <textarea class="form-control" id="editInstructions" rows="3"></textarea>
+                            </div>
+                            <div class="d-grid gap-2">
+                                <button type="submit" class="btn btn-primary">Guardar Cambios</button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+<div class="modal fade" id="passwordModal" tabindex="-1" aria-labelledby="passwordModalLabel" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content">
+
+      <form id="changePasswordForm">
+        <div class="modal-header">
+          <h5 class="modal-title" id="passwordModalLabel">Cambiar contraseña</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+        </div>
+
+        <div class="modal-body">
+          <input type="password" id="currentPassword" class="form-control mb-2" placeholder="Contraseña actual" required>
+          <input type="password" id="newPassword" class="form-control mb-2" placeholder="Nueva contraseña" required>
+          <input type="password" id="confirmNewPassword" class="form-control mb-2" placeholder="Confirmar nueva contraseña" required>
+        </div>
+
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+          <button type="submit" class="btn btn-primary">Guardar Cambios</button>
+        </div>
+      </form>
+
+    </div>
+  </div>
+</div>
+
+    <footer class="bg-warning mt-5 py-4">
+        <div class="container">
+            <div class="row">
+                <div class="col-md-6">
+                    <h5><a href="#" style="font-size: 40px;">Ferretería Y Papelería El Rodillo</a></h5>
+                    <p>La mejor selección de productos al mejor precio.</p>
+                </div>
+                <div class="col-md-3">
+                    <h5>Enlaces</h5>
+                    <ul class="list-unstyled">
+                        <li><a href="#" class="text-red">Inicio</a></li>
+                        <li><a href="#" class="text-red" id="hLink">Productos</a></li>
+                        <li><a href="#" class="text-red">Contacto</a></li>
+                    </ul>
+                </div>
+                <div class="col-md-3">
+                    <h5>Contacto</h5>
+                    <ul class="list-unstyled">
+                        <li><i class="fas fa-map-marker-alt me-2"></i> Alaska 173 Lomas del valle 63066 Tepic, Nayarit</li>
+                        <li><i class="fas fa-phone me-2"></i> 311 2016561</li>
+                        <li><i class="fas fa-envelope me-2"></i> tarradani86.gmail.com</li>
+                    </ul>
+            </div>
+            <hr>
+            <div class="text-center">
+                <p class="mb-0">&copy; 2025 Ferretería Y Papelería El Rodillo. Todos los derechos reservados.</p>
+            </div>
         </div>
     </footer>
-    
-    <!-- Modal para detalles del producto -->
-    <div id="productModal" class="modal">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h3>Detalles del producto</h3>
-                <button class="close-modal">&times;</button>
-            </div>
-            <div class="modal-body">
-                <div class="modal-image">
-                    <img id="modalImage" src="" alt="Producto">
-                </div>
-                <div class="modal-details">
-                    <h2 id="modalTitle"></h2>
-                    
-                    <div class="detail-row">
-                        <div class="detail-label">Descripción</div>
-                        <div id="modalDescription"></div>
-                    </div>
-                    
-                    <div class="detail-row">
-                        <div class="detail-label">Códigos</div>
-                        <div>
-                            <p>SKU: <span id="modalSKU"></span></p>
-                            <p>Código interno: <span id="modalInternalCode"></span></p>
-                            <p>Código de barras: <span id="modalBarcode"></span></p>
-                        </div>
-                    </div>
-                    
-                    <div class="price-section">
-                        <div class="purchase-price">
-                            <div class="detail-label">Precio compra</div>
-                            <div id="modalPurchasePrice"></div>
-                        </div>
-                        <div class="sale-price">
-                            <div class="detail-label">Precio venta</div>
-                            <div id="modalSalePrice"></div>
-                        </div>
-                    </div>
-                    
-                    <div class="detail-row">
-                        <div class="detail-label">Stock disponible</div>
-                        <div id="modalStock"></div>
-                    </div>
-                    
-                    <div class="detail-row">
-                        <div class="detail-label">Categoría</div>
-                        <div id="modalCategory"></div>
-                    </div>
-                    
-                    <div class="modal-actions">
-                        <button class="detail-btn" id="closeModalBtn">Cerrar</button>
-                        <button class="add-to-cart">Añadir al carrito</button>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-    
-    <script>
-        // URL del archivo JSON en la nube (debes reemplazarla con tu URL real)
-        const DATA_URL = 'https://raw.githubusercontent.com/Ferrerodillo/Tiendaonline/refs/heads/main/productos.csv';
-        
+     
+          <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+
+<script type="module">
+
+  // Importar el SDK de PayPal dinámicamente
+  async function loadPayPalSDK() {
+    await new Promise((resolve) => {
+      const script = document.createElement('script');
+      script.src = 'https://www.paypal.com/sdk/js?client-id=AevOJN5ckcEobvgNiW8ohlL5ZvBs9ajqIMJ5CtfqP6eQv28MRjLeEl_kcu45z19s0DjWmINgBQH-vjYA&currency=MXN';
+      script.onload = resolve;
+      document.head.appendChild(script);
+    });
+  }
+
+  // Global variable to store current shipping cost
+let currentShippingCost = 35.00; // Default shipping cost
+
+// Function to calculate shipping cost
+function calculateShippingCost(subtotal) {
+    let selectedShipping = document.querySelector('input[name="shippingOption"]:checked');
+    let baseShipping = 0;
+
+    if (selectedShipping) {
+        if (selectedShipping.id === 'shippingLocalFree' && subtotal >= 350.00) {
+            baseShipping = 0.00;
+        } else if (selectedShipping.id === 'shippingLocalDay') {
+            baseShipping = 35.00;
+        } else if (selectedShipping.id === 'shippingLocalUrgent') {
+            baseShipping = 50.00;
+        }
+    } else {
+        // Default if no option is selected (e.g., initial load)
+        baseShipping = 35.00;
+    }
+    return baseShipping;
+}
+
+  // Función para inicializar el botón de PayPal
+  async function initPayPalButton() {
+    try {
+      await loadPayPalSDK();
+      
+      paypal.Buttons({
+        createOrder: function(data, actions) {
+          if (cart.length === 0) {
+            showToast('El carrito está vacío');
+            return actions.reject();
+          }
+
+          if (!currentUser || !auth.currentUser) {
+            showToast('Debes iniciar sesión para completar la compra.');
+            return actions.reject();
+          }
+
+          const subtotalForPaypal = cart.reduce((total, item) => total + (item.price * item.quantity), 0);
+          const shippingForPaypal = calculateShippingCost(subtotalForPaypal); // Use the new function
+          const totalAmount = subtotalForPaypal + shippingForPaypal;
+
+
+          return actions.order.create({
+            purchase_units: [{
+              amount: {
+                value: totalAmount.toFixed(2),
+                currency_code: "MXN",
+                breakdown: {
+                  item_total: {
+                    value: subtotalForPaypal.toFixed(2),
+                    currency_code: "MXN"
+                  },
+                  shipping: {
+                    value: shippingForPaypal.toFixed(2), // Use the new calculated value
+                    currency_code: "MXN"
+                  }
+                }
+              },
+              items: cart.map(item => ({
+                name: item.name,
+                unit_amount: {
+                  value: item.price.toFixed(2),
+                  currency_code: "MXN"
+                },
+                quantity: item.quantity.toString()
+              }))
+            }]
+          });
+        },
+        onApprove: function(data, actions) {
+          return actions.order.capture().then(function(details) {
+            return submitOrder().then(() => {
+              showToast('Pago completado con éxito!');
+              console.log('Pago completado:', details);
+            });
+          });
+        },
+        onError: function(err) {
+          console.error('Error en el pago de PayPal:', err);
+          showToast('Ocurrió un error al procesar el pago con PayPal');
+        }
+      }).render('#paypal-button-container');
+      
+    } catch (error) {
+      console.error('Error al cargar PayPal SDK:', error);
+      showToast('Error al inicializar el sistema de pagos');
+    }
+  }
+
+
+
+        // Import Firebase modules
+import { getDoc } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
+        import {
+            getAuth,
+            createUserWithEmailAndPassword,
+            signInWithEmailAndPassword,
+            signOut,
+            onAuthStateChanged,
+            signInAnonymously,
+            signInWithCustomToken,
+            updatePassword,
+            sendPasswordResetEmail,
+            EmailAuthProvider,
+            reauthenticateWithCredential
+        } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
+        import {
+            getFirestore,
+            collection,
+            addDoc,
+            query,
+            orderBy,
+            getDocs,
+            serverTimestamp,
+            doc,
+            setDoc,
+            updateDoc, // Ensure updateDoc is imported for profile updates
+            onSnapshot
+        } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+
         // Variables globales
-        let productsData = [];
+        let cart = [];
+        let products = [];
         let categories = [];
-        let filteredProducts = [];
-        
-        // Elementos del DOM
-        const productsGrid = document.getElementById('productsGrid');
-        const statusElement = document.getElementById('status');
-        const categoryFilter = document.getElementById('categoryFilter');
-        const sortBy = document.getElementById('sortBy');
-        const refreshBtn = document.getElementById('refreshData');
-        const searchInput = document.querySelector('.search-bar input');
-        const productModal = document.getElementById('productModal');
-        const closeModalBtn = document.querySelector('.close-modal');
-        const closeModalBtn2 = document.getElementById('closeModalBtn');
-        
-        // Event listeners
-        refreshBtn.addEventListener('click', loadData);
-        categoryFilter.addEventListener('change', filterProducts);
-        sortBy.addEventListener('change', filterProducts);
-        searchInput.addEventListener('input', filterProducts);
-        closeModalBtn.addEventListener('click', closeModal);
-        closeModalBtn2.addEventListener('click', closeModal);
-        
-        // Cargar datos al iniciar
-        document.addEventListener('DOMContentLoaded', loadData);
-        
-        // Función para cargar y parsear el CSV
-        async function loadData() {
-            try {
-                statusElement.textContent = 'Cargando datos...';
-                productsGrid.innerHTML = '';
-                
-                const response = await fetch(DATA_URL);
-                
-                if (!response.ok) {
-                    throw new Error(`Error HTTP: ${response.status}`);
+        let currentUser = null;
+        let orders = JSON.parse(localStorage.getItem('orders')) || [];
+        let currentProductDetail = null;
+        let detailQuantity = 1;
+
+        // Firebase Global variables
+        let db;
+        let auth;
+        let currentFirebaseUserId = null; // Stores Firebase Auth UID for cart and user data
+
+        // Initialize EmailJS (replace with your credentials)
+        emailjs.init('-DaNY5iTEaA9aMemL');
+
+        // Wait for DOM to be ready
+        document.addEventListener('DOMContentLoaded', async function() {
+            console.log("DOM content loaded. Starting Firebase initialization.");
+            // --- Firebase Initialization ---
+            // IMPORTANT: Replace with your actual Firebase project configuration
+            const firebaseConfig = {
+              apiKey: "AIzaSyATKAFNmwhe9X0GQ5GxHiSmc3wiOhb7j18",
+              authDomain: "rodillo-2b699.firebaseapp.com",
+              databaseURL: "https://rodillo-2b699-default-rtdb.firebaseio.com",
+              projectId: "rodillo-2b699",
+              storageBucket: "rodillo-2b699.firebasestorage.app",
+              messagingSenderId: "652395478682",
+              appId: "1:652395478682:web:f4447c35fee0599030a923"
+            };
+ 
+            if (Object.keys(firebaseConfig).length > 0 && firebaseConfig.apiKey) {
+                try {
+                    const app = initializeApp(firebaseConfig);
+                    db = getFirestore(app);
+                    auth = getAuth(app);
+                    console.log("Firebase app initialized successfully.");
+
+                    // Listen for Firebase authentication state changes
+                    onAuthStateChanged(auth, async (user) => {
+                        if (user) {
+                            currentFirebaseUserId = user.uid;
+                            console.log("Firebase Auth state changed: User is logged in.", user.uid);
+                            // Attempt to load user profile from Firestore if authenticated
+                            await loadUserProfileFromFirestore(user.uid);
+                            await loadCartFromFirestore(currentFirebaseUserId);
+                        } else {
+                            console.log("Firebase Auth state changed: No user logged in. Attempting anonymous sign-in.");
+                            // If no Firebase user, attempt anonymous sign-in (for cart persistence without explicit login)
+                            try {
+                                const anonymousUserCredential = await signInAnonymously(auth);
+                                currentFirebaseUserId = anonymousUserCredential.user.uid;
+                                console.log("Signed in anonymously with UID:", currentFirebaseUserId);
+                                await loadCartFromFirestore(currentFirebaseUserId); // Load cart for anonymous user
+                                // For anonymous users, currentUser remains null or is set minimally.
+                                currentUser = null; 
+                            } catch (error) {
+                                console.error("Error al iniciar sesión anónimamente:", error);
+                                showToast("Error al cargar la sesión. Intenta recargar la página.");
+                            }
+                        }
+                        // After Firebase Auth is ready and currentFirebaseUserId is set,
+                        // proceed with displaying the correct section.
+                        if (currentUser) {
+                            showUserSection();
+                        } else {
+                            showSection('homeSection'); 
+                        }
+                    });
+                } catch (error) {
+                    console.error("Error initializing Firebase app:", error);
+                    showToast("Error al inicializar Firebase. Por favor revisa tu configuración.");
                 }
-                
-                const csvData = await response.text();
-                productsData = parseCSV(csvData);
-                
-                // Convertir tipos de datos numéricos
-                productsData.forEach(product => {
-                    product.precio_compra = parseFloat(product.precio_compra);
-                    product.precio_venta = parseFloat(product.precio_venta);
-                    product.stock = parseInt(product.stock);
-                });
-                
-                extractCategories();
-                populateCategoryFilter();
-                filteredProducts = [...productsData];
-                renderProducts(filteredProducts);
-                
-                statusElement.textContent = `${productsData.length} productos cargados correctamente`;
-            } catch (error) {
-                console.error('Error al cargar los datos:', error);
-                statusElement.textContent = `Error al cargar los datos: ${error.message}`;
-            }
-        }
-        
-        // Función para parsear CSV a array de objetos
-        function parseCSV(csv) {
-            const lines = csv.split('\n');
-            const headers = lines[0].split(',').map(h => h.trim());
-            
-            return lines.slice(1).filter(line => line.trim() !== '').map(line => {
-                // Manejo especial para campos con comas (como descripciones)
-                const values = [];
-                let current = '';
-                let inQuotes = false;
-                
-                for (let char of line) {
-                    if (char === '"' && !inQuotes) {
-                        inQuotes = true;
-                    } else if (char === '"' && inQuotes) {
-                        inQuotes = false;
-                    } else if (char === ',' && !inQuotes) {
-                        values.push(current.trim());
-                        current = '';
-                    } else {
-                        current += char;
-                    }
+            } else {
+                console.warn("Firebase configuration not found or API key is missing. Cart will not be saved to cloud.");
+                showToast("Configuración de Firebase no encontrada. El carrito no se guardará en la nube.");
+                // Continue with localStorage logic only if Firebase is not configured
+                const storedUser = localStorage.getItem('currentUser');
+                if (storedUser) {
+                    currentUser = JSON.parse(storedUser);
+                   showSection('homeSection');
+                } else {
+                    showSection('homeSection');
                 }
-                values.push(current.trim());
-                
-                const obj = {};
-                headers.forEach((header, i) => {
-                    if (values[i] !== undefined) {
-                        obj[header] = values[i].replace(/^"|"$/g, '');
-                    } else {
-                        obj[header] = '';
-                    }
-                });
-                
-                return obj;
-            });
-        }
-        
-        // Función para filtrar productos (ahora incluye búsqueda)
-        function filterProducts() {
-            const selectedCategory = categoryFilter.value;
-            const sortField = sortBy.value;
-            const searchTerm = searchInput.value.toLowerCase();
-            
-            filteredProducts = [...productsData];
-            
-            // Filtrar por categoría
-            if (selectedCategory) {
-                filteredProducts = filteredProducts.filter(
-                    product => product.categoria === selectedCategory
-                );
             }
+
+            // Load products from GitHub CSV
+            //loadProductsFromGitHubCSV();
             
-            // Filtrar por término de búsqueda
-            if (searchTerm) {
-                filteredProducts = filteredProducts.filter(product => 
-                    product.nombre.toLowerCase().includes(searchTerm) ||
-                    (product.descripcion && product.descripcion.toLowerCase().includes(searchTerm)) ||
-                    (product.codigo_interno && product.codigo_interno.toLowerCase().includes(searchTerm)) ||
-                    (product.sku && product.sku.toLowerCase().includes(searchTerm))
-                );
-            }
-            
-            // Ordenar
-            filteredProducts.sort((a, b) => {
-                if (sortField === 'name') {
-                    return a.nombre.localeCompare(b.nombre);
-                } else if (sortField === 'price') {
-                    return a.precio_venta - b.precio_venta;
-                } else if (sortField === 'stock') {
-                    return b.stock - a.stock;
-                }
-                return 0;
+            // Set up events
+            setupEventListeners();
+
+            // Add event listeners for shipping radio buttons if they exist
+            const shippingOptions = document.querySelectorAll('input[name="shippingOption"]');
+            shippingOptions.forEach(radio => {
+                radio.addEventListener('change', updateCart);
             });
-            
-            renderProducts(filteredProducts);
-        }
-        
-        // Extraer categorías únicas de los productos
-        function extractCategories() {
-            const allCategories = productsData.map(product => product.categoria);
-            categories = [...new Set(allCategories)].filter(Boolean).sort();
-        }
-        
-        // Llenar el filtro de categorías
-        function populateCategoryFilter() {
-            categoryFilter.innerHTML = '<option value="">Todas las categorías</option>';
-            
-            categories.forEach(category => {
-                const option = document.createElement('option');
-                option.value = category;
-                option.textContent = category;
-                categoryFilter.appendChild(option);
-            });
-        }
-        
-        // Filtrar y ordenar productos
-        function filterProducts() {
-            const selectedCategory = categoryFilter.value;
-            const sortField = sortBy.value;
-            
-            let filteredProducts = [...productsData];
-            
-            // Filtrar por categoría
-            if (selectedCategory) {
-                filteredProducts = filteredProducts.filter(
-                    product => product.categoria === selectedCategory
-                );
-            }
-            
-            // Ordenar
-            filteredProducts.sort((a, b) => {
-                if (sortField === 'name') {
-                    return a.nombre.localeCompare(b.nombre);
-                } else if (sortField === 'price') {
-                    return a.precio_venta - b.precio_venta;
-                } else if (sortField === 'stock') {
-                    return b.stock - a.stock;
-                }
-                return 0;
-            });
-            
-            renderProducts(filteredProducts);
-        }
-        
-        // Renderizar productos en el grid
-        function renderProducts(products) {
-            productsGrid.innerHTML = '';
-            
-            if (products.length === 0) {
-                productsGrid.innerHTML = '<p>No se encontraron productos</p>';
+        });
+
+document.getElementById('changePasswordForm').addEventListener('submit', function (e) {
+    e.preventDefault(); // Evita que recargue la página
+    changeUserPassword(); // Ejecuta tu función
+});
+
+        // Function to save the cart to Firestore
+        async function saveCartToFirestore(userId) {
+            if (!db || !userId) {
+                console.warn("Firestore or userId not available to save cart.");
                 return;
             }
-            
-            products.forEach(product => {
-                const productCard = document.createElement('div');
-                productCard.className = 'product-card';
-                
-                // Determinar clase de stock
-                let stockClass = '';
-                let stockText = `${product.stock} en stock`;
-                
-                if (product.stock <= 0) {
-                    stockClass = 'no-stock';
-                    stockText = 'Agotado';
-                } else if (product.stock <= 5) {
-                    stockClass = 'low-stock';
-                    stockText = `Solo ${product.stock} disponibles`;
+            try {
+                const cartRef = doc(db, 'carts', userId);
+                await setDoc(cartRef, { items: cart }); // Overwrite the entire cart document
+                console.log("Carrito guardado en Firestore para:", userId);
+            } catch (error) {
+                console.error("Error guardando el carrito en Firestore:", error);
+                showToast("Error al guardar el carrito en la nube.");
+            }
+        }
+
+        // Function to load the cart from Firestore
+        async function loadCartFromFirestore(userId) {
+            if (!db || !userId) {
+                console.warn("Firestore or userId not available to load cart.");
+                return;
+            }
+            try {
+                const cartRef = doc(db, 'carts', userId);
+                const cartSnap = await getDoc(cartRef);
+                if (cartSnap.exists()) {
+                    cart = cartSnap.data().items || [];
+                    console.log("Carrito cargado de Firestore para:", userId);
+                } else {
+                    console.log("No hay carrito en Firestore para:", userId + ". Iniciando con carrito vacío o local.");
+                    cart = [];
                 }
-                
-                // Formatear precios
-                const salePrice = formatCurrency(product.precio_venta);
-                
+                updateCart(); // Update interface after loading cart
+            } catch (error) {
+                console.error("Error cargando el carrito de Firestore:", error);
+                showToast("Error al cargar el carrito desde la nube.");
+            }
+        }
+
+        // Function to load user profile from Firestore
+        async function loadUserProfileFromFirestore(userId) {
+            if (!db || !userId) {
+                console.warn("Firestore o userId no disponibles para cargar el perfil de usuario.");
+                return;
+            }
+            try {
+                const userRef = doc(db, 'users', userId);
+                const userSnap = await getDoc(userRef);
+                if (userSnap.exists()) {
+                    currentUser = userSnap.data();
+                    localStorage.setItem('currentUser', JSON.stringify(currentUser)); // Update localStorage
+                    console.log("Perfil de usuario cargado de Firestore para:", userId, currentUser);
+                } else {
+                    console.log("No hay perfil de usuario en Firestore para:", userId);
+                    // If a user logs in but has no profile data in Firestore, create a basic one
+                    currentUser = {
+                        email: auth.currentUser ? auth.currentUser.email : '',
+                        firstName: '',
+                        lastName: '',
+                        address: '',
+                        colonia: '',
+                        zipCode: '',
+                        phone: '',
+                        horario: '',
+                        instrucciones: '',
+                        orders: []
+                    };
+                    await setDoc(userRef, currentUser, { merge: true });
+                    localStorage.setItem('currentUser', JSON.stringify(currentUser));
+                    console.log("Perfil de usuario básico creado/fusionado en Firestore para:", userId);
+                }
+            } catch (error) {
+                console.error("Error cargando el perfil de usuario desde Firestore:", error);
+                showToast("Error al cargar el perfil de usuario desde la nube.");
+            }
+        }
+
+        async function verificarImagenPorCodigo(codigo) {
+            const baseUrl = 'https://raw.githubusercontent.com/Ferrerodillo/Tiendaonline/refs/heads/main/Imagenes/';
+            const extensiones = ['.jpg', '.jpeg', '.png', '.webp', '.gif', '.bmp', '.svg'];
+            for (const ext of extensiones) {
+                const urlCompleta = baseUrl + codigo + ext;
+                try {
+                    const response = await fetch(urlCompleta, { method: 'HEAD' });
+                    if (response.ok) {
+                        return { url: urlCompleta, encontrada: true };
+                    }
+                } catch {}
+            }
+            return { url: 'https://via.placeholder.com/150?text=Sin+Imagen', encontrada: false };
+        }
+
+        async function buscarEnCSV(termino) {
+            const githubCsvUrl = 'https://raw.githubusercontent.com/Ferrerodillo/Tiendaonline/refs/heads/main/productos.csv';
+            return new Promise((resolve, reject) => {
+                Papa.parse(githubCsvUrl, {
+                    download: true,
+                    header: true,
+                    complete: async (results) => {
+                        const coincidencias = results.data.filter(product => {
+                            const nombre = (product.nombre || product.name || '').toLowerCase();
+                            const codigo = (product.codigo || product.sku || product.barcode || '').toLowerCase();
+                            return nombre.includes(termino) || codigo.includes(termino);
+                        });
+                        const productosProcesados = await procesarProductos(coincidencias);
+                        resolve(productosProcesados);
+                    },
+                    error: (err) => reject(err)
+                });
+            });
+        }
+
+        async function buscarEnCSVPorCategoria(termino) {
+            const githubCsvUrl = 'https://raw.githubusercontent.com/Ferrerodillo/Tiendaonline/refs/heads/main/productos.csv';
+            return new Promise((resolve, reject) => {
+                Papa.parse(githubCsvUrl, {
+                    download: true,
+                    header: true,
+                    complete: async (results) => {
+                        const coincidencias = results.data.filter(product => {
+                            const categoria = (product.categoria || product.category || '').toLowerCase();
+                            return termino === '' || categoria.includes(termino);
+                        });
+                        const productosProcesados = await procesarProductos(coincidencias);
+                        resolve(productosProcesados);
+                    },
+                    error: (err) => reject(err)
+                });
+            });
+        }
+
+        // Function to display products
+        function displayProducts(productsToDisplay) {
+            const container = document.getElementById('productsContainer');
+            container.innerHTML = '';
+            if (productsToDisplay.length === 0) {
+                container.innerHTML = '<div class="col-12 text-center"><p>Cargando productos por favor espere...</p></div>';
+                return;
+            }
+            productsToDisplay.forEach(product => {
+                const productCard = document.createElement('div');
+                productCard.className = 'col-md-3 mb-4';
+                // Determine stock status
+                const stockStatus = getStockStatus(product);
+                const isOutOfStock = product.stock <= 0;
+                const addButtonDisabled = isOutOfStock ? 'disabled' : '';
+                const outOfStockClass = isOutOfStock ? 'btn-out-of-stock' : '';
                 productCard.innerHTML = `
-                    <div class="product-image">
-                        <img src="${product.imagen_url || 'https://via.placeholder.com/300?text=Sin+imagen'}" alt="${product.nombre}">
-                        <span class="stock-badge ${stockClass}">${stockText}</span>
-                    </div>
-                    <div class="product-info">
-                        <div class="product-code">${product.codigo_interno || 'N/A'}</div>
-                        <h3 class="product-title">${product.nombre}</h3>
-                        <div class="product-price">${salePrice}</div>
-                        <div class="product-meta">
-                            <span>${product.categoria || 'Sin categoría'}</span>
-                            <span>SKU: ${product.sku || 'N/A'}</span>
-                        </div>
-                        <div class="product-actions">
-                            <button class="detail-btn" data-id="${product.codigo_interno}">Detalles</button>
-                            <button class="add-to-cart" ${product.stock <= 0 ? 'disabled' : ''}>Añadir</button>
+                    <div class="card product-card">
+                        <img src="${product.image}" class="card-img-top" alt="${product.name}">
+                        <div class="card-body">
+                            <h5 class="card-title" style="font-size: 1rem;">${product.name}</h5>
+                            <p class="text-muted" style="font-size: 0.8rem;">${product.category}</p>
+                            <p class="fw-bold" style="font-size: 0.9rem;">$${product.price.toFixed(2)}</p>
+                            <p class="text-muted" style="font-size: 0.8rem;">${product.codigo}</p>
+                            <p class="stock-info ${stockStatus.class}">${stockStatus.text}</p>
+                            <div class="d-flex justify-content-between">
+                                <button class="btn btn-sm btn-outline-primary view-detail" data-id="${product.id}">
+                                    <i class="fas fa-eye"></i> Detalles
+                                </button>
+                                <button class="btn btn-sm btn-primary add-to-cart ${outOfStockClass}" data-id="${product.id}" ${addButtonDisabled}>
+                                    <i class="fas fa-cart-plus"></i>
+                                </button>
+                            </div>
                         </div>
                     </div>
                 `;
-                
-                productsGrid.appendChild(productCard);
-                
-                // Agregar evento al botón de detalles
-                productCard.querySelector('.detail-btn').addEventListener('click', () => {
-                    showProductDetails(product);
+                container.appendChild(productCard);
+            });
+
+            // Attach event listeners to newly added buttons
+            document.querySelectorAll('.add-to-cart').forEach(button => {
+                button.addEventListener('click', function() {
+                    const productId = this.dataset.id;
+                    addToCart(productId);
+                });
+            });
+            document.querySelectorAll('.view-detail').forEach(button => {
+                button.addEventListener('click', function() {
+                    const productId = this.dataset.id;
+                    showProductDetail(productId);
                 });
             });
         }
-        
-        // Mostrar detalles del producto en el modal
-        function showProductDetails(product) {
-            document.getElementById('modalTitle').textContent = product.nombre;
-            document.getElementById('modalDescription').textContent = product.descripcion || 'No hay descripción disponible';
-            document.getElementById('modalSKU').textContent = product.sku || 'N/A';
-            document.getElementById('modalInternalCode').textContent = product.codigo_interno || 'N/A';
-            document.getElementById('modalBarcode').textContent = product.codigo_barras || 'N/A';
-            document.getElementById('modalPurchasePrice').textContent = formatCurrency(product.precio_compra);
-            document.getElementById('modalSalePrice').textContent = formatCurrency(product.precio_venta);
-            document.getElementById('modalStock').textContent = product.stock <= 0 ? 'Agotado' : `${product.stock} unidades`;
-            document.getElementById('modalCategory').textContent = product.categoria || 'Sin categoría';
-            
-            const modalImage = document.getElementById('modalImage');
-            modalImage.src = product.imagen_url || 'https://via.placeholder.com/500?text=Sin+imagen';
-            modalImage.alt = product.nombre;
-            
-            // Mostrar modal
-            productModal.style.display = 'block';
-        }
-        
-        // Cerrar modal
-        function closeModal() {
-            productModal.style.display = 'none';
-        }
-        
-        // Formatear moneda
-        function formatCurrency(amount) {
-            return '$' + Number(amount).toLocaleString('es-CL');
-        }
-        
-        // Cerrar modal al hacer clic fuera del contenido
-        window.addEventListener('click', (event) => {
-            if (event.target === productModal) {
-                closeModal();
+
+        // Helper function to get stock status
+        function getStockStatus(product) {
+            if (product.stock <= 0) {
+                return { text: 'Agotado', class: 'out-of-stock' };
+            } else if (product.stock <= 5) {
+                return { text: `Quedan ${product.stock} unidades`, class: 'low-stock' };
+            } else {
+                return { text: 'En Stock', class: '' };
             }
-        });
-    </script>
+        }
+
+        // Function to fetch products from GitHub CSV and process them
+        async function loadProductsFromGitHubCSV() {
+            const githubCsvUrl = 'https://raw.githubusercontent.com/Ferrerodillo/Tiendaonline/refs/heads/main/productos.csv';
+            const productsContainer = document.getElementById('productsContainer');
+            productsContainer.innerHTML = `
+                <div class="col-12 text-center">
+                    <div class="spinner-border text-primary" role="status">
+                        <span class="visually-hidden">Cargando productos...</span>
+                    </div>
+                    <p class="mt-2">Cargando productos...</p>
+                </div>
+            `;
+            try {
+                const response = await fetch(githubCsvUrl);
+                const csvText = await response.text();
+                Papa.parse(csvText, {
+                    header: true,
+                    complete: async (results) => {
+                        products = await procesarProductos(results.data);
+                        displayProducts(products);
+                        extractCategories(products);
+                    }
+                });
+            } catch (error) {
+                console.error("Error al cargar productos desde GitHub:", error);
+                productsContainer.innerHTML = '<div class="col-12 text-center"><p class="text-danger">Error al cargar productos. Por favor, intenta de nuevo más tarde.</p></div>';
+            }
+        }
+
+        async function procesarProductos(data) {
+            const processedProducts = [];
+            for (const product of data) {
+                if (product.name && product.price) { // Basic validation
+                    const imageInfo = await verificarImagenPorCodigo(product.codigo);
+                    processedProducts.push({
+                        id: product.codigo, // Using codigo as a unique ID
+                        name: product.name,
+                        price: parseFloat(product.price),
+                        category: product.category || 'General',
+                        description: product.description || 'Sin descripción.',
+                        image: imageInfo.url,
+                        stock: parseInt(product.stock) || 0,
+                        codigo: product.codigo // Add original product code
+                    });
+                }
+            }
+            return processedProducts;
+        }
+
+        function extractCategories(products) {
+            const categorySet = new Set();
+            products.forEach(product => {
+                if (product.category) {
+                    categorySet.add(product.category);
+                }
+            });
+            categories = ['all', ...Array.from(categorySet)];
+            populateCategoryFilter();
+        }
+
+        function populateCategoryFilter() {
+            const filterSelect = document.getElementById('categoryFilter');
+            filterSelect.innerHTML = ''; // Clear existing options
+            categories.forEach(category => {
+                const option = document.createElement('option');
+                option.value = category === 'all' ? 'all' : category.toLowerCase();
+                option.textContent = category === 'all' ? 'Todas las categorías' : category;
+                filterSelect.appendChild(option);
+            });
+        }
+
+        function filterProductsByCategory(category) {
+            if (category === 'all') {
+                displayProducts(products);
+            } else {
+                const filtered = products.filter(product => product.category.toLowerCase() === category);
+                displayProducts(filtered);
+            }
+        }
+
+
+        // Function to add item to cart
+        function addToCart(productId) {
+            const productToAdd = products.find(p => p.id === productId);
+            if (productToAdd) {
+                const existingItem = cart.find(item => item.id === productId);
+                if (existingItem) {
+                    if (existingItem.quantity < productToAdd.stock) {
+                        existingItem.quantity++;
+                        showToast(`Se agregó otra unidad de ${productToAdd.name} al carrito.`);
+                    } else {
+                        showToast(`No hay más stock de ${productToAdd.name} disponible.`);
+                    }
+                } else {
+                    if (productToAdd.stock > 0) {
+                        cart.push({ ...productToAdd, quantity: 1 });
+                        showToast(`${productToAdd.name} agregado al carrito.`);
+                    } else {
+                        showToast(`${productToAdd.name} está agotado.`);
+                    }
+                }
+                updateCart();
+            }
+        }
+
+        // Function to remove item from cart
+        function removeFromCart(productId) {
+            cart = cart.filter(item => item.id !== productId);
+            updateCart();
+            showToast('Producto eliminado del carrito.');
+        }
+
+        // Function to update cart display and totals
+        function updateCart() {
+            const cartItemsContainer = document.getElementById('cartItems');
+            const subtotalElement = document.getElementById('subtotal');
+            const shippingCostElement = document.getElementById('shippingCost');
+            const totalCostElement = document.getElementById('totalCost');
+            let subtotal = 0;
+
+            cartItemsContainer.innerHTML = ''; // Clear current cart display
+
+            if (cart.length === 0) {
+                cartItemsContainer.innerHTML = '<p class="text-muted">Tu carrito está vacío</p>';
+            } else {
+                cart.forEach(item => {
+                    const itemTotal = item.price * item.quantity;
+                    subtotal += itemTotal;
+                    const cartItem = document.createElement('div');
+                    cartItem.className = 'cart-item d-flex justify-content-between align-items-center';
+                    cartItem.innerHTML = `
+                        <div>
+                            <h5>${item.name}</h5>
+                            <p class="mb-0 text-muted">${item.category}</p>
+                            <p class="mb-0">$${item.price.toFixed(2)} x ${item.quantity}</p>
+                        </div>
+                        <div>
+                            <span class="fw-bold">$${itemTotal.toFixed(2)}</span>
+                            <button class="btn btn-danger btn-sm ms-3 remove-from-cart" data-id="${item.id}">X</button>
+                        </div>
+                    `;
+                    cartItemsContainer.appendChild(cartItem);
+                });
+            }
+
+            // Calculate shipping cost based on subtotal and selected option
+            currentShippingCost = calculateShippingCost(subtotal);
+
+            const total = subtotal + currentShippingCost;
+
+            subtotalElement.textContent = `$${subtotal.toFixed(2)}`;
+            shippingCostElement.textContent = `$${currentShippingCost.toFixed(2)}`;
+            totalCostElement.textContent = `$${total.toFixed(2)}`;
+
+            // Update cart count in navbar
+            const cartCount = cart.reduce((sum, item) => sum + item.quantity, 0);
+            document.getElementById('cartCount').textContent = cartCount;
+
+            // Save cart to local storage and Firestore
+            localStorage.setItem('cart', JSON.stringify(cart));
+            if (currentFirebaseUserId) {
+                saveCartToFirestore(currentFirebaseUserId);
+            }
+        }
+
+        // Function to show product detail modal
+        function showProductDetail(productId) {
+            const product = products.find(p => p.id === productId);
+            if (product) {
+                currentProductDetail = product;
+                detailQuantity = 1; // Reset quantity for new detail view
+
+                document.getElementById('productDetailTitle').textContent = product.name;
+                document.getElementById('productDetailName').textContent = product.name;
+                document.getElementById('productDetailCategory').textContent = product.category;
+                document.getElementById('productDetailPrice').textContent = `$${product.price.toFixed(2)}`;
+                document.getElementById('productDetailDescription').textContent = product.description;
+                document.getElementById('productDetailImage').src = product.image;
+                document.getElementById('detailQuantity').textContent = detailQuantity;
+
+                const stockInfoElement = document.getElementById('productDetailStock');
+                const stockStatus = getStockStatus(product);
+                stockInfoElement.textContent = stockStatus.text;
+                stockInfoElement.className = `stock-info mb-3 ${stockStatus.class}`;
+
+                const addToCartDetailBtn = document.getElementById('addToCartDetail');
+                const stockWarning = document.getElementById('stockWarning');
+
+                if (product.stock <= 0) {
+                    addToCartDetailBtn.disabled = true;
+                    addToCartDetailBtn.classList.add('btn-out-of-stock');
+                    stockWarning.classList.remove('hidden');
+                    stockWarning.textContent = 'Este producto está agotado.';
+                } else {
+                    addToCartDetailBtn.disabled = false;
+                    addToCartDetailBtn.classList.remove('btn-out-of-stock');
+                    stockWarning.classList.add('hidden');
+                }
+
+                const productDetailModal = new bootstrap.Modal(document.getElementById('productDetailModal'));
+                productDetailModal.show();
+            }
+        }
+
+        // Function to switch sections
+        function showSection(sectionId) {
+            document.querySelectorAll('#homeSection, #productsSection, #cartSection, #checkoutSection, #userSection').forEach(section => {
+                section.classList.add('hidden');
+            });
+            document.getElementById(sectionId).classList.remove('hidden');
+
+            // Specific actions based on section
+            if (sectionId === 'productsSection') {
+                loadProductsFromGitHubCSV(); // Reload products when navigating to product section
+            } else if (sectionId === 'cartSection') {
+                updateCart(); // Ensure cart is updated when viewing
+            } else if (sectionId === 'checkoutSection') {
+                prefillCheckoutForm(); // Prefill form if user is logged in
+            } else if (sectionId === 'userSection') {
+                displayUserProfile();
+            }
+        }
+
+        // Function to display toast messages
+        function showToast(message, isError = false) {
+            const toastContainer = document.body;
+            const toast = document.createElement('div');
+            toast.className = `toast align-items-center text-white bg-${isError ? 'danger' : 'success'} border-0 show`;
+            toast.setAttribute('role', 'alert');
+            toast.setAttribute('aria-live', 'assertive');
+            toast.setAttribute('aria-atomic', 'true');
+            toast.style.position = 'fixed';
+            toast.style.bottom = '20px';
+            toast.style.right = '20px';
+            toast.style.zIndex = '2000'; // Higher z-index than modals
+
+            toast.innerHTML = `
+                <div class="d-flex">
+                    <div class="toast-body">
+                        ${message}
+                    </div>
+                    <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast" aria-label="Close"></button>
+                </div>
+            `;
+            toastContainer.appendChild(toast);
+
+            setTimeout(() => {
+                toast.remove();
+            }, 3000);
+        }
+
+        // Function to set up all event listeners
+        function setupEventListeners() {
+            // Navbar navigation
+            document.getElementById('homeLink').addEventListener('click', () => showSection('homeSection'));
+            document.getElementById('productsLink').addEventListener('click', () => showSection('productsSection'));
+            document.getElementById('exploreBtn').addEventListener('click', () => showSection('productsSection'));
+
+            // Cart button
+            document.getElementById('cartBtn').addEventListener('click', () => showSection('cartSection'));
+
+            // Search functionality
+            document.getElementById('searchBtn').addEventListener('click', async () => {
+                const searchTerm = document.getElementById('searchInput').value.toLowerCase();
+                if (searchTerm) {
+                    try {
+                        const results = await buscarEnCSV(searchTerm);
+                        displayProducts(results);
+                        showSection('productsSection');
+                    } catch (error) {
+                        showToast("Error al buscar productos.", true);
+                    }
+                } else {
+                    showToast("Por favor, ingresa un término de búsqueda.", false);
+                }
+            });
+
+            document.getElementById('btnBuscarCategoria').addEventListener('click', async () => {
+                const selectedCategory = document.getElementById('categoryFilter').value;
+                if (selectedCategory) {
+                    try {
+                        const results = await buscarEnCSVPorCategoria(selectedCategory);
+                        displayProducts(results);
+                        showSection('productsSection');
+                    } catch (error) {
+                        showToast("Error al buscar por categoría.", true);
+                    }
+                }
+            });
+
+            // Remove from cart (delegation for dynamically added buttons)
+            document.getElementById('cartItems').addEventListener('click', function(event) {
+                if (event.target.classList.contains('remove-from-cart')) {
+                    const productId = event.target.dataset.id;
+                    removeFromCart(productId);
+                }
+            });
+
+            // Product detail quantity controls
+            document.getElementById('increaseDetail').addEventListener('click', () => {
+                if (currentProductDetail && detailQuantity < currentProductDetail.stock) {
+                    detailQuantity++;
+                    document.getElementById('detailQuantity').textContent = detailQuantity;
+                    document.getElementById('stockWarning').classList.add('hidden');
+                } else if (currentProductDetail) {
+                    document.getElementById('stockWarning').classList.remove('hidden');
+                    document.getElementById('stockWarning').textContent = 'No puedes agregar más unidades de las disponibles en stock';
+                }
+            });
+
+            document.getElementById('decreaseDetail').addEventListener('click', () => {
+                if (detailQuantity > 1) {
+                    detailQuantity--;
+                    document.getElementById('detailQuantity').textContent = detailQuantity;
+                    document.getElementById('stockWarning').classList.add('hidden');
+                }
+            });
+
+            document.getElementById('addToCartDetail').addEventListener('click', () => {
+                if (currentProductDetail) {
+                    // Find the existing item in the cart if it's already there
+                    const existingItem = cart.find(item => item.id === currentProductDetail.id);
+
+                    if (existingItem) {
+                        const newQuantity = existingItem.quantity + detailQuantity;
+                        if (newQuantity <= currentProductDetail.stock) {
+                            existingItem.quantity = newQuantity;
+                            showToast(`Se agregaron ${detailQuantity} unidades de ${currentProductDetail.name} al carrito.`);
+                        } else {
+                            showToast(`No puedes agregar esa cantidad. Solo quedan ${currentProductDetail.stock - existingItem.quantity} unidades más de ${currentProductDetail.name}.`);
+                        }
+                    } else {
+                        if (detailQuantity <= currentProductDetail.stock) {
+                            cart.push({ ...currentProductDetail, quantity: detailQuantity });
+                            showToast(`${detailQuantity} unidades de ${currentProductDetail.name} agregadas al carrito.`);
+                        } else {
+                            showToast(`No hay suficiente stock de ${currentProductDetail.name} para agregar ${detailQuantity} unidades.`);
+                        }
+                    }
+                    updateCart();
+                    const productDetailModal = bootstrap.Modal.getInstance(document.getElementById('productDetailModal'));
+                    if (productDetailModal) productDetailModal.hide();
+                }
+            });
+
+            // Checkout flow
+            document.getElementById('checkoutBtn').addEventListener('click', () => showSection('checkoutSection'));
+            document.getElementById('backToCartBtn').addEventListener('click', () => showSection('cartSection'));
+
+            // Login/Register modals
+            const loginModal = new bootstrap.Modal(document.getElementById('loginModal'));
+            const registerModal = new bootstrap.Modal(document.getElementById('registerModal'));
+
+            document.getElementById('loginBtn').addEventListener('click', () => {
+                if (currentUser) {
+                    showSection('userSection'); // Show user section if already logged in
+                } else {
+                    loginModal.show();
+                }
+            });
+            document.getElementById('showRegister').addEventListener('click', (e) => {
+                e.preventDefault();
+                loginModal.hide();
+                registerModal.show();
+            });
+            document.getElementById('showLogin').addEventListener('click', (e) => {
+                e.preventDefault();
+                registerModal.hide();
+                loginModal.show();
+            });
+
+            // Firebase Auth Forms
+            document.getElementById('registerForm').addEventListener('submit', async (e) => {
+                e.preventDefault();
+                const email = document.getElementById('registerEmail').value;
+                const password = document.getElementById('registerPassword').value;
+                const passwordConf = document.getElementById('registerPasswordconf').value;
+                const firstName = document.getElementById('registerFirstName').value;
+                const lastName = document.getElementById('registerLastName').value;
+                const address = document.getElementById('registerAddress').value;
+                const colonia = document.getElementById('registerColonia').value;
+                const zipCode = document.getElementById('registerZipCode').value;
+                const phone = document.getElementById('registerPhone').value;
+                const horario = document.getElementById('registerHorario').value;
+                const instrucciones = document.getElementById('registerInstructions').value;
+
+                if (password !== passwordConf) {
+                    showToast('Las contraseñas no coinciden.', true);
+                    return;
+                }
+
+                try {
+                    const userCredential = await createUserWithEmailAndPassword(auth, email, password);
+                    const user = userCredential.user;
+                    currentFirebaseUserId = user.uid; // Set UID for newly registered user
+
+                    currentUser = {
+                        email: email,
+                        firstName: firstName,
+                        lastName: lastName,
+                        address: address,
+                        colonia: colonia,
+                        zipCode: zipCode,
+                        phone: phone,
+                        horario: horario,
+                        instrucciones: instrucciones,
+                        orders: []
+                    };
+                    await setDoc(doc(db, 'users', user.uid), currentUser); // Save user profile
+                    localStorage.setItem('currentUser', JSON.stringify(currentUser));
+                    showToast('Registro exitoso. ¡Bienvenido!');
+                    registerModal.hide();
+                    showUserSection();
+                } catch (error) {
+                    console.error("Error en el registro:", error);
+                    let errorMessage = "Error en el registro.";
+                    if (error.code === 'auth/email-already-in-use') {
+                        errorMessage = 'El correo electrónico ya está en uso.';
+                    } else if (error.code === 'auth/weak-password') {
+                        errorMessage = 'La contraseña es demasiado débil.';
+                    }
+                    showToast(errorMessage, true);
+                }
+            });
+
+            document.getElementById('loginForm').addEventListener('submit', async (e) => {
+                e.preventDefault();
+                const email = document.getElementById('loginEmail').value;
+                const password = document.getElementById('loginPassword').value;
+
+                try {
+                    const userCredential = await signInWithEmailAndPassword(auth, email, password);
+                    const user = userCredential.user;
+                    currentFirebaseUserId = user.uid; // Set UID for logged-in user
+                    await loadUserProfileFromFirestore(user.uid); // Load full profile
+
+                    showToast('Inicio de sesión exitoso. ¡Bienvenido!');
+                    loginModal.hide();
+                    showUserSection();
+                } catch (error) {
+                    console.error("Error en el inicio de sesión:", error);
+                    let errorMessage = "Error en el inicio de sesión. Verifica tus credenciales.";
+                    if (error.code === 'auth/invalid-email' || error.code === 'auth/user-not-found' || error.code === 'auth/wrong-password') {
+                        errorMessage = 'Correo o contraseña incorrectos.';
+                    }
+                    showToast(errorMessage, true);
+                }
+            });
+
+            document.getElementById('logoutBtn').addEventListener('click', async () => {
+                try {
+                    await signOut(auth);
+                    currentUser = null;
+                    localStorage.removeItem('currentUser'); // Clear local storage
+                    showToast('Sesión cerrada correctamente.');
+                    // After logout, attempt anonymous sign-in to keep cart for non-logged users
+                    const anonymousUserCredential = await signInAnonymously(auth);
+                    currentFirebaseUserId = anonymousUserCredential.user.uid;
+                    await loadCartFromFirestore(currentFirebaseUserId); // Load cart for anonymous session
+                    showSection('homeSection');
+                } catch (error) {
+                    console.error("Error al cerrar sesión:", error);
+                    showToast('Error al cerrar sesión.', true);
+                }
+            });
+
+            // Edit Profile functionality
+            document.getElementById('editProfileBtn').addEventListener('click', () => {
+                if (currentUser) {
+                    document.getElementById('editFirstName').value = currentUser.firstName || '';
+                    document.getElementById('editLastName').value = currentUser.lastName || '';
+                    document.getElementById('editEmail').value = currentUser.email || '';
+                    document.getElementById('editAddress').value = currentUser.address || '';
+                    document.getElementById('editColonia').value = currentUser.colonia || '';
+                    document.getElementById('editZipCode').value = currentUser.zipCode || '';
+                    document.getElementById('editPhone').value = currentUser.phone || '';
+                    document.getElementById('editHorario').value = currentUser.horario || '';
+                    document.getElementById('editInstructions').value = currentUser.instrucciones || '';
+                    const editProfileModal = new bootstrap.Modal(document.getElementById('editProfileModal'));
+                    editProfileModal.show();
+                }
+            });
+
+            document.getElementById('editProfileForm').addEventListener('submit', async (e) => {
+                e.preventDefault();
+                const newFirstName = document.getElementById('editFirstName').value;
+                const newLastName = document.getElementById('editLastName').value;
+                const newEmail = document.getElementById('editEmail').value;
+                const newAddress = document.getElementById('editAddress').value;
+                const newColonia = document.getElementById('editColonia').value;
+                const newZipCode = document.getElementById('editZipCode').value;
+                const newPhone = document.getElementById('editPhone').value;
+                const newHorario = document.getElementById('editHorario').value;
+                const newInstructions = document.getElementById('editInstructions').value;
+
+                try {
+                    // Update user profile in Firestore
+                    await updateDoc(doc(db, 'users', currentFirebaseUserId), {
+                        firstName: newFirstName,
+                        lastName: newLastName,
+                        email: newEmail, // Only update email in profile, not Auth
+                        address: newAddress,
+                        colonia: newColonia,
+                        zipCode: newZipCode,
+                        phone: newPhone,
+                        horario: newHorario,
+                        instrucciones: newInstructions
+                    });
+
+                    // Update local currentUser object
+                    currentUser.firstName = newFirstName;
+                    currentUser.lastName = newLastName;
+                    currentUser.email = newEmail;
+                    currentUser.address = newAddress;
+                    currentUser.colonia = newColonia;
+                    currentUser.zipCode = newZipCode;
+                    currentUser.phone = newPhone;
+                    currentUser.horario = newHorario;
+                    currentUser.instrucciones = newInstructions;
+
+                    localStorage.setItem('currentUser', JSON.stringify(currentUser)); // Update local storage
+                    showToast('Perfil actualizado correctamente.');
+                    const editProfileModal = bootstrap.Modal.getInstance(document.getElementById('editProfileModal'));
+                    if (editProfileModal) editProfileModal.hide();
+                    displayUserProfile(); // Re-display updated profile
+                } catch (error) {
+                    console.error("Error al actualizar el perfil:", error);
+                    showToast('Error al actualizar el perfil.', true);
+                }
+            });
+
+
+            document.getElementById('forgotPasswordLink').addEventListener('click', (e) => {
+                e.preventDefault();
+
+                const email = document.getElementById('loginEmail').value;
+                const auth = getAuth();
+
+                if (!email) {
+                    showToast('Por favor ingresa tu correo electrónico para recuperar la contraseña.');
+                    return;
+                }
+
+                sendPasswordResetEmail(auth, email)
+                    .then(() => {
+                        showToast('Se ha enviado un enlace de recuperación a tu correo.');
+                    })
+                    .catch((error) => {
+                        console.error('Error al enviar correo de recuperación:', error);
+                        showToast('No se pudo enviar el correo. Verifica que el correo esté registrado.');
+                    });
+            });
+        }
+
+
+        // Function to display user profile data
+        function displayUserProfile() {
+            if (currentUser) {
+                document.getElementById('userName').textContent = `Nombre: ${currentUser.firstName || ''} ${currentUser.lastName || ''}`;
+                document.getElementById('userEmail').textContent = `Email: ${currentUser.email || ''}`;
+                document.getElementById('userAddress').textContent = `Dirección: ${currentUser.address || ''}`;
+                document.getElementById('userColonia').textContent = `Colonia: ${currentUser.colonia || ''}`;
+                document.getElementById('userZipCode').textContent = `Código Postal: ${currentUser.zipCode || ''}`;
+                document.getElementById('userPhone').textContent = `Teléfono: ${currentUser.phone || ''}`;
+                document.getElementById('userHorario').textContent = `Horario Preferido: ${currentUser.horario || 'No especificado'}`;
+                document.getElementById('userInstructions').textContent = `Instrucciones: ${currentUser.instrucciones || 'Ninguna'}`;
+                displayUserOrders();
+                showSection('userSection');
+            } else {
+                showToast('No hay usuario logueado para mostrar el perfil.', true);
+                showSection('homeSection');
+            }
+        }
+
+        // Function to prefill checkout form
+        function prefillCheckoutForm() {
+            if (currentUser) {
+                document.getElementById('firstName').value = currentUser.firstName || '';
+                document.getElementById('lastName').value = currentUser.lastName || '';
+                document.getElementById('email').value = currentUser.email || '';
+                document.getElementById('address').value = currentUser.address || '';
+                document.getElementById('colonia').value = currentUser.colonia || '';
+                document.getElementById('zipCode').value = currentUser.zipCode || '';
+                document.getElementById('phone').value = currentUser.phone || '';
+            } else {
+                // Clear the form if no user is logged in
+                document.getElementById('firstName').value = '';
+                document.getElementById('lastName').value = '';
+                document.getElementById('email').value = '';
+                document.getElementById('address').value = '';
+                document.getElementById('colonia').value = '';
+                document.getElementById('zipCode').value = '';
+                document.getElementById('phone').value = '';
+            }
+        }
+
+        // Function to submit order
+        async function submitOrder() {
+            if (cart.length === 0) {
+                showToast('El carrito está vacío. No se puede enviar el pedido.', true);
+                return;
+            }
+
+            if (!currentUser || !auth.currentUser) {
+                showToast('Debes iniciar sesión para completar la compra.', true);
+                return;
+            }
+
+            const orderData = {
+                userId: currentFirebaseUserId,
+                customerInfo: {
+                    firstName: document.getElementById('firstName').value,
+                    lastName: document.getElementById('lastName').value,
+                    email: document.getElementById('email').value,
+                    address: document.getElementById('address').value,
+                    colonia: document.getElementById('colonia').value,
+                    zipCode: document.getElementById('zipCode').value,
+                    phone: document.getElementById('phone').value,
+                    horario: currentUser.horario || 'No especificado', // From profile
+                    instrucciones: currentUser.instrucciones || 'Ninguna' // From profile
+                },
+                items: cart.map(item => ({
+                    id: item.id,
+                    name: item.name,
+                    price: item.price,
+                    quantity: item.quantity,
+                    codigo: item.codigo // Include product code in order
+                })),
+                subtotal: parseFloat(document.getElementById('subtotal').textContent.replace('$', '')),
+                shippingCost: parseFloat(document.getElementById('shippingCost').textContent.replace('$', '')),
+                total: parseFloat(document.getElementById('totalCost').textContent.replace('$', '')),
+                paymentMethod: document.querySelector('input[name="metodoPago"]:checked').value,
+                orderDate: serverTimestamp(),
+                status: 'Pendiente'
+            };
+
+            try {
+                const docRef = await addDoc(collection(db, 'orders'), orderData);
+                console.log("Pedido guardado con ID: ", docRef.id);
+
+                // Add order ID to user's profile
+                const userOrdersRef = doc(db, 'users', currentFirebaseUserId);
+                await updateDoc(userOrdersRef, {
+                    orders: [...(currentUser.orders || []), { orderId: docRef.id, date: serverTimestamp(), total: orderData.total, status: 'Pendiente' }]
+                });
+                currentUser.orders = [...(currentUser.orders || []), { orderId: docRef.id, date: new Date().toISOString(), total: orderData.total, status: 'Pendiente' }]; // Update local currentUser
+                localStorage.setItem('currentUser', JSON.stringify(currentUser)); // Update local storage
+
+                // Send email confirmation
+                sendOrderConfirmationEmail(orderData, docRef.id);
+
+                cart = []; // Clear cart after successful order
+                updateCart(); // Update cart display
+                showToast('¡Pedido realizado con éxito!');
+                showSection('homeSection'); // Redirect to home or order confirmation page
+                return true; // Indicate success for PayPal
+            } catch (error) {
+                console.error("Error al guardar el pedido:", error);
+                showToast('Error al procesar el pedido. Intenta de nuevo.', true);
+                return false; // Indicate failure for PayPal
+            }
+        }
+
+        function displayUserOrders() {
+            const userOrdersContainer = document.getElementById('userOrders');
+            userOrdersContainer.innerHTML = ''; // Clear previous orders
+
+            if (currentUser && currentUser.orders && currentUser.orders.length > 0) {
+                const sortedOrders = [...currentUser.orders].sort((a, b) => {
+                    // Convert Firebase Timestamps or ISO strings to Date objects for comparison
+                    const dateA = a.date && typeof a.date.toDate === 'function' ? a.date.toDate() : new Date(a.date);
+                    const dateB = b.date && typeof b.date.toDate === 'function' ? b.date.toDate() : new Date(b.date);
+                    return dateB - dateA; // Sort descending by date
+                });
+
+
+                sortedOrders.forEach(order => {
+                    const orderDate = order.date && typeof order.date.toDate === 'function' ? order.date.toDate().toLocaleDateString('es-ES') : new Date(order.date).toLocaleDateString('es-ES');
+                    const orderItem = document.createElement('div');
+                    orderItem.className = 'card mb-2';
+                    orderItem.innerHTML = `
+                        <div class="card-body">
+                            <h6 class="card-title">Pedido ID: ${order.orderId}</h6>
+                            <p class="card-text mb-0">Fecha: ${orderDate}</p>
+                            <p class="card-text mb-0">Total: $${order.total ? order.total.toFixed(2) : '0.00'}</p>
+                            <p class="card-text">Estado: ${order.status || 'Desconocido'}</p>
+                        </div>
+                    `;
+                    userOrdersContainer.appendChild(orderItem);
+                });
+            } else {
+                userOrdersContainer.innerHTML = '<p class="text-muted">No hay pedidos registrados</p>';
+            }
+        }
+
+
+        async function sendOrderConfirmationEmail(order, orderId) {
+            const serviceID = 'default_service'; // Default service ID
+            const templateID = 'template_v8d6y5j'; // Your EmailJS template ID
+
+            const templateParams = {
+                to_name: order.customerInfo.firstName,
+                from_name: 'Ferretería y Papelería El Rodillo',
+                message: `Tu pedido #${orderId} ha sido recibido.`,
+                customer_email: order.customerInfo.email,
+                order_details: order.items.map(item => `${item.name} (x${item.quantity}) - $${(item.price * item.quantity).toFixed(2)}`).join('\n'),
+                order_total: `$${order.total.toFixed(2)}`
+            };
+
+            try {
+                await emailjs.send(serviceID, templateID, templateParams);
+                console.log('Correo de confirmación enviado.');
+            } catch (error) {
+                console.error('Error al enviar correo de confirmación:', error);
+            }
+        }
+        document.addEventListener('DOMContentLoaded', function () {
+        const pagoOnline = document.getElementById("pagoOnline");
+        const pagoContraentrega = document.getElementById("pagoContraentrega");
+        const enviarBtn = document.getElementById("enviarBtn");
+
+        function verificarMetodoPago() {
+            if (pagoOnline.checked) {
+                enviarBtn.disabled = true;
+                document.getElementById('paypal-button-container').style.display = 'block';
+                initPayPalButton(); // Initialize PayPal button when online payment is selected
+            } else {
+                enviarBtn.disabled = false;
+                document.getElementById('paypal-button-container').style.display = 'none';
+            }
+        }
+
+        // Escuchar cambios en los radios
+        pagoOnline.addEventListener("change", verificarMetodoPago);
+        pagoContraentrega.addEventListener("change", verificarMetodoPago);
+
+        // Call on initial load to set the correct state
+        verificarMetodoPago();
+    });
+
+</script>
+
 </body>
 </html>
-
