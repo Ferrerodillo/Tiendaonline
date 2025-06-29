@@ -8,6 +8,7 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <script src="https://cdn.jsdelivr.net/npm/emailjs-com@3.2.0/dist/email.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/papaparse@5.3.0/papaparse.min.js"></script>
+	    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 <style>
 .imagen-redimensionada {
   width: 400px; /* Ancho de la imagen (puedes usar px, %, etc.) */
@@ -1251,6 +1252,14 @@ async function iniciarBusqueda() {
                     const modal = bootstrap.Modal.getInstance(document.getElementById('productDetailModal'));
                     modal.hide();
                     showToast(`${currentProductDetail.name} (${detailQuantity}) agregado al carrito`);
+		Swal.fire({
+                position: 'top-end',
+                icon: 'success',
+                title: '${currentProductDetail.name} (${detailQuantity}) agregado al carrito',
+                showConfirmButton: false,
+                timer: 1000
+                });
+
                 }
             });
         }
