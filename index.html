@@ -680,12 +680,12 @@
       paypal.Buttons({
         createOrder: function(data, actions) {
           if (cart.length === 0) {
-            showMessage('El carrito está vacío');
+            showToast('El carrito está vacío');
             return actions.reject();
           }
 
           if (!currentUser || !auth.currentUser) {
-            showMessage('Debes iniciar sesión para completar la compra.');
+            showToast('Debes iniciar sesión para completar la compra.');
             return actions.reject();
           }
 
@@ -728,7 +728,7 @@ const totalAmount = subtotalAmount + shippingCost;
         onApprove: function(data, actions) {
           return actions.order.capture().then(function(details) {
             return submitOrder().then(() => {
-              showMessage('Pago completado con éxito!');
+              showToast('Pago completado con éxito!');
               console.log('Pago completado:', details);
     const submitBtn = document.getElementById('submitOrderBtn');
     if (submitBtn) submitBtn.disabled = false;
@@ -738,13 +738,13 @@ const totalAmount = subtotalAmount + shippingCost;
         },
         onError: function(err) {
           console.error('Error en el pago de PayPal:', err);
-          showMessage('Ocurrió un error al procesar el pago con PayPal');
+          showToast('Ocurrió un error al procesar el pago con PayPal');
         }
       }).render('#paypal-button-container');
       
     } catch (error) {
       console.error('Error al cargar PayPal SDK:', error);
-      showMessage('Error al inicializar el sistema de pagos');
+      showToast('Error al inicializar el sistema de pagos');
     }
   }
 
@@ -840,7 +840,7 @@ import { getDoc } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-fires
                                 currentUser = null; 
                             } catch (error) {
                                 console.error("Error al iniciar sesión anónimamente:", error);
-                                showMessage("Error al cargar la sesión. Intenta recargar la página.");
+                                showToast("Error al cargar la sesión. Intenta recargar la página.");
                             }
                         }
                         // After Firebase Auth is ready and currentFirebaseUserId is set,
@@ -853,11 +853,11 @@ import { getDoc } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-fires
                     });
                 } catch (error) {
                     console.error("Error initializing Firebase app:", error);
-                    showMessage("Error al inicializar Firebase. Por favor revisa tu configuración.");
+                    showToast("Error al inicializar Firebase. Por favor revisa tu configuración.");
                 }
             } else {
                 console.warn("Firebase configuration not found or API key is missing. Cart will not be saved to cloud.");
-                showMessage("Configuración de Firebase no encontrada. El carrito no se guardará en la nube.");
+                showToast("Configuración de Firebase no encontrada. El carrito no se guardará en la nube.");
                 // Continue with localStorage logic only if Firebase is not configured
                 const storedUser = localStorage.getItem('currentUser');
                 if (storedUser) {
@@ -892,7 +892,7 @@ document.getElementById('changePasswordForm').addEventListener('submit', functio
                 console.log("Carrito guardado en Firestore para:", userId);
             } catch (error) {
                 console.error("Error guardando el carrito en Firestore:", error);
-                showMessage("Error al guardar el carrito en la nube.");
+                showToast("Error al guardar el carrito en la nube.");
             }
         }
 
@@ -915,7 +915,7 @@ document.getElementById('changePasswordForm').addEventListener('submit', functio
                 updateCart(); // Update interface after loading cart
             } catch (error) {
                 console.error("Error cargando el carrito de Firestore:", error);
-                showMessage("Error al cargar el carrito desde la nube.");
+                showToast("Error al cargar el carrito desde la nube.");
             }
         }
 
@@ -953,7 +953,7 @@ document.getElementById('changePasswordForm').addEventListener('submit', functio
                 }
             } catch (error) {
                 console.error("Error cargando el perfil de usuario desde Firestore:", error);
-                showMessage("Error al cargar el perfil de usuario desde la nube.");
+                showToast("Error al cargar el perfil de usuario desde la nube.");
             }
         }
 
@@ -1251,7 +1251,7 @@ async function iniciarBusqueda() {
                     addToCart(currentProductDetail.id, detailQuantity);
                     const modal = bootstrap.Modal.getInstance(document.getElementById('productDetailModal'));
                     modal.hide();
-                    showMessage(`${currentProductDetail.name} (${detailQuantity}) agregado al carrito`);
+                    showToast(`${currentProductDetail.name} (${detailQuantity}) agregado al carrito`);
                 }
             });
         }
@@ -1267,7 +1267,7 @@ async function iniciarBusqueda() {
             const availableStock = product.stock - totalInCart;
             
             if (quantity > availableStock) {
-                showMessage(`No hay suficiente stock. Solo quedan ${availableStock} unidades disponibles.`);
+                showToast(`No hay suficiente stock. Solo quedan ${availableStock} unidades disponibles.`);
                 return;
             }
             
@@ -1291,7 +1291,7 @@ async function iniciarBusqueda() {
             } else {
                 console.warn("No Firebase user ID to save cart.");
             }
-            showMessage(`${product.name}${quantity > 1 ? ` (${quantity})` : ''} agregado al carrito`);
+            showToast(`${product.name}${quantity > 1 ? ` (${quantity})` : ''} agregado al carrito`);
             
             // If we are in the products section, update the display
             if (!document.getElementById('productsSection').classList.contains('hidden')) {
@@ -1422,7 +1422,7 @@ totalCost.textContent = `$${totalValue.toFixed(2)}`;
             
             // Validate that available stock is not exceeded or quantity is less than 0
             if (newQuantity > product.stock) {
-                showMessage(`No hay suficiente stock. Solo quedan ${product.stock} unidades disponibles.`);
+                showToast(`No hay suficiente stock. Solo quedan ${product.stock} unidades disponibles.`);
                 return;
             }
             
@@ -1456,7 +1456,31 @@ totalCost.textContent = `$${totalValue.toFixed(2)}`;
             } else {
                 console.warn("No Firebase user ID to save cart.");
             }
-            showMessage('Producto eliminado del carrito');
+            showToast('Producto eliminado del carrito');
+        }
+
+  
+        // Function to show toast notification
+        function showToast(message) {
+            const toast = document.createElement('div');
+            toast.className = 'position-fixed bottom-0 end-0 p-3';
+            toast.style.zIndex = '11';
+            toast.innerHTML = `
+                <div class="toast show" role="alert" aria-live="assertive" aria-atomic="true">
+                    <div class="toast-header bg-primary text-white">
+                        <strong class="me-auto">Notificación</strong>
+                        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="toast" aria-label="Close"></button>
+                    </div>
+                    <div class="toast-body">
+                        ${message}
+                    </div>
+                </div>
+            `;
+            document.body.appendChild(toast);
+            
+            setTimeout(() => {
+                toast.remove();
+            }, 3000);
         }
 
         // Function to show a section and hide others
@@ -1476,19 +1500,7 @@ totalCost.textContent = `$${totalValue.toFixed(2)}`;
     }
 		
         }
-	
-        // Show custom message box
-        function showMessage(msg) {
-            messageText.textContent = msg;
-            messageBox.classList.remove('hidden');
-            messageBox.focus();
-        }
-        // Close custom message box
-        messageBoxClose.addEventListener('click', () => {
-            messageBox.classList.add('hidden');
-            messageText.textContent = '';
-        });
-	
+
         // Function to set up event listeners
         function setupEventListeners() {
 
@@ -1535,11 +1547,11 @@ if (shippingSelector) {
             // Checkout
             document.getElementById('checkoutBtn').addEventListener('click', () => {
                 if (cart.length === 0) {
-                    showMessage('El carrito está vacío');
+                    showToast('El carrito está vacío');
                     return;
                 }
                 if (!currentUser) {
-                    showMessage('Por favor, inicia sesión para finalizar tu compra.');
+                    showToast('Por favor, inicia sesión para finalizar tu compra.');
                     const loginModal = new bootstrap.Modal(document.getElementById('loginModal'));
                     loginModal.show();
                     return;
@@ -1638,12 +1650,12 @@ if (shippingSelector) {
 
 async function submitOrder() {
     if (cart.length === 0) {
-        showMessage('El carrito está vacío');
+        showToast('El carrito está vacío');
         return;
     }
 
     if (!currentUser || !auth.currentUser) {
-        showMessage('Debes iniciar sesión para completar la compra.');
+        showToast('Debes iniciar sesión para completar la compra.');
         return;
     }
 
@@ -1662,7 +1674,7 @@ async function submitOrder() {
     const instrucciones = currentUser.instrucciones || '';
 
     if (!firstName || !lastName || !email || !address || !colonia || !zipCode || !phone) {
-        showMessage('Por favor, completa todos los campos obligatorios.');
+        showToast('Por favor, completa todos los campos obligatorios.');
         return;
     }
 
@@ -1695,7 +1707,7 @@ const totalAmount = subtotalAmount + shippingCost;
         // Enviar email con EmailJS
         const response = await emailjs.send('service_ynni6mh', 'template_mamyuhg', orderDetails);
         console.log('Email enviado:', response);
-        showMessage('Pedido enviado con éxito');
+        showToast('Pedido enviado con éxito');
         guardapedido();
 
         // Vaciar carrito en Firestore
@@ -1717,7 +1729,7 @@ const totalAmount = subtotalAmount + shippingCost;
 
     } catch (error) {
         console.error('Error al enviar el pedido con EmailJS:', error);
-        showMessage('Error al enviar el pedido. Por favor intenta nuevamente.');
+        showToast('Error al enviar el pedido. Por favor intenta nuevamente.');
     }
 }
 
@@ -1741,18 +1753,18 @@ const totalAmount = subtotalAmount + shippingCost;
                 const loginModal = bootstrap.Modal.getInstance(document.getElementById('loginModal'));
                 loginModal.hide();
                 
-                showMessage(`Bienvenido, ${currentUser.firstName || user.email}`);
+                showToast(`Bienvenido, ${currentUser.firstName || user.email}`);
 
             } catch (error) {
                 console.error("Error al iniciar sesión:", error);
                 if (error.code === 'auth/invalid-credential' || error.code === 'auth/user-not-found' || error.code === 'auth/wrong-password') {
-                     showMessage('Email o contraseña incorrectos');
+                     showToast('Email o contraseña incorrectos');
                      console.log("Login Error: Invalid credentials.");
                 } else if (error.code === 'auth/user-disabled') {
-                     showMessage('Tu cuenta ha sido deshabilitada.');
+                     showToast('Tu cuenta ha sido deshabilitada.');
                      console.log("Login Error: User disabled.");
                 } else {
-                     showMessage('Error al iniciar sesión. Por favor intenta de nuevo.');
+                     showToast('Error al iniciar sesión. Por favor intenta de nuevo.');
                      console.log("Login Error: Generic error code:", error.code);
                 }
             }
@@ -1773,12 +1785,12 @@ const totalAmount = subtotalAmount + shippingCost;
             const instrucciones = document.getElementById('registerInstructions').value; 
             
             if (!email || !password || !passwordconf || !firstName || !lastName || !address || !colonia || !zipCode || !phone) {
-                showMessage('Por favor completa todos los campos obligatorios (nombre, apellido, email, contraseña, calle y número, colonia, código postal, teléfono).');
+                showToast('Por favor completa todos los campos obligatorios (nombre, apellido, email, contraseña, calle y número, colonia, código postal, teléfono).');
                 return;
             }
                 // Verificar que las contraseñas coincidan
     if (password !== passwordconf) {
-        showMessage('La contraseña y su confirmación no coinciden.');
+        showToast('La contraseña y su confirmación no coinciden.');
         return;
     }
             console.log("Attempting registration for:", email);
@@ -1812,19 +1824,19 @@ const totalAmount = subtotalAmount + shippingCost;
                 const registerModal = bootstrap.Modal.getInstance(document.getElementById('registerModal'));
                 registerModal.hide();
                 
-                showMessage('Registro exitoso. ¡Bienvenido!');
+                showToast('Registro exitoso. ¡Bienvenido!');
                 showUserSection();
 
             } catch (error) {
                 console.error("Error al registrar usuario:", error);
                 if (error.code === 'auth/email-already-in-use') {
-                    showMessage('Este email ya está registrado');
+                    showToast('Este email ya está registrado');
                     console.log("Registration Error: Email already in use.");
                 } else if (error.code === 'auth/weak-password') {
-                    showMessage('La contraseña debe tener al menos 6 caracteres.');
+                    showToast('La contraseña debe tener al menos 6 caracteres.');
                     console.log("Registration Error: Weak password.");
                 } else {
-                    showMessage('Error al registrar usuario. Por favor intenta de nuevo.');
+                    showToast('Error al registrar usuario. Por favor intenta de nuevo.');
                     console.log("Registration Error: Generic error code:", error.code);
                 }
             }
@@ -1909,20 +1921,20 @@ async function showUserSection() {
                 currentUser = null;
                 localStorage.removeItem('currentUser'); 
                 document.getElementById('loginBtn').innerHTML = '<i class="fas fa-user"></i> Iniciar Sesión';
-                showMessage('Sesión cerrada');
+                showToast('Sesión cerrada');
                 showSection('homeSection');
                 console.log("User logged out successfully.");
                 // The cart in Firestore for the previous user (anonymous or authenticated) will persist.
                 // A new anonymous session will start if no other user logs in.
             } catch (error) {
                 console.error("Error al cerrar sesión:", error);
-                showMessage("Error al cerrar sesión. Por favor intenta de nuevo.");
+                showToast("Error al cerrar sesión. Por favor intenta de nuevo.");
             }
         }
 
 async function populateEditProfileForm() {
     if (!auth.currentUser) {
-        showMessage("No hay sesión activa.");
+        showToast("No hay sesión activa.");
         return;
     }
 
@@ -1944,7 +1956,7 @@ async function populateEditProfileForm() {
         document.getElementById('editInstructions').value = currentUser.instrucciones || '';
     } catch (error) {
         console.error("Error al cargar el perfil desde Firestore:", error);
-        showMessage("No se pudo cargar el perfil actualizado.");
+        showToast("No se pudo cargar el perfil actualizado.");
     }
 }
 
@@ -1959,12 +1971,12 @@ async function saveProfileChanges() {
     const editInstructions = document.getElementById('editInstructions').value;
 
     if (!editFirstName || !editLastName || !editAddress || !editColonia || !editZipCode || !editPhone) {
-        showMessage('Por favor, completa todos los campos obligatorios para actualizar tu perfil.');
+        showToast('Por favor, completa todos los campos obligatorios para actualizar tu perfil.');
         return;
     }
 
     if (!auth.currentUser || !auth.currentUser.uid) {
-        showMessage('No hay usuario autenticado.');
+        showToast('No hay usuario autenticado.');
         return;
     }
 
@@ -1993,11 +2005,11 @@ async function saveProfileChanges() {
         const editModal = bootstrap.Modal.getInstance(document.getElementById('editProfileModal'));
         editModal.hide();
 
-        showMessage('Perfil actualizado con éxito.');
+        showToast('Perfil actualizado con éxito.');
         showUserSection(); // Actualiza la vista de perfil
     } catch (error) {
         console.error("Error al guardar el perfil en Firestore:", error);
-        showMessage("Error al guardar el perfil en la nube.");
+        showToast("Error al guardar el perfil en la nube.");
     }
 }
 
@@ -2038,10 +2050,10 @@ async function guardapedido() {
 
     try {
         await setDoc(orderRef, orderDetails);
-        showMessage('Pedido guardado con éxito.');
+        showToast('Pedido guardado con éxito.');
     } catch (error) {
         console.error("Error al guardar el pedido en Firestore:", error);
-        showMessage("Error al guardar el pedido en la nube.");
+        showToast("Error al guardar el pedido en la nube.");
     }
 }
 
@@ -2053,12 +2065,12 @@ async function changeUserPassword() {
     const confirmNewPassword = document.getElementById('confirmNewPassword').value;
 
     if (!currentPassword || !newPassword || !confirmNewPassword) {
-        showMessage('Por favor completa todos los campos.');
+        showToast('Por favor completa todos los campos.');
         return;
     }
 
     if (newPassword !== confirmNewPassword) {
-        showMessage('Las contraseñas nuevas no coinciden.');
+        showToast('Las contraseñas nuevas no coinciden.');
         return;
     }
 
@@ -2066,7 +2078,7 @@ async function changeUserPassword() {
     const user = auth.currentUser;
 
     if (!user) {
-        showMessage('No hay usuario autenticado.');
+        showToast('No hay usuario autenticado.');
         return;
     }
 
@@ -2075,13 +2087,13 @@ async function changeUserPassword() {
         await reauthenticateWithCredential(user, credential);
 
         await updatePassword(user, newPassword);
-        showMessage('Contraseña actualizada correctamente.');
+        showToast('Contraseña actualizada correctamente.');
         console.log("Contraseña actualizada correctamente.");
         const modal = bootstrap.Modal.getInstance(document.getElementById('passwordModal'));
         modal.hide();  // cierra el modal
     } catch (error) {
         console.error('Error al cambiar la contraseña:', error);
-        showMessage('Error al cambiar la contraseña: ' + error.message);
+        showToast('Error al cambiar la contraseña: ' + error.message);
     }
 }
 
@@ -2096,17 +2108,17 @@ document.addEventListener('DOMContentLoaded', function () {
             const auth = getAuth();
 
             if (!email) {
-                showMessage('Por favor ingresa tu correo electrónico para recuperar la contraseña.');
+                showToast('Por favor ingresa tu correo electrónico para recuperar la contraseña.');
                 return;
             }
 
             sendPasswordResetEmail(auth, email)
                 .then(() => {
-                    showMessage('Se ha enviado un enlace de recuperación a tu correo.');
+                    showToast('Se ha enviado un enlace de recuperación a tu correo.');
                 })
                 .catch((error) => {
                     console.error('Error al enviar correo de recuperación:', error);
-                    showMessage('No se pudo enviar el correo. Verifica que el correo esté registrado.');
+                    showToast('No se pudo enviar el correo. Verifica que el correo esté registrado.');
                 });
         });
     }
