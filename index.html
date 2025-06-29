@@ -1459,30 +1459,6 @@ totalCost.textContent = `$${totalValue.toFixed(2)}`;
             showMessage('Producto eliminado del carrito');
         }
 
-  
-        // Function to show toast notification
-        function showMessage(message) {
-            const toast = document.createElement('div');
-            toast.className = 'position-fixed bottom-0 end-0 p-3';
-            toast.style.zIndex = '11';
-            toast.innerHTML = `
-                <div class="toast show" role="alert" aria-live="assertive" aria-atomic="true">
-                    <div class="toast-header bg-primary text-white">
-                        <strong class="me-auto">Notificación</strong>
-                        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="toast" aria-label="Close"></button>
-                    </div>
-                    <div class="toast-body">
-                        ${message}
-                    </div>
-                </div>
-            `;
-            document.body.appendChild(toast);
-            
-            setTimeout(() => {
-                toast.remove();
-            }, 3000);
-        }
-
         // Function to show a section and hide others
         function showSection(sectionId) {
             document.querySelectorAll('#homeSection, #productsSection, #cartSection, #checkoutSection, #userSection').forEach(section => {
