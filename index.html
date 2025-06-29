@@ -210,6 +210,12 @@
                 <p>Explora nuestro catálogo y descubre nuestras ofertas especiales.</p>
                 <button class="btn btn-primary btn-lg" id="exploreBtn">Explorar Productos</button>
             </div>
+<div class="alert alert-info mt-4" role="alert" style="font-size: 1.1rem;">
+  <strong>Opciones de Envío en Tepic:</strong><br>
+  - Envío local <strong>día siguiente</strong>: <span class="text-success">$35.00</span><br>
+  - Envío local <strong>urgente mismo día</strong>: <span class="text-warning">$50.00</span><br>
+  - Envío local <strong>gratis</strong> en compras superiores a $350.00 (día siguiente)
+</div>
         </div>
 
         <!-- Sección de Productos -->
@@ -257,6 +263,17 @@
                                 <p>Total:</p>
                                 <p id="totalCost">$0.00</p>
                             </div>
+<div class="mb-3" id="shippingSelectorContainer">
+  <label for="shippingType" class="form-label fw-bold">Selecciona tipo de envío:</label>
+  <select class="form-select" id="shippingType">
+    <option value="normal" selected>Envío local (día siguiente) - $35.00</option>
+    <option value="urgente">Envío urgente (mismo día) - $50.00</option>
+  </select>
+</div>
+<div id="envioGratisMensaje" class="alert alert-success mt-3" style="display: none; font-weight: bold;">
+  💡 ¡Felicidades! Tienes <strong>envío gratuito</strong> por superar $350.
+</div>
+
                             <button class="btn btn-primary w-100 mt-3" id="checkoutBtn">Finalizar Compra</button>
                         </div>
                     </div>
@@ -343,6 +360,12 @@
                                     <label for="phone" class="form-label">Teléfono</label>
                                     <input type="tel" class="form-control" id="phone" required >
                                 </div>
+<div class="alert alert-info mt-4" role="alert" style="font-size: 1.1rem;">
+  <strong>Opciones de Envío en Tepic:</strong><br>
+  - Envío local <strong>día siguiente</strong>: <span class="text-success">$35.00</span><br>
+  - Envío local <strong>urgente mismo día</strong>: <span class="text-warning">$50.00</span><br>
+  - Envío local <strong>gratis</strong> en compras superiores a $350.00 (día siguiente)
+</div>
                                 </div>
                  <h3 class="mb-0 text-center" style="font-size: 2em; font-weight: bold; font-family: Arial, sans-serif;">Selecciona Metodo de Pago</h3>
 		<div class="col-md-6">
@@ -666,23 +689,30 @@
             return actions.reject();
           }
 
-          const totalAmount = cart.reduce((total, item) => total + (item.price * item.quantity), 0) + 35.00;
+const subtotalAmount = cart.reduce((total, item) => total + (item.price * item.quantity), 0);
+
+const envioGratis = subtotalAmount >= 350;
+const shippingType = document.getElementById('shippingType')?.value || 'normal';
+const shippingCost = envioGratis ? 0 : (shippingType === 'urgente' ? 50 : 35);
+
+const totalAmount = subtotalAmount + shippingCost;
 
           return actions.order.create({
             purchase_units: [{
               amount: {
                 value: totalAmount.toFixed(2),
                 currency_code: "MXN",
-                breakdown: {
-                  item_total: {
-                    value: (totalAmount - 35).toFixed(2),
-                    currency_code: "MXN"
-                  },
-                  shipping: {
-                    value: "35.00",
-                    currency_code: "MXN"
-                  }
-                }
+  breakdown: {
+  item_total: {
+    value: subtotalAmount.toFixed(2),
+    currency_code: "MXN"
+  },
+  shipping: {
+    value: shippingCost.toFixed(2),
+    currency_code: "MXN"
+  }
+}
+
               },
               items: cart.map(item => ({
                 name: item.name,
@@ -700,6 +730,9 @@
             return submitOrder().then(() => {
               showToast('Pago completado con éxito!');
               console.log('Pago completado:', details);
+    const submitBtn = document.getElementById('submitOrderBtn');
+    if (submitBtn) submitBtn.disabled = false;
+    submitOrder();
             });
           });
         },
@@ -1315,12 +1348,44 @@ async function iniciarBusqueda() {
             }
             
             // Update totals
-            const subtotalValue = cart.reduce((total, item) => total + (item.price * item.quantity), 0);
-            const shippingCost = 35.00; // Fixed shipping cost
-            const totalValue = subtotalValue + shippingCost;
-            
-            subtotal.textContent = `$${subtotalValue.toFixed(2)}`;
-            totalCost.textContent = `$${totalValue.toFixed(2)}`;
+const subtotalValue = cart.reduce((total, item) => total + (item.price * item.quantity), 0);
+
+// Detectar selector
+const shippingSelect = document.getElementById('shippingType');
+let shippingCost = 0;
+let shippingType = 'normal';
+const envioGratis = subtotalValue >= 350;
+
+if (!envioGratis && shippingSelect) {
+    shippingType = shippingSelect.value;
+    shippingCost = shippingType === 'urgente' ? 50.00 : 35.00;
+}
+
+// Mostrar u ocultar el selector de tipo de envío
+const shippingSelectorContainer = document.getElementById('shippingSelectorContainer');
+if (shippingSelectorContainer) {
+    shippingSelectorContainer.style.display = envioGratis ? 'none' : 'block';
+}
+
+// Mostrar u ocultar mensaje de envío gratis
+const mensajeGratis = document.getElementById('envioGratisMensaje');
+if (mensajeGratis) {
+    mensajeGratis.style.display = envioGratis ? 'block' : 'none';
+}
+
+
+// Mostrar en resumen
+const shippingCostElement = document.getElementById('shippingCost');
+if (envioGratis) {
+    shippingCostElement.innerHTML = `$0.00 <strong class="text-success">GRATIS</strong>`;
+} else {
+    shippingCostElement.textContent = `$${shippingCost.toFixed(2)}`;
+}
+
+const totalValue = subtotalValue + shippingCost;
+subtotal.textContent = `$${subtotalValue.toFixed(2)}`;
+totalCost.textContent = `$${totalValue.toFixed(2)}`;
+
             
             // Add events to cart buttons
             document.querySelectorAll('.decrease-quantity').forEach(button => {
@@ -1465,6 +1530,11 @@ showSection('homeSection');
     select.dispatchEvent(new Event("change")); // Lanza el evento de cambio
   });
 
+const shippingSelector = document.getElementById('shippingType');
+if (shippingSelector) {
+    shippingSelector.addEventListener('change', updateCart);
+}
+
 
               cargarCategorias();
    
@@ -1608,7 +1678,14 @@ async function submitOrder() {
         return;
     }
 
-    const totalAmount = cart.reduce((total, item) => total + (item.price * item.quantity), 0) + 35.00;
+const subtotalAmount = cart.reduce((total, item) => total + (item.price * item.quantity), 0);
+
+// Lógica de envío (igual que en el carrito)
+const envioGratis = subtotalAmount >= 350;
+const shippingType = document.getElementById('shippingType')?.value || 'normal';
+const shippingCost = envioGratis ? 0 : (shippingType === 'urgente' ? 50 : 35);
+
+const totalAmount = subtotalAmount + shippingCost;
 
             const miemail = "cesar.jarra@gmail.com";
 
@@ -1620,8 +1697,8 @@ async function submitOrder() {
                 telefono_cliente: phone,
                 direccion_envio: `${address}, ${colonia ? colonia + ', ' : ''}, CP ${zipCode}`,
                 productos: cart.map(item => `${item.name} (Cant: ${item.quantity}) - $${item.price.toFixed(2)} c/u`).join('\n'),
-                subtotal: totalAmount > 35 ? (totalAmount - 35).toFixed(2) : '0.00', // Calculate subtotal correctly
-                costo_envio: '35.00',
+                subtotal: subtotalAmount.toFixed(2),
+                costo_envio: envioGratis ? 'Gratis' : `$${shippingCost.toFixed(2)}`,
                 total: totalAmount.toFixed(2),
                 email: `${miemail}, ${email}`
             };
