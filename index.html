@@ -1466,13 +1466,14 @@ function showToast(message, tipo = 'info') {
   Swal.fire({
     toast: false,
     position: 'top',
-    icon: tipo, // 'success', 'error', 'info', 'warning', 'question'
+    icon: tipo,
     title: message,
     showConfirmButton: false,
-    timer: 3000,
-    timerProgressBar: true
+    timer: 1000,
+    timerProgressBar: true,
   });
 }
+
 
         // Function to show a section and hide others
         function showSection(sectionId) {
