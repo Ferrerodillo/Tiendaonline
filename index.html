@@ -1476,7 +1476,15 @@ totalCost.textContent = `$${totalValue.toFixed(2)}`;
     }
 		
         }
+	
+        // Show custom message box
+        function showMessage(msg) {
+            messageText.textContent = msg;
+            messageBox.classList.remove('hidden');
+            messageBox.focus();
+        }
 
+	
         // Function to set up event listeners
         function setupEventListeners() {
 
