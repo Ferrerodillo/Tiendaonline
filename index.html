@@ -266,12 +266,13 @@
                                 <p id="totalCost">$0.00</p>
                             </div>
 <div class="mb-3" id="shippingSelectorContainer">
-  <label for="shippingType" class="form-label fw-bold">Selecciona tipo de envío:</label>
-  <select class="form-select" id="shippingType">
-    <option value="normal" selected>Envío local (día siguiente) - $35.00</option>
-    <option value="urgente">Envío urgente (mismo día) - $50.00</option>
-  </select>
+<select class="form-select" id="shippingType">
+  <option value="normal" selected>Envío local (día siguiente) - $35.00</option>
+  <option value="urgente">Envío urgente (mismo día) - $50.00</option>
+  <option value="tienda">Recoger en tienda - $0.00</option>
+</select>
 </div>
+
 <div id="envioGratisMensaje" class="alert alert-success mt-3" style="display: none; font-weight: bold;">
   💡 ¡Felicidades! Tienes <strong>envío gratuito</strong> por superar $350.
 </div>
@@ -362,14 +363,8 @@
                                     <label for="phone" class="form-label">Teléfono</label>
                                     <input type="tel" class="form-control" id="phone" required >
                                 </div>
-<div class="alert alert-info mt-4" role="alert" style="font-size: 1.1rem;">
-  <strong>Opciones de Envío en Tepic:</strong><br>
-  - Envío local <strong>día siguiente</strong>: <span class="text-success">$35.00</span><br>
-  - Envío local <strong>urgente mismo día</strong>: <span class="text-warning">$50.00</span><br>
-  - Envío local <strong>gratis</strong> en compras superiores a $350.00 (día siguiente)
-</div>
                                 </div>
-                 <h3 class="mb-0 text-center" style="font-size: 2em; font-weight: bold; font-family: Arial, sans-serif;">Selecciona Metodo de Pago</h3>
+                 <h3 class="mb-0 text-center" style="font-size: 2em; font-weight: bold; font-family: Arial, sans-serif;">Seleccione Metodo de Pago</h3>
 		<div class="col-md-6">
                     <input type="radio" name="metodoPago" id="pagoOnline" value="online" required checked>
                    <label for="pagoOnline" style="font-size: 1.4em; font-weight: bold; font-family: Arial, sans-serif;">Pago Online</label>
@@ -378,9 +373,22 @@
                     <input type="radio" name="metodoPago" id="pagoContraentrega" value="contraentrega" required >
                     <label for="pagoContraentrega" style="font-size: 1.4em; font-weight: bold; font-family: Arial, sans-serif;">Pago Contraentrega</label>
                 </div>
-                <div class="d-grid gap-2">
-                <button type="submit" class="btn btn-primary" id="enviarBtn" disabled>Enviar Pedido</button>
-               <button type="button" class="btn btn-outline-secondary" id="backToCartBtn">Volver al Carrito</button>
+<!-- Subopciones para Pago contra entrega -->
+<div class="mb-3" id="subMetodoContraEntrega" style="display: none;">
+  <label for="tipoContraEntrega" class="form-label fw-bold" style="font-size: 1.2em; color: #007bff;">¿Cómo deseas pagar al recibir?</label>
+  <select class="form-select" id="tipoContraEntrega" style="font-size: 1em; color: #007bff; font-weight: bold; max-width: 280px;">
+    <option value="efectivo" selected>Pago en efectivo</option>
+    <option value="tarjeta">Pago con tarjeta (terminal)</option>
+  </select>
+</div>
+<div class="text-center">
+  <div class="d-inline-flex flex-column gap-2" style="max-width: 400px; width: 100%;">
+  <button type="submit" class="btn btn-primary" style="font-size: 1.9em; font-weight: bold; padding: 6px 12px;" id="enviarBtn" disabled>Enviar Pedido</button>
+  <button type="button" class="btn btn-outline-secondary" style="font-size: 1.9em; font-weight: bold; padding: 6px 12px;" id="backToCartBtn">Volver al Carrito</button>
+  </div>
+</div>
+
+
                              </div>
                             </form>
                         </div>
@@ -392,7 +400,7 @@
 
     <!-- Botón de PayPal -->
     <div id="paypal-button-container">
-    <h3 class="mb-0">Inicie Sesion en Paypal</h3>
+    <h3 class="mb-0">Iniciar Sesion en Paypal</h3>
     </div>
 	
         <!-- Modal de Login -->
@@ -639,14 +647,6 @@
                     <p>La mejor selección de productos al mejor precio.</p>
                 </div>
                 <div class="col-md-3">
-                    <h5>Enlaces</h5>
-                    <ul class="list-unstyled">
-                        <li><a href="#" class="text-red">Inicio</a></li>
-                        <li><a href="#" class="text-red" id="hLink">Productos</a></li>
-                        <li><a href="#" class="text-red">Contacto</a></li>
-                    </ul>
-                </div>
-                <div class="col-md-3">
                     <h5>Contacto</h5>
                     <ul class="list-unstyled">
                         <li><i class="fas fa-map-marker-alt me-2"></i> Alaska 173 Lomas del valle 63066 Tepic, Nayarit</li>
@@ -696,7 +696,9 @@ const subtotalAmount = cart.reduce((total, item) => total + (item.price * item.q
 
 const envioGratis = subtotalAmount >= 350;
 const shippingType = document.getElementById('shippingType')?.value || 'normal';
-const shippingCost = envioGratis ? 0 : (shippingType === 'urgente' ? 50 : 35);
+const shippingCost = envioGratis || shippingType === 'tienda' ? 0 : (
+  shippingType === 'urgente' ? 50 : 35
+);
 
 const totalAmount = subtotalAmount + shippingCost;
 
@@ -1360,7 +1362,14 @@ const envioGratis = subtotalValue >= 350;
 
 if (!envioGratis && shippingSelect) {
     shippingType = shippingSelect.value;
-    shippingCost = shippingType === 'urgente' ? 50.00 : 35.00;
+if (shippingType === 'urgente') {
+  shippingCost = 50.00;
+} else if (shippingType === 'tienda') {
+  shippingCost = 0.00;
+} else {
+  shippingCost = 35.00;
+}
+
 }
 
 // Mostrar u ocultar el selector de tipo de envío
@@ -1498,9 +1507,7 @@ function showToast(message, tipo = 'info') {
         // Function to set up event listeners
         function setupEventListeners() {
 
-  const linkh = document.getElementById("hLink");
   const linkhome = document.getElementById("homeLink");
-  const link = document.getElementById("productsLink");
   const select = document.getElementById("categoryFilter");
   const boton = document.getElementById("exploreBtn");
   boton.addEventListener("click", function () {
@@ -1509,25 +1516,14 @@ function showToast(message, tipo = 'info') {
     select.dispatchEvent(new Event("change"));
   });
 
-  link.addEventListener("click", function (e) {
-    showSection('productsSection');
-  });
-
-  linkhome.addEventListener("click", function (e) {
-    e.preventDefault(); // Evita que el <a> recargue la página
-showSection('homeSection');
-  });
-
-  linkh.addEventListener("click", function (e) {
-    e.preventDefault(); // Evita que el <a> recargue la página
-    select.value = "Todas las categorías"; // Selecciona la opción deseada
-    select.dispatchEvent(new Event("change")); // Lanza el evento de cambio
-  });
-
 const shippingSelector = document.getElementById('shippingType');
 if (shippingSelector) {
     shippingSelector.addEventListener('change', updateCart);
 }
+  linkhome.addEventListener("click", function (e) {
+    e.preventDefault(); // Evita que el <a> recargue la página
+showSection('homeSection');
+  });
 
 
               cargarCategorias();
@@ -2120,14 +2116,19 @@ document.addEventListener('DOMContentLoaded', function () {
     const pagoOnline = document.getElementById("pagoOnline");
     const pagoContraentrega = document.getElementById("pagoContraentrega");
     const enviarBtn = document.getElementById("enviarBtn");
+    const subMetodoContainer = document.getElementById('subMetodoContraEntrega');
+
 
     function verificarMetodoPago() {
         if (pagoOnline.checked) {
             enviarBtn.disabled = true;
 		  document.getElementById('paypal-button-container').style.display = 'block';
+            subMetodoContainer.style.display = 'none';
         } else {
             enviarBtn.disabled = false;
+            showToast('Seleccione como desea pagar al recibir');
 		document.getElementById('paypal-button-container').style.display = 'none';
+            subMetodoContainer.style.display = 'block';
         }
     }
 
