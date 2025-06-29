@@ -1668,16 +1668,20 @@ async function submitOrder() {
         return;
     }
 
-const subtotalAmount = cart.reduce((total, item) => total + (item.price * item.quantity), 0);
-
 // Lógica de envío (igual que en el carrito)
+const subtotalAmount = cart.reduce((total, item) => total + (item.price * item.quantity), 0);
+const miemail = "cesar.jarra@gmail.com";
 const envioGratis = subtotalAmount >= 350;
 const shippingType = document.getElementById('shippingType')?.value || 'normal';
-const shippingCost = envioGratis ? 0 : (shippingType === 'urgente' ? 50 : 35);
-
+const shippingCost = envioGratis ? 0 : (shippingType === 'urgente' ? 50 : shippingType === 'normal' ? 35 : 0);
+let tipoContraEntrega = document.getElementById('tipoContraEntrega')?.value || '';
+const metodoPago = document.querySelector('input[name="metodoPago"]:checked')?.value || '';
 const totalAmount = subtotalAmount + shippingCost;
 
-            const miemail = "cesar.jarra@gmail.com";
+if (metodoPago === 'pagoOnline') {
+  tipoContraEntrega = '(Pago con tarjeta o transferencia)';
+}
+
 
             const orderDetails = {
                 nombre_cliente: `${firstName} ${lastName}`,
@@ -1685,11 +1689,11 @@ const totalAmount = subtotalAmount + shippingCost;
                 fecha_pedido: new Date().toLocaleString('es-ES'), 
                 email_cliente: email,
                 telefono_cliente: phone,
-                direccion_envio: `${address}, ${colonia ? colonia + ', ' : ''}, CP ${zipCode}`,
+                direccion_envio: `${address}, ${colonia}, CP ${zipCode}`,
                 productos: cart.map(item => `${item.name} (Cant: ${item.quantity}) - $${item.price.toFixed(2)} c/u`).join('\n'),
                 subtotal: subtotalAmount.toFixed(2),
-                costo_envio: envioGratis ? 'Gratis' : `$${shippingCost.toFixed(2)}`,
-                total: totalAmount.toFixed(2),
+                costo_envio: envioGratis ? 'Gratis' : `${shippingCost.toFixed(2)} ${shippingType}`,
+                total: `${totalAmount.toFixed(2)} ${metodoPago} ${tipoContraEntrega === 'tarjeta' ? '(Pago con tarjeta)' : '(Pago en efectivo)'}`,
                 email: `${miemail}, ${email}`
             };
 
