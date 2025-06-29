@@ -633,14 +633,6 @@
                     <p>La mejor selección de productos al mejor precio.</p>
                 </div>
                 <div class="col-md-3">
-                    <h5>Enlaces</h5>
-                    <ul class="list-unstyled">
-                        <li><a href="#" class="text-red">Inicio</a></li>
-                        <li><a href="#" class="text-red" id="hLink">Productos</a></li>
-                        <li><a href="#" class="text-red">Contacto</a></li>
-                    </ul>
-                </div>
-                <div class="col-md-3">
                     <h5>Contacto</h5>
                     <ul class="list-unstyled">
                         <li><i class="fas fa-map-marker-alt me-2"></i> Alaska 173 Lomas del valle 63066 Tepic, Nayarit</li>
@@ -1492,24 +1484,12 @@ function showToast(message, tipo = 'info') {
         // Function to set up event listeners
         function setupEventListeners() {
 
-  const linkh = document.getElementById("hLink");
-  const linkhome = document.getElementById("homeLink");
-  const link = document.getElementById("productsLink");
   const select = document.getElementById("categoryFilter");
   const boton = document.getElementById("exploreBtn");
   boton.addEventListener("click", function () {
     select.value = "Todas las categorías";
     // Dispara manualmente el evento change
     select.dispatchEvent(new Event("change"));
-  });
-
-  link.addEventListener("click", function (e) {
-    showSection('productsSection');
-  });
-
-  linkhome.addEventListener("click", function (e) {
-    e.preventDefault(); // Evita que el <a> recargue la página
-showSection('homeSection');
   });
 
   linkh.addEventListener("click", function (e) {
