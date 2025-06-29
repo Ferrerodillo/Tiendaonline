@@ -1249,14 +1249,9 @@ async function iniciarBusqueda() {
             
             document.getElementById('addToCartDetail').addEventListener('click', function() {
                 if (currentProductDetail) {
-        addToCart(currentProductDetail.id, detailQuantity);
-
-        const modalElement = document.getElementById('productDetailModal');
-        const modal = bootstrap.Modal.getInstance(modalElement);
-        modal.hide();
-
-        // Espera a que el modal se oculte antes de mostrar SweetAlert
-        modalElement.addEventListener('hidden.bs.modal', function handler() {
+                    addToCart(currentProductDetail.id, detailQuantity);
+                    const modal = bootstrap.Modal.getInstance(document.getElementById('productDetailModal'));
+                    modal.hide();
                     showToast(`${currentProductDetail.name} (${detailQuantity}) agregado al carrito`);
                 }
             });
@@ -1470,7 +1465,7 @@ totalCost.textContent = `$${totalValue.toFixed(2)}`;
 function showToast(message, tipo = 'info') {
   Swal.fire({
     toast: true,
-    position: 'top-end',
+    position: 'top: 50%',
     icon: tipo, // 'success', 'error', 'info', 'warning', 'question'
     title: message,
     showConfirmButton: false,
