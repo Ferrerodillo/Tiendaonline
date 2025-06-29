@@ -830,18 +830,7 @@ import { getDoc } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-fires
                             await loadCartFromFirestore(currentFirebaseUserId);
                         } else {
                             console.log("Firebase Auth state changed: No user logged in. Attempting anonymous sign-in.");
-                            // If no Firebase user, attempt anonymous sign-in (for cart persistence without explicit login)
-                            try {
-                                const anonymousUserCredential = await signInAnonymously(auth);
-                                currentFirebaseUserId = anonymousUserCredential.user.uid;
-                                console.log("Signed in anonymously with UID:", currentFirebaseUserId);
-                                await loadCartFromFirestore(currentFirebaseUserId); // Load cart for anonymous user
-                                // For anonymous users, currentUser remains null or is set minimally.
-                                currentUser = null; 
-                            } catch (error) {
-                                console.error("Error al iniciar sesión anónimamente:", error);
-                                showToast("Error al cargar la sesión. Intenta recargar la página.");
-                            }
+
                         }
                         // After Firebase Auth is ready and currentFirebaseUserId is set,
                         // proceed with displaying the correct section.
@@ -1461,27 +1450,30 @@ totalCost.textContent = `$${totalValue.toFixed(2)}`;
 
   
         // Function to show toast notification
-        function showToast(message) {
-            const toast = document.createElement('div');
-            toast.className = 'position-fixed bottom-0 end-0 p-3';
-            toast.style.zIndex = '11';
-            toast.innerHTML = `
-                <div class="toast show" role="alert" aria-live="assertive" aria-atomic="true">
-                    <div class="toast-header bg-primary text-white">
-                        <strong class="me-auto">Notificación</strong>
-                        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="toast" aria-label="Close"></button>
-                    </div>
-                    <div class="toast-body">
-                        ${message}
-                    </div>
-                </div>
-            `;
-            document.body.appendChild(toast);
-            
-            setTimeout(() => {
-                toast.remove();
-            }, 3000);
-        }
+function showToast(message) {
+    const toast = document.createElement('div');
+    toast.className = 'position-fixed top-0 start-50 translate-middle-x p-3';
+    toast.style.zIndex = '2000';
+    toast.innerHTML = `
+        <div class="toast show" role="alert" aria-live="assertive" aria-atomic="true">
+            <div class="toast-header bg-warning text-white">
+                <strong class="me-auto">Notificación</strong>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="toast" aria-label="Close"></button>
+            </div>
+<div class="toast-body" style="font-weight: bold; font-size: 1.2rem;">
+    ${message}
+</div>
+        </div>
+    `;
+    document.body.appendChild(toast);
+
+    setTimeout(() => {
+        toast.remove();
+    }, 3000);
+}
+
+
+
 
         // Function to show a section and hide others
         function showSection(sectionId) {
