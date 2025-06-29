@@ -1250,16 +1250,16 @@ async function iniciarBusqueda() {
             document.getElementById('addToCartDetail').addEventListener('click', function() {
                 if (currentProductDetail) {
                     addToCart(currentProductDetail.id, detailQuantity);
-                    const modal = bootstrap.Modal.getInstance(document.getElementById('productDetailModal'));
-                    modal.hide();
-                    showToast(`${currentProductDetail.name} (${detailQuantity}) agregado al carrito`);
 		Swal.fire({
                 position: 'top-end',
                 icon: 'success',
-                title: 'Producto agregado al carrito',
+                title: '${currentProductDetail.name} (${detailQuantity}) agregado al carrito',
                 showConfirmButton: false,
                 timer: 1000
                 });
+                    const modal = bootstrap.Modal.getInstance(document.getElementById('productDetailModal'));
+                    modal.hide();
+                    showToast(`${currentProductDetail.name} (${detailQuantity}) agregado al carrito`);
                 }
             });
         }
