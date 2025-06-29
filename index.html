@@ -1483,7 +1483,11 @@ totalCost.textContent = `$${totalValue.toFixed(2)}`;
             messageBox.classList.remove('hidden');
             messageBox.focus();
         }
-
+        // Close custom message box
+        messageBoxClose.addEventListener('click', () => {
+            messageBox.classList.add('hidden');
+            messageText.textContent = '';
+        });
 	
         // Function to set up event listeners
         function setupEventListeners() {
