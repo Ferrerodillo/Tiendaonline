@@ -830,7 +830,17 @@ import { getDoc } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-fires
                             await loadCartFromFirestore(currentFirebaseUserId);
                         } else {
                             console.log("Firebase Auth state changed: No user logged in. Attempting anonymous sign-in.");
-
+                            // If no Firebase user, attempt anonymous sign-in (for cart persistence without explicit login)
+                            try {
+                                const anonymousUserCredential = await signInAnonymously(auth);
+                                currentFirebaseUserId = anonymousUserCredential.user.uid;
+                                console.log("Signed in anonymously with UID:", currentFirebaseUserId);
+                                await loadCartFromFirestore(currentFirebaseUserId); // Load cart for anonymous user
+                                // For anonymous users, currentUser remains null or is set minimally.
+                                currentUser = null; 
+                            } catch (error) {
+                                console.error("Error al iniciar sesión anónimamente:", error);
+                            }
                         }
                         // After Firebase Auth is ready and currentFirebaseUserId is set,
                         // proceed with displaying the correct section.
