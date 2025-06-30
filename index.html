@@ -1671,13 +1671,15 @@ async function submitOrder() {
 
 // Lógica de envío (igual que en el carrito)
 const subtotalAmount = cart.reduce((total, item) => total + (item.price * item.quantity), 0);
-const miemail = "cesar.jarra@gmail.com";
 const envioGratis = subtotalAmount >= 350;
 const shippingType = document.getElementById('shippingType')?.value || 'normal';
 const shippingCost = envioGratis ? 0 : (shippingType === 'urgente' ? 50 : shippingType === 'normal' ? 35 : 0);
 let tipoContraEntrega = document.getElementById('tipoContraEntrega')?.value || '';
 const metodoPago = document.querySelector('input[name="metodoPago"]:checked')?.value || '';
 const totalAmount = subtotalAmount + shippingCost;
+const orderId = `ORD-${Date.now()}`;
+const userId = auth.currentUser.uid;
+const orderRef = doc(db, 'orders', userId, 'pedidos', orderId);
 
 if (metodoPago === 'pagoOnline') {
   tipoContraEntrega = '(Pago con tarjeta o transferencia)';
@@ -1686,26 +1688,33 @@ if (metodoPago === 'pagoOnline') {
 
             const orderDetails = {
                 nombre_cliente: `${firstName} ${lastName}`,
-                order_id: `ORD-${Date.now()}`,
+                order_id: orderId,
                 fecha_pedido: new Date().toLocaleString('es-ES'), 
                 email_cliente: email,
                 telefono_cliente: phone,
                 direccion_envio: `${address}, ${colonia}, CP ${zipCode}`,
                 productos: cart.map(item => `${item.name} (Cant: ${item.quantity}) - $${item.price.toFixed(2)} c/u`).join('\n'),
                 subtotal: subtotalAmount.toFixed(2),
-                costo_envio: envioGratis ? 'Gratis' : `${shippingCost.toFixed(2)} ${shippingType}`,
-                total: `${totalAmount.toFixed(2)} ${metodoPago} ${tipoContraEntrega === 'tarjeta' ? '(Pago con tarjeta)' : '(Pago en efectivo)'}`,
-                email: `${miemail}, ${email}`
+                costo_envio: envioGratis ? 'Gratis' : shippingCost.toFixed(2),
+                total: totalAmount.toFixed(2),
+                email: email,
+                estado: 'pendiente',
+                tipoenvio: shippingType,
+                tipopago: `${metodoPago} ${tipoContraEntrega === 'tarjeta' ? '(Pago con tarjeta)' : '(Pago en efectivo)'}`
             };
 
     try {
         // Enviar email con EmailJS
         const response = await emailjs.send('service_ynni6mh', 'template_mamyuhg', orderDetails);
-        console.log('Email enviado:', response);
-        showToast('Pedido enviado con éxito');
-        guardapedido();
-enviarPedidoPorWhatsApp();
-enviarNotificacionPedido();
+        //console.log('Email enviado:', response);
+    try {
+        await setDoc(orderRef, orderDetails);
+        showToast('Pedido guardado con éxito.');
+        enviarNotificacionPedido();
+    } catch (error) {
+        console.error("Error al guardar el pedido en Firestore:", error);
+        showToast("Error al guardar el pedido en la nube.");
+    }
         // Vaciar carrito en Firestore
         if (db && auth.currentUser.uid) {
             try {
@@ -1862,15 +1871,16 @@ async function showUserSection() {
         pedidosSnapshot.forEach(doc => {
             const data = doc.data();
 
-            userOrders.push({
+          userOrders.push({
+                number: data.order_id,
                 date: data.fecha_pedido,
+                subTotal: data.subtotal,
+                articulos: data.productos,
                 status: data.estado,
                 shippingAddress: data.direccion_envio,
-                items: Array.isArray(data.productos) ? data.productos.map(item => ({
-                    name: item.name,
-                    quantity: item.quantity,
-                    price: item.price
-                })) : [],
+                shippingCost: data.costo_envio,
+                tipoenvio: data.tipoenvio,
+                tipopago: data.tipopago,
                 total: parseFloat(data.total)
             });
         });
@@ -1883,17 +1893,34 @@ async function showUserSection() {
                 const orderElement = document.createElement('div');
                 orderElement.className = 'mb-3 p-3 border rounded';
                 orderElement.innerHTML = `
-                    <div class="d-flex justify-content-between">
-                        <h6>Pedido #${order.date.split(' ')[0]}</h6> 
+                    <div class="d-flex justify-content-between"></h3>
+                        <h3>Pedido: ${order.number}</h6> 
+                        <h6>Fecha: ${order.date.split(' ')[0]}</h6> 
                         <span class="badge bg-primary">${order.status}</span>
                     </div>
-                    <p class="mb-1"><small>${order.shippingAddress}</small></p>
-                    <ul class="mb-2">
-                        ${order.items.map(item => `
-                            <li>${item.name} - ${item.quantity} x $${item.price.toFixed(2)}</li>
-                        `).join('')}
-                    </ul>
-                    <p class="fw-bold mb-0">Total: $${order.total.toFixed(2)}</p>
+            <h6>Productos Incluidos:</h6>
+            <pre style="background-color: #f0f0f0; padding: 10px; border-radius: 5px;">${order.articulos}</pre>
+            <div class="order-summary">
+                <table>
+                    <tr>
+                        <td>Subtotal:</td>
+                        <td align="right">$${order.subTotal}</td>
+                    </tr>
+                    <tr>
+                        <td>Envío:  </td>
+                        <td align="right">$${order.shippingCost}</td>
+                    </tr>
+                    <tr class="total">
+                        <td><strong>Total:</strong></td>
+                        <td align="right"><strong>$${order.total.toFixed(2)}</strong></td>
+                    <tr>
+                    <td><span style="color: blue;">Método de envío: ${order.tipoenvio}</span></td>
+                    </tr>
+                    <tr>
+                    <td><span style="color: blue;">Metodo de pago: ${order.tipopago}</td>
+                    </tr>
+                </table>
+            </div>
                 `;
                 ordersContainer.appendChild(orderElement);
             });
@@ -2009,50 +2036,6 @@ async function saveProfileChanges() {
     }
 }
 
-async function guardapedido() {
-    // Recoger datos del formulario
-    const firstName = document.getElementById('firstName').value;
-    const lastName = document.getElementById('lastName').value;
-    const email = auth.currentUser.email;
-    const address = document.getElementById('address').value;
-    const colonia = document.getElementById('colonia').value;
-    const zipCode = document.getElementById('zipCode').value;
-    const phone = document.getElementById('phone').value;
-    const horario = currentUser.horario || '';
-    const instrucciones = currentUser.instrucciones || '';
-
-    const userId = auth.currentUser.uid;
-    const orderId = `ORD-${Date.now()}`;
-    const orderRef = doc(db, 'orders', userId, 'pedidos', orderId);
-
-    const totalAmount = cart.reduce((total, item) => total + (item.price * item.quantity), 0) + 35.00;
-    const miemail = "cesar.jarra@gmail.com";
-
-    const orderDetails = {
-        nombre_cliente: `${firstName} ${lastName}`,
-        order_id: orderId,
-        fecha_pedido: new Date().toLocaleString('es-ES'),
-        email_cliente: email,
-        telefono_cliente: phone,
-        direccion_envio: `${address}, ${colonia ? colonia + ', ' : ''}CP ${zipCode}`,
-        productos: cart.map(item => ({name: item.name, quantity: item.quantity, price: item.price})),
-        subtotal: totalAmount > 35 ? (totalAmount - 35).toFixed(2) : '0.00',
-        costo_envio: '35.00',
-        total: totalAmount.toFixed(2),
-        estado: 'pendiente',
-        horario: horario,
-        instrucciones: instrucciones
-    };
-
-    try {
-        await setDoc(orderRef, orderDetails);
-        showToast('Pedido guardado con éxito.');
-    } catch (error) {
-        console.error("Error al guardar el pedido en Firestore:", error);
-        showToast("Error al guardar el pedido en la nube.");
-    }
-}
-
 async function changeUserPassword() {
     console.log("Ejecutando función de cambio de contraseña");
 
@@ -2142,8 +2125,6 @@ document.addEventListener('DOMContentLoaded', function () {
     pagoContraentrega.addEventListener("change", verificarMetodoPago);
 
 
-
-
 function enviarNotificacionPedido() {
   const phone = '5213112016561'; // Número autorizado
   const apikey = '8978427';      // Tu API Key válida
@@ -2163,8 +2144,6 @@ function enviarNotificacionPedido() {
       console.error("❌ Error:", error);
     });
 }
-
-
 
 
 </script>
