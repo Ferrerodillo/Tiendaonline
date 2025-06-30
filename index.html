@@ -180,6 +180,7 @@
     <div class="d-flex align-items-right mt-2 mt-lg-0 " style="gap: 18px;">
       <input class="form-control" type="search" id="searchInput" placeholder="Buscar..." style="font-size: 16px; font-weight: bold; width: 250px;">
       <button class="btn btn-outline-light" id="searchBtn">
+
         <i class="fas fa-search"></i>
       </button>
       <select class="form-select" id="categoryFilter" style="max-width: 180px; font-size: 14px;">
@@ -1703,7 +1704,8 @@ if (metodoPago === 'pagoOnline') {
         console.log('Email enviado:', response);
         showToast('Pedido enviado con éxito');
         guardapedido();
-
+enviarPedidoPorWhatsApp();
+enviarNotificacionPedido();
         // Vaciar carrito en Firestore
         if (db && auth.currentUser.uid) {
             try {
@@ -2122,7 +2124,6 @@ document.addEventListener('DOMContentLoaded', function () {
     const enviarBtn = document.getElementById("enviarBtn");
     const subMetodoContainer = document.getElementById('subMetodoContraEntrega');
 
-
     function verificarMetodoPago() {
         if (pagoOnline.checked) {
             enviarBtn.disabled = true;
@@ -2139,6 +2140,32 @@ document.addEventListener('DOMContentLoaded', function () {
     // Escuchar cambios en los radios
     pagoOnline.addEventListener("change", verificarMetodoPago);
     pagoContraentrega.addEventListener("change", verificarMetodoPago);
+
+
+
+
+function enviarNotificacionPedido() {
+  const phone = '5213112016561'; // Número autorizado
+  const apikey = '8978427';      // Tu API Key válida
+
+  const mensaje = "Se realizó un pedido online";
+  const encodedMessage = encodeURIComponent(mensaje);
+
+  const url = `https://api.callmebot.com/whatsapp.php?phone=${phone}&text=${encodedMessage}&apikey=${apikey}`;
+
+  fetch(url)
+    .then(response => response.text())
+    .then(data => {
+      console.log("✅ Mensaje enviado:", data);
+      alert("Mensaje enviado por WhatsApp.");
+    })
+    .catch(error => {
+      console.error("❌ Error:", error);
+    });
+}
+
+
+
 
 </script>
 
